@@ -117,6 +117,16 @@ class InstallSchema implements InstallSchemaInterface
                 ],
                 'Application was declined'
             )
+            ->addColumn(
+                'initial_cart_value',
+                Table::TYPE_NUMERIC,
+                null,
+                [
+                    'nullable' => true,
+                    'precision' => 10,
+                    'scale' => 2,                ],
+                'Initial Cart Value'
+            )
             ->setComment('Divido lookup table')
             ->setOption('type', 'InnoDB')
             ->setOption('charset', 'utf8');
