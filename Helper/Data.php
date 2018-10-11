@@ -85,7 +85,36 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         
         return $prefix;
     }
+    
+    public function getProductSelection(){
+        $selection= $this->config->getValue(
+            'payment/divido_financing/product_selection',
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
+        
+        return $selection;
+    }
 
+    public function getPriceThreshold()
+    {
+        $threshold = $this->config->getValue(
+            'payment/divido_financing/price_threshold',
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
+        
+        return $threshold;
+    }
+
+    public function getActive()
+    {
+        $active = $this->config->getValue(
+            'payment/divido_financing/active',
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
+        
+        return $active;
+    }
+    
     public function getAllPlans()
     {
         $apiKey = $this->config->getValue(
@@ -193,10 +222,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 
     public function getLocalPlans($productId)
     {
-        $isActive = $this->config->getValue(
-            'payment/divido_financing/active',
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-        );
+        $isActive = $this->getActive();
         if (! $isActive) {
             return[];
         }
@@ -244,7 +270,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         return $plans;
     }
 
-    public function creditRequest($planId, $depositPercentage, $email)
+    public function creditRequest($planId, $depositPercentage, $email, $quoteId=null)
     {
         $apiKey = $this->getApiKey();
         \Divido::setMerchant($apiKey);
@@ -259,6 +285,10 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         }
 
         $quote       = $this->cart->getQuote();
+        if ($quoteId != null) {
+            $this->_objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+            $quote = $this->_objectManager->create('Magento\Quote\Model\Quote')->load($quoteId);
+        }
         $shipAddr    = $quote->getShippingAddress();
         $country     = $shipAddr->getCountryId();
         $billingAddr = $quote->getBillingAddress();
@@ -302,12 +332,14 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 
         $products = [];
         foreach ($quote->getAllItems() as $item) {
-            $products[] = [
-                'type'     => 'product',
-                'text'     => $item->getName(),
-                'quantity' => $item->getQty(),
-                'value'    => $item->getPriceInclTax(),
-            ];
+            if($item->getParentItemId() == null){
+                $products[] = [
+                    'type'     => 'product',
+                    'text'     => $item->getName(),
+                    'quantity' => $item->getQty(),
+                    'value'    => $item->getPriceInclTax(),
+                ];
+            }
         }
         $totals = $quote->getTotals();
         $grandTotal = $totals['grand_total']->getValue();

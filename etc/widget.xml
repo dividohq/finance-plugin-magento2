@@ -1,0 +1,30 @@
+<?xml version="1.0" ?>
+<widgets xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Widget:etc/widget.xsd">
+    <widget class="Divido\DividoFinancing\Block\Widget\BlockWidget" id="divido_dividofinancing_staticwidget">
+        <label>Divido Block Widget</label>
+        <description>The block version of our widget, displaying a list of your plans that dynamically 
+        updates based on the amount entered into the text box situated above it.</description>
+        <parameters>
+            <parameter name="defaultAmount" sort_order="10" visible="true" xsi:type="text" value="1000">
+                <label>Default Amount</label>
+            </parameter>
+            <parameter name="showInput" sort_order="11" visible="true" xsi:type="select" source_model="Magento\Config\Model\Config\Source\Yesno" >
+                <label>Show text box?</label>
+            </parameter>
+        </parameters>
+    </widget>
+    <widget class="Divido\DividoFinancing\Block\Widget\PopupWidget" id="divido_dividofinancing_popupwidget">
+        <label>Divido Popup Widget</label>
+        <description>The popup version of our widget, displaying a link with a brief summary of your plans that dynamically 
+        updates based on the amount entered into the text box situated above it. The link can be clicked on to view further 
+        information.</description>
+        <parameters>
+            <parameter name="defaultAmount" sort_order="10" visible="true" xsi:type="text" value="1000" >
+                <label>Default Amount</label>
+            </parameter>
+            <parameter name="showInput" sort_order="11" visible="true" xsi:type="select" source_model="Magento\Config\Model\Config\Source\Yesno" >
+                <label>Show text box?</label>
+            </parameter>
+        </parameters>
+    </widget>
+</widgets>

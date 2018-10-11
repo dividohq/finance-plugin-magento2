@@ -7,6 +7,10 @@ class Widget extends \Magento\Catalog\Block\Product\AbstractProduct
     private $helper;
     private $catHelper;
 
+    const ALL_PRODUCTS = 'products_all';
+    const SELECTED_PRODUCTS = 'products_selected';
+    const THRESHOLD_PRODUCTS = 'products_price_threshold';
+
     public function __construct(
         \Divido\DividoFinancing\Helper\Data $helper,
         \Magento\Catalog\Block\Product\Context $context,
@@ -32,7 +36,12 @@ class Widget extends \Magento\Catalog\Block\Product\AbstractProduct
         return $plans;
     }
 
-    public function getAmount()
+    public function getProductId()
+    {
+        return $this->getProduct()->getId();
+    }
+
+    public function getProductAmount()
     {
         $product = $this->getProduct();
         $price = $product->getFinalPrice();
@@ -56,4 +65,34 @@ class Widget extends \Magento\Catalog\Block\Product\AbstractProduct
         return $output;
     }
 
+    public function loadWidget(){
+        return $this->helper->getActive();
+    }
+    
+    public function showWidget(){
+        $threshold = $this->getThreshold();
+        if($threshold === false || $this->getAmount() < $threshold){
+            return false;
+        }else return true;
+    }
+    
+    public function getThreshold(){
+        $selection = $this->helper->getProductSelection();
+        
+        switch($selection){
+            case self::ALL_PRODUCTS:
+                $threshold = 0;
+                break;
+            case self::SELECTED_PRODUCTS:
+                $product = $this->getProduct();
+                $plans = $this->helper->getLocalPlans($product->getId());
+                $threshold = (count($plans)>0) ? true : false;
+                break;
+            case self::THRESHOLD_PRODUCTS:
+                $threshold = (empty($this->helper->getPriceThreshold())) ? 0 : $this->helper->getPriceThreshold();
+                break;
+        }
+        
+        return $threshold;
+    }
 }

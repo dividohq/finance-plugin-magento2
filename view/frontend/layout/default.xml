@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<body>
+    <referenceBlock name="content">
+        <block template="head.phtml"
+            class="Divido\DividoFinancing\Block\Head"
+            name="divido_dividofinancing_block_head" />
+    </referenceBlock>
+</body>

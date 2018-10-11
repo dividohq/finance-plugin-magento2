@@ -1,7 +1,35 @@
 <?php /* @var $block \Divido\DividoFinancing\Block\Product\View\Extra */?>
-<?php if ($plans = $block->getProductPlans()): ?>
-  <div data-divido-widget data-divido-plans="<?php echo $plans; ?>" data-divido-amount="<?php echo $block->getAmount(); ?>" data-divido-mode="popup"
+<?php if($block->loadWidget()){ ?>
+  <div id='dividoWidget' 
+    data-divido-widget 
+    data-divido-plans="<?php echo $block->getProductPlans(); ?>"
+    data-divido-amount="<?php echo $block->getAmount(); ?>" 
+
+    data-divido-mode="popup"
   <?php echo $block->getPreOrSuffix('suffix'); ?>
   <?php echo $block->getPreOrSuffix('prefix'); ?>
   ></div>
-<?php endif; ?>
+<script>
+require(['jquery'], function($){
+  var options = $(".product-options-wrapper input, .product-options-wrapper select");
+  for(var iteration = 0; iteration < options.length; iteration++){
+    var option = options[iteration];
+    option.addEventListener('change', function(){
+      setTimeout(updatePrice,50);
+    })
+  }
+  var updatePrice = function(){
+    $("._1I3cfca1j8sC76qiXwArRu").remove();
+    let threshold = <?php echo $block->getThreshold(); ?>;
+    let price = $("#product-price-<?php echo($block->getProductId()); ?> .price").text().replace(/[^0-9.+]+/gi,'');
+    if(price >= threshold){
+      document.getElementById("dividoWidget").setAttribute('data-divido-amount', price);
+      document.getElementById("dividoWidget").style.display = "";
+    }else{
+      document.getElementById("dividoWidget").style.display = "none";
+    }
+  }
+  updatePrice();
+});
+</script>
+<?php } ?>

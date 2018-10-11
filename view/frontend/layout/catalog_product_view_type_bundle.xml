@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+<body>
+    <move element="product.view.divido" destination="product.info.extrahint" after="-" as="widget" />
+</body>

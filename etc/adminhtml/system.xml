@@ -62,7 +62,7 @@
                     <source_model>Divido\DividoFinancing\Model\Adminhtml\Source\DividoStatus</source_model>
                 </field>
                 <field id="order_status" translate="label" type="select" sortOrder="51" showInDefault="1" showInWebsite="1" showInStore="0">
-                    <label>New order status</label>
+                    <label>New order status when Signed</label>
 				    <source_model>Magento\Sales\Model\Config\Source\Order\Status</source_model>
                 </field>
                 <field id="auto_fulfilment" translate="label" type="select" sortOrder="52" showInDefault="1" showInWebsite="1" showInStore="0">
