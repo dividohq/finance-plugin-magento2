@@ -5,8 +5,9 @@
         <description>The block version of our widget, displaying a list of your plans that dynamically 
         updates based on the amount entered into the text box situated above it.</description>
         <parameters>
-            <parameter name="defaultAmount" sort_order="10" visible="true" xsi:type="text" value="1000">
+            <parameter name="defaultAmount" sort_order="10" visible="true" xsi:type="text" >
                 <label>Default Amount</label>
+                <value>1000</value>
             </parameter>
             <parameter name="showInput" sort_order="11" visible="true" xsi:type="select" source_model="Magento\Config\Model\Config\Source\Yesno" >
                 <label>Show text box?</label>
@@ -19,8 +20,9 @@
         updates based on the amount entered into the text box situated above it. The link can be clicked on to view further 
         information.</description>
         <parameters>
-            <parameter name="defaultAmount" sort_order="10" visible="true" xsi:type="text" value="1000" >
+            <parameter name="defaultAmount" sort_order="10" visible="true" xsi:type="text">
                 <label>Default Amount</label>
+                <value>1000</value>
             </parameter>
             <parameter name="showInput" sort_order="11" visible="true" xsi:type="select" source_model="Magento\Config\Model\Config\Source\Yesno" >
                 <label>Show text box?</label>

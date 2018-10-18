@@ -87,7 +87,7 @@ class CreditRequest implements CreditRequestInterface
         $deposit = $this->req->getQuery('deposit', null);
         $email   = $this->req->getQuery('email', null);
         $cartValue   = $this->req->getQuery('initial_cart_value', null);
-        $quoteId = $this->req->getQuery('quote_id',null);
+        $quoteId = $this->req->getQuery('quote_id', null);
         
         try {
             $creditRequestUrl = $this->helper->creditRequest($planId, $deposit, $email, $quoteId);

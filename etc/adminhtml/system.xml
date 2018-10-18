@@ -76,6 +76,17 @@
                         <field id="auto_fulfilment">1</field>
                     </depends>
                 </field>
+                <field id="change_invoice_status" translate="label" type="select" sortOrder="54" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Change Invoice Status</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="invoice_status" translate="label" type="select" sortOrder="55" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Invoice status</label>
+				    <source_model>Magento\Sales\Model\Config\Source\Order\Status</source_model>
+                    <depends>
+                        <field id="change_invoice_status">1</field>
+                    </depends>
+                </field>
 
                 <field id="change_invoice_status" translate="label" type="select" sortOrder="54" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Change Invoice Status</label>

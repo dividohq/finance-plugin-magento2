@@ -270,7 +270,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         return $plans;
     }
 
-    public function creditRequest($planId, $depositPercentage, $email, $quoteId=null)
+    public function creditRequest($planId, $depositPercentage, $email, $quoteId = null)
     {
         $apiKey = $this->getApiKey();
         \Divido::setMerchant($apiKey);
@@ -283,7 +283,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         if ($secret) {
             \Divido::setSharedSecret($secret);
         }
-
+       
         $quote       = $this->cart->getQuote();
         if ($quoteId != null) {
             $this->_objectManager = \Magento\Framework\App\ObjectManager::getInstance();
@@ -474,7 +474,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             'proposal_id'    => $lookupModel->getData('proposal_id'),
             'application_id' => $lookupModel->getData('application_id'),
             'deposit_amount' => $lookupModel->getData('deposit_value'),
-            'initial_cart_value' => $lookupModel->getData('initial_cart_value'), 
+            'initial_cart_value' => $lookupModel->getData('initial_cart_value')
         ];
     }
 
