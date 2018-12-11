@@ -272,6 +272,7 @@ class CreditRequest implements CreditRequestInterface
             if ($status_override) {
                 $status = $status_override;
             }
+            $order->setState(\Magento\Sales\Model\Order::STATE_PROCESSING, true);
             $order->setStatus($status);
         }
 
