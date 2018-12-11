@@ -120,7 +120,7 @@
                     <frontend_class>validate-number</frontend_class>
                 </field>
 
-               <field id="timeout_delay" translate="label" type="number" sortOrder="201" showInDefault="1" showInWebsite="1" showInStore="0">
+               <field id="timeout_delay" translate="label" type="text" sortOrder="201" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Wait for Order Delay</label>
                 </field>
 
