@@ -131,6 +131,28 @@
                     <label>Sort Order</label>
                     <frontend_class>validate-number</frontend_class>
                 </field>
+
+               <field id="timeout_delay" translate="label" type="text" sortOrder="201" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Wait for Order Delay</label>
+                </field>
+
+                <field id="headless_support" translate="label" type="select" sortOrder="202" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Headless Support - Experimental</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+
+                 <field id="custom_checkout_url" translate="label" type="text" sortOrder="203" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Custom Checkout Url</label>
+                    <depends>
+                        <field id="headless_support">1</field>
+                    </depends>
+                </field>
+                <field id="custom_redirect_url" translate="label" type="text" sortOrder="204" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Custom Redirect Url</label>
+                    <depends>
+                        <field id="headless_support">1</field>
+                    </depends>
+                </field>
             </group>
         </section>
     </system>

@@ -13,4 +13,10 @@
             <resource ref="anonymous"/>
         </resources>
     </route>
+    <route url="/V1/divido/version" method="GET">
+        <service class="Divido\DividoFinancing\Api\CreditRequestInterface" method="version"/>
+        <resources>
+            <resource ref="anonymous"/>
+        </resources>
+    </route>
 </routes>

@@ -75,6 +75,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         return $suffix;
     }
 
+
     public function getPrefix()
     {
         
@@ -373,10 +374,23 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $quoteHash = $this->hashQuote($salt, $quoteId);
         $response_url = $this->urlBuilder->getBaseUrl() . self::CALLBACK_PATH;
         $checkout_url = $this->urlBuilder->getUrl(self::CHECKOUT_PATH);
+        
+        if (!empty( $this->getCustomCheckoutUrl()))
+        {
+            $checkout_url = $this->urlBuilder->getUrl($this->getCustomCheckoutUrl());
+        }
+
+
+        
         $redirect_url = $this->urlBuilder->getUrl(
             self::REDIRECT_PATH,
             ['quote_id' => $quoteId]
         );
+        if (!empty($this->getCustomRedirectUrl()))
+        {
+            $redirect_url = $this->getCustomRedirectUrl().'/quote_id/'.$quoteId;
+        }
+
         $requestData = [
             'merchant' => $apiKey,
             'deposit'  => $deposit,
@@ -588,6 +602,31 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
                 $displayPercentage=number_format($displayPercentage,'2');
                 }
             }
+    public function getCustomCheckoutUrl()
+    {
+        $customUrl = $this->config->getValue(
+            'payment/divido_financing/custom_checkout_url',
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
+        return $customUrl;
+    }
+
+    public function getCustomRedirectUrl()
+    {
+        $customUrl = $this->config->getValue(
+            'payment/divido_financing/custom_redirect_url',
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
+        return $customUrl;
+    }
+
+
+    public function updateInvoiceStatus($order)
+    {
+      // Check if it's a divido order
+        $lookup = $this->getLookupForOrder($order);
+        if ($lookup === null) {
+            return false;
         }
         if(!$displayAsNumber){
             return $displayPercentage;

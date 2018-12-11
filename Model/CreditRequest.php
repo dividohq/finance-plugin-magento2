@@ -46,6 +46,8 @@ class CreditRequest implements CreditRequestInterface
     private $quoteManagement;
     private $resourceInterface;
     private $resultJsonFactory;
+    private $eventManager;
+    private $orderCollection;
 
     public function __construct(
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
@@ -57,7 +59,9 @@ class CreditRequest implements CreditRequestInterface
         \Magento\Framework\Module\ResourceInterface $resourceInterface,
         \Divido\DividoFinancing\Helper\Data $helper,
         \Divido\DividoFinancing\Model\LookupFactory $lookupFactory,
-        \Psr\Log\LoggerInterface $logger
+        \Psr\Log\LoggerInterface $logger,
+        \Magento\Framework\Event\Manager $eventManager,
+        \Magento\Sales\Model\ResourceModel\Order\Collection $orderCollection
     ) {
         $this->req    = $request;
         $this->quote = $quote;
@@ -69,6 +73,8 @@ class CreditRequest implements CreditRequestInterface
         $this->quoteManagement = $quoteManagement;
         $this->resultJsonFactory = $resultJsonFactory;
         $this->resourceInterface = $resourceInterface;
+        $this->eventManager = $eventManager;
+        $this->orderCollection = $orderCollection;
     }
 
     /**
@@ -165,7 +171,27 @@ class CreditRequest implements CreditRequestInterface
             $lookup->save();
         }
 
-        $order = $this->order->loadByAttribute('quote_id', $quoteId);
+        //Fetch latest Divido order for quote ID
+        $this->orderCollection->addAttributeToFilter('quote_id',$quoteId);
+        $this->orderCollection->getSelect()
+            ->join(
+                ["sop" => "sales_order_payment"],
+                'main_table.entity_id = sop.parent_id',
+                array('method')
+            )
+            ->where('sop.method = ?','divido_financing');
+        $this->orderCollection->setOrder(
+                'created_at',
+                'desc'
+            );
+        $dividoOrderId = $this->orderCollection->getFirstItem()->getId();
+
+        if (!empty($dividoOrderId)) {
+            $order = $this->order->loadByAttribute('entity_id', $dividoOrderId);
+        } else {
+            $order = NULL;
+        }
+        
 
         if (in_array($data->status, $this->noGo)) {
             if ($debug) {
@@ -180,19 +206,37 @@ class CreditRequest implements CreditRequestInterface
             return $this->webhookResponse();
         }
 
+        if ($data->status == self::STATUS_REFERRED) {
+            //Setting field referred
+            $lookup->setData('referred', 1);
+            $lookup->save();
+
+            $this->eventManager->dispatch('divido_financing_quote_referred', ['quote_id' => $quoteId]);
+        }
+
         $creationStatus = $this->config->getValue(
             'payment/divido_financing/creation_status',
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         );
 
-        if (! $order->getId() && $data->status != $creationStatus) {
+        //Check if Divido order already exists (as with same quoteID, other orders with different payment method may be present with status as cancelled)
+        
+        //Divido order not exists
+        $isOrderExists = false;
+
+        //Divido Order already exists
+        if (!empty($order) && $order->getId() && $order->getPayment()->getMethodInstance()->getCode() == 'divido_financing') {
+            $isOrderExists = true;
+        }
+
+        if (! $isOrderExists && $data->status != $creationStatus && $data->status != self::STATUS_REFERRED) {
             if ($debug) {
                 $this->logger->debug('Divido: No order, not creation status: ' . $data->status);
             }
             return $this->webhookResponse();
         }
         
-        if (! $order->getId() && $data->status == $creationStatus) {
+        if (! $isOrderExists && ($data->status == $creationStatus || $data->status == self::STATUS_REFERRED)) {
             if ($debug) {
                 $this->logger->debug('Divido: Create order');
             }
@@ -209,8 +253,8 @@ class CreditRequest implements CreditRequestInterface
             $iv=(string ) $lookup->getData('initial_cart_value');
 
             if ($debug) {
-                $this->logger->warning('Current Cart Value : ' . $grandTotal);
-                $this->logger->warning('Divido Inital Value: ' . $iv);
+                $this->logger->debug('Current Cart Value : ' . $grandTotal);
+                $this->logger->debug('Divido Inital Value: ' . $iv);
             }
 
             $orderId = $this->quoteManagement->placeOrder($quoteId);
@@ -256,8 +300,10 @@ class CreditRequest implements CreditRequestInterface
             }
         }
         
+        
         $lookup->setData('order_id', $order->getId());
         $lookup->save();
+                
 
         if ($data->status == self::STATUS_SIGNED) {
             if ($debug) {
@@ -274,6 +320,10 @@ class CreditRequest implements CreditRequestInterface
             }
             $order->setState(\Magento\Sales\Model\Order::STATE_PROCESSING, true);
             $order->setStatus($status);
+
+            //Send Email only when order is signed by customer.
+            $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+            $objectManager->create('Magento\Sales\Model\OrderNotifier')->notify($order);
         }
 
         $comment = 'Divido: ' . $data->status;
@@ -300,4 +350,16 @@ class CreditRequest implements CreditRequestInterface
 
         return json_encode($response);
     }
+
+
+    public function version()
+    {
+        $pluginVersion = $this->resourceInterface->getDbVersion('Divido_DividoFinancing');
+        $response = [
+            'plugin_version'   => $pluginVersion
+        ];
+
+        return json_encode($response);
+    }
+
 }

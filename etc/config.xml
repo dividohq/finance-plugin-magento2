@@ -9,6 +9,7 @@
                 <api_key/>
                 <min_order_total>0.50</min_order_total>
                 <currency>GBP</currency>
+                <timeout_delay>7</timeout_delay>
             </divido_financing>
         </payment>
     </default>
