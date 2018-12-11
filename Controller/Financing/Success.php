@@ -5,6 +5,7 @@ namespace Divido\DividoFinancing\Controller\Financing;
 class Success extends \Magento\Framework\App\Action\Action
 {
     private $checkoutSession;
+    private $config;
     private $order;
     private $quoteRepository;
 
@@ -12,15 +13,29 @@ class Success extends \Magento\Framework\App\Action\Action
         \Magento\Framework\App\Action\Context $context,
         \Magento\Checkout\Model\Session $checkoutSession,
         \Magento\Sales\Model\Order $order,
-        \Magento\Quote\Model\QuoteRepository $quoteRepository
+        \Magento\Quote\Model\QuoteRepository $quoteRepository,
+        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
+
     ) {
     
         $this->checkoutSession = $checkoutSession;
         $this->order = $order;
         $this->quoteRepository = $quoteRepository;
+        $this->config        = $scopeConfig;
 
         parent::__construct($context);
     }
+
+    public function getTimeout()
+    {
+        $timeout = $this->config->getValue(
+            'payment/divido_financing/timeout_delay',
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
+    
+        return $timeout;
+    }
+
 
 
     public function execute()
@@ -29,7 +44,8 @@ class Success extends \Magento\Framework\App\Action\Action
         $quoteId = $this->getRequest()->getParam('quote_id');
         $order   = $this->order->loadByAttribute('quote_id', $quoteId);
         if ($order == null) {
-            sleep(8);
+            //get sleep value
+            sleep($this->getTimeout());
             $order   = $this->order->loadByAttribute('quote_id', $quoteId);
         }
 
