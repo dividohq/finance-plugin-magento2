@@ -21,4 +21,13 @@ interface CreditRequestInterface
      * @return \Magento\Framework\Controller\Result\Json
      */
     public function update();
+
+    /**
+     * Update an order with results from credit request
+     *
+     * @api
+     * @return \Magento\Framework\Controller\Result\Json
+     */
+    public function version();
+
 }
