@@ -602,6 +602,8 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
                 $displayPercentage=number_format($displayPercentage,'2');
                 }
             }
+        }
+    }
     public function getCustomCheckoutUrl()
     {
         $customUrl = $this->config->getValue(
@@ -618,21 +620,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         );
         return $customUrl;
-    }
-
-
-    public function updateInvoiceStatus($order)
-    {
-      // Check if it's a divido order
-        $lookup = $this->getLookupForOrder($order);
-        if ($lookup === null) {
-            return false;
-        }
-        if(!$displayAsNumber){
-            return $displayPercentage;
-        }
-        return $display;
-
     }
 
     public function updateInvoiceStatus($order)
