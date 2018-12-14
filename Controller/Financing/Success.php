@@ -43,7 +43,8 @@ class Success extends \Magento\Framework\App\Action\Action
 
         $quoteId = $this->getRequest()->getParam('quote_id');
         $order   = $this->order->loadByAttribute('quote_id', $quoteId);
-        if ($order == null) {
+
+        if ($order->getId() == null) {
             //get sleep value
             sleep($this->getTimeout());
             $order   = $this->order->loadByAttribute('quote_id', $quoteId);

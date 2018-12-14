@@ -37,7 +37,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         LookupFactory $lookupFactory,
         UrlInterface $urlBuilder,
         ProductFactory $productFactory
-        
     ) {
     
         $this->config        = $scopeConfig;
