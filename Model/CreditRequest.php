@@ -8,7 +8,7 @@ class CreditRequest implements CreditRequestInterface
 {
     const
         VERSION              = 'M2-1.1.0',
-        NEW_ORDER_STATUS     = 'processing',
+        NEW_ORDER_STATUS     = 'pending_payment',
         STATUS_ACCEPTED      = 'ACCEPTED',
         STATUS_ACTION_LENDER = 'ACTION-LENDER',
         STATUS_CANCELED      = 'CANCELED',
