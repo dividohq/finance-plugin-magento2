@@ -602,6 +602,10 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
                 }
             }
         }
+        if(!$displayAsNumber){
+            return $displayPercentage;
+        }
+        return $display;
     }
     public function getCustomCheckoutUrl()
     {
