@@ -304,7 +304,7 @@ class CreditRequest implements CreditRequestInterface
         $lookup->setData('order_id', $order->getId());
         $lookup->save();
         
-        if ($data->status == self::STATUS_ACCEPTED) {
+        if ($data->status == self::STATUS_ACCEPTED || $data->status == self::STATUS_REFERRED) {
             $order->setStatus(self::NEW_ORDER_STATUS);
         }
 
