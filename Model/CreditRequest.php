@@ -312,7 +312,7 @@ class CreditRequest implements CreditRequestInterface
             if ($debug) {
                 $this->logger->addDebug('Divido: Escalate order');
             }
-
+ 
             $status = self::NEW_ORDER_STATUS;
             $status_override = $this->config->getValue(
                 'payment/divido_financing/order_status',
