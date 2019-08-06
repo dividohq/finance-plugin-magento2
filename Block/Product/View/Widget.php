@@ -64,16 +64,18 @@ class Widget extends \Magento\Catalog\Block\Product\AbstractProduct
     public function showWidget()
     {
         $threshold = $this->getThreshold();
-        if($threshold === false || $this->getAmount() < $threshold){
+        if ($threshold === false || $this->getAmount() < $threshold) {
             return false;
-        }else return true;
+        } else {
+            return true;
+        }
     }
     
     public function getThreshold()
     {
         $selection = $this->helper->getProductSelection();
         
-        switch($selection){
+        switch ($selection) {
             case self::ALL_PRODUCTS:
                 $threshold = 0;
                 break;

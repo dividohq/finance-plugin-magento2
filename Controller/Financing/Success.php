@@ -21,9 +21,9 @@ class Success extends \Magento\Framework\App\Action\Action implements CsrfAwareA
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
     ) {
         $this->checkoutSession = $checkoutSession;
-        $this->order = $order;
+        $this->order           = $order;
         $this->quoteRepository = $quoteRepository;
-        $this->config        = $scopeConfig;
+        $this->config          = $scopeConfig;
 
         parent::__construct($context);
     }

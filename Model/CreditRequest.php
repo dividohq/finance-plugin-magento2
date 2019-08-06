@@ -59,7 +59,7 @@ class CreditRequest implements CreditRequestInterface
         \Magento\Framework\Module\ResourceInterface $resourceInterface,
         \Divido\DividoFinancing\Helper\Data $helper,
         \Divido\DividoFinancing\Model\LookupFactory $lookupFactory,
-        \Divido\Financing\Logger\Logger $logger,
+        \Divido\DividoFinancing\Logger\Logger $logger,
         \Magento\Framework\Event\Manager $eventManager,
         \Magento\Sales\Model\ResourceModel\Order\Collection $orderCollection
     ) {
