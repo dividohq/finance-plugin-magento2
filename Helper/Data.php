@@ -12,6 +12,8 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     const CACHE_DIVIDO_TAG = 'divido_cache';
     const CACHE_PLANS_KEY  = 'divido_plans';
     const CACHE_PLANS_TTL  = 3600;
+    const CACHE_PLATFORM_KEY  = 'platform_env';
+    const CACHE_PLATFORM_TTL  = 3600;
     const CALLBACK_PATH    = 'rest/V1/divido/update/';
     const REDIRECT_PATH    = 'divido/financing/success/';
     const CHECKOUT_PATH    = 'checkout/';
@@ -50,6 +52,84 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $this->productFactory = $productFactory;
     }
 
+       /**
+     * Checks the SDK's Environment class for the given environment type
+     *
+     * @param string $apiKey The config API key
+     *
+     * @return void
+     */
+    public function getEnvironment($apiKey = false)
+    {
+        $apiKey = (false === $apiKey) ? $this->getApiKey() : $apiKey;
+
+        if (empty($apiKey)) {
+            $this->logger->debug('Empty API key');
+            return false;
+        } else {
+            list($environment, $key) = explode("_", $apiKey);
+            $environment = strtoupper($environment);
+            if (!is_null(
+                constant("\Divido\MerchantSDK\Environment::$environment")
+            )) {
+                $environment
+                    = constant("\Divido\MerchantSDK\Environment::$environment");
+                return $environment;
+            } else {
+                $this->logger->error('Environment does not exist in the SDK');
+                return false;
+            }
+        }
+    }
+
+    /**
+     * Get Finance Platform Environment function
+     *
+     *  @param [string] $api_key - The platform API key.
+     */
+    public function getPlatformEnv()
+    {
+
+        if ($env = $this->cache->load(self::CACHE_PLATFORM_KEY)) {
+            return $env;
+        } else {
+            $sdk      = $this->getSdk();
+            $response = $sdk->platformEnvironments()->getPlatformEnvironment();
+            $finance_env = $response->getBody()->getContents();
+            $decoded = json_decode($finance_env);
+
+            $this->cache->save(
+                $decoded->data->environment,
+                self::CACHE_PLATFORM_KEY,
+                [self::CACHE_FINANCE_TAG],
+                self::CACHE_PLATFORM_TTL
+            );
+
+            return $decoded->data->environment;
+        }
+    }
+
+    public function getSdk()
+    {
+        $apiKey = $this->getApiKey();
+        $this->logger->debug('Environment does not exist in the SDK');
+
+        $env = $this->getEnvironment($apiKey);
+
+        $client = new \GuzzleHttp\Client();
+        $sdk = true;
+
+        $httpClientWrapper = new \Divido\MerchantSDK\HttpClient\HttpClientWrapper(
+            new \Divido\MerchantSDKGuzzle6\GuzzleAdapter($client),
+            \Divido\MerchantSDK\Environment::CONFIGURATION[$env]['base_uri'],
+            $apiKey
+        );
+
+        $sdk = new \Divido\MerchantSDK\Client($httpClientWrapper, $env);
+
+        return $sdk;
+    }
+    /*
     public function getConnection()
     {
         if (! $this->connection) {
@@ -58,12 +138,13 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 
         return $this->connection;
     }
+    */
 
     public function cleanCache()
     {
         $this->cache->clean('matchingTag', [self::CACHE_DIVIDO_TAG]);
     }
-
+    /*
     public function getSuffix()
     {
         $suffix = $this->config->getValue(
@@ -85,8 +166,10 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         
         return $prefix;
     }
+    */
     
-    public function getProductSelection(){
+    public function getProductSelection()
+    {
         $selection= $this->config->getValue(
             'payment/divido_financing/product_selection',
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
@@ -127,16 +210,15 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         }
 
         if ($plans = $this->cache->load(self::CACHE_PLANS_KEY)) {
+            $this->logger->addDebug('Cached Plans' . $plans);
             $plans = unserialize($plans);
             return $plans;
         }
 
-        \Divido::setMerchant($apiKey);
+        $response = $this->getPlans();
 
-        $response = \Divido_Finances::all();
-
-        if ($response->status !== 'ok') {
-            $this->logger->addError('Divido: Could not get financing plans.');
+        if (!isset($response[0]->id)) {
+            $this->logger->addError('Could not get financing plans.');
             $this->cleanCache();
             return [];
         }
@@ -199,8 +281,8 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         }
 
         foreach ($plans as $key => $plan) {
-            $planMinTotal = $grandTotal - ($grandTotal * ($plan->min_deposit / 100));
-            if ($planMinTotal < $plan->min_amount) {
+            $planMinTotal = $grandTotal - ($grandTotal * ($plan->deposit->minimum_percentage / 100));
+            if ($planMinTotal < $plan->deposit->minimum_percentage) {
                 unset($plans[$key]);
             }
         }
@@ -226,10 +308,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         if (! $isActive) {
             return[];
         }
-
-        $dbConn  = $this->getConnection();
-        $tblCpev = $this->resource->getTableName('catalog_product_entity_varchar');
-        $tblEava = $this->resource->getTableName('eav_attribute');
 
         $product = $this->productFactory->create()->load($productId);
 
@@ -272,18 +350,11 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 
     public function creditRequest($planId, $depositPercentage, $email, $quoteId = null)
     {
-        $apiKey = $this->getApiKey();
-        \Divido::setMerchant($apiKey);
-
         $secret = $this->config->getValue(
             'payment/divido_financing/secret',
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         );
-    
-        if ($secret) {
-            \Divido::setSharedSecret($secret);
-        }
-       
+  
         $quote       = $this->cart->getQuote();
         if ($quoteId != null) {
             $this->_objectManager = \Magento\Framework\App\ObjectManager::getInstance();
@@ -292,7 +363,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $shipAddr    = $quote->getShippingAddress();
         $country     = $shipAddr->getCountryId();
         $billingAddr = $quote->getBillingAddress();
-        //Transform Addresses to be compatible with our form
         $shippingAddress = $this->getAddressDetail($shipAddr);
         $billingAddress  = $this->getAddressDetail($billingAddr);
         
@@ -311,46 +381,45 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
                 $email = $existingEmail;
             }
         }
-
-        $language = 'EN';
+        //TODO
+        $language = 'en';
         $store = $this->storeManager->getStore();
         $currency = $store->getCurrentCurrencyCode();
 
         $customer = [
             'title'             => '',
-            'first_name'        => $shipAddr->getFirstName(),
-            'middle_name'       => $shipAddr->getMiddleName(),
-            'last_name'         => $shipAddr->getLastName(),
+            'firstName'         => $shipAddr->getFirstName(),
+            'middleNames'       => $shipAddr->getMiddleName(),
+            'lastName'          => $shipAddr->getLastName(),
             'country'           => $country,
             'postcode'          => $shipAddr->getPostcode(),
             'email'             => $email,
-            'mobile_number'     => '',
-            'phone_number'      => $shipAddr->getTelephone(),
+            'phoneNumber'       => $shipAddr->getTelephone(),
             'shippingAddress'   => $shippingAddress,
-            'address'           => $billingAddress,
+            'addresses'         => [$billingAddress],
         ];
 
         $products = [];
         foreach ($quote->getAllItems() as $item) {
-            if($item->getParentItemId() == null){
+            if ($item->getParentItemId() == null) {
                 $products[] = [
                     'type'     => 'product',
-                    'text'     => $item->getName(),
-                    'quantity' => $item->getQty(),
-                    'value'    => $item->getPriceInclTax(),
+                    'name'     => $item->getName(),
+                    'quantity' => (int)$item->getQty(),
+                    'price'    => (int)$item->getPriceInclTax() * 100,
                 ];
             }
         }
         $totals = $quote->getTotals();
         $grandTotal = $totals['grand_total']->getValue();
-        $deposit = round(($depositPercentage/100) * $grandTotal, 2);
-        $shipping = $shipAddr->getShippingAmount();
+        $deposit = round(($depositPercentage / 100) * $grandTotal, 2);
+        $shipping = $shipAddr->getShippingAmount() * 100;
         if (! empty($shipping)) {
             $products[] = [
                 'type'     => 'product',
                 'text'     => 'Shipping & Handling',
                 'quantity' => '1',
-                'value'    => $shipping,
+                'value'    => (int) $shipping,
             ];
         }
         $discount = $shipAddr->getDiscountAmount();
@@ -359,7 +428,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
                 'type'     => 'product',
                 'text'     => 'Discount',
                 'quantity' => '1',
-                'value'    => $discount,
+                'value'    => (int) $discount * 100,
             ];
         }
         $quoteId   = $quote->getId();
@@ -368,54 +437,63 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $response_url = $this->urlBuilder->getBaseUrl() . self::CALLBACK_PATH;
         $checkout_url = $this->urlBuilder->getUrl(self::CHECKOUT_PATH);
         
-        if (!empty( $this->getCustomCheckoutUrl()))
-        {
+        if (!empty($this->getCustomCheckoutUrl())) {
             $checkout_url = $this->urlBuilder->getUrl($this->getCustomCheckoutUrl());
         }
-
-
         
         $redirect_url = $this->urlBuilder->getUrl(
             self::REDIRECT_PATH,
             ['quote_id' => $quoteId]
         );
-        if (!empty($this->getCustomRedirectUrl()))
-        {
+        if (!empty($this->getCustomRedirectUrl())) {
             $redirect_url = $this->getCustomRedirectUrl().'/quote_id/'.$quoteId;
         }
 
-        $requestData = [
-            'merchant' => $apiKey,
-            'deposit'  => $deposit,
-            'finance'  => $planId,
-            'country'  => $country,
-            'language' => $language,
-            'currency' => $currency,
-            'metadata' => [
-                'quote_id'   => $quoteId,
-                'quote_hash' => $quoteHash,
-            ],
-            'customer'     => $customer,
-            'products'     => $products,
-            'response_url' => $response_url,
-            'redirect_url' => $redirect_url,
-            'checkout_url' => $checkout_url,
-            'initial_cart_value' => $grandTotal,
-        ];
-        $response = \Divido_CreditRequest::create($requestData);
-        if ($response->status == 'ok') {
+        $sdk                       = $this->getSdk();
+        $application               = (new \Divido\MerchantSDK\Models\Application())
+            ->withCountryId($country)
+            ->withCurrencyId($currency)
+            ->withLanguageId($language)
+            ->withFinancePlanId($planId)
+            ->withApplicants([$customer])
+            ->withOrderItems($products)
+            ->withDepositPercentage($deposit / 100)
+            ->withFinalisationRequired(false)
+            ->withMerchantReference('')
+            ->withUrls(
+                [
+                    'merchant_redirect_url' => $redirect_url,
+                    'merchant_checkout_url' => $checkout_url,
+                    'merchant_response_url' => $response_url,
+                ]
+            )
+            ->withMetadata(
+                [
+                    'initial_cart_value' => $grandTotal,
+                    'quote_id'   => $quoteId,
+                    'quote_hash' => $quoteHash,
+
+                ]
+            );
+        //todo - improve error handling
+        $response                  = $sdk->applications()->createApplication($application, ['X-Divido-Hmac-Sha256' => $secret], ['Content-Type' => 'application/json']);
+        $application_response_body = $response->getBody()->getContents();
+        $decode                    = json_decode($application_response_body);
+        $result_id                 = $decode->data->id;
+        $result_redirect           = $decode->data->urls->application_url;
+        if ($response) {
             $lookupModel = $this->lookupFactory->create();
             $lookupModel->load($quoteId, 'quote_id');
             $lookupModel->setData('quote_id', $quoteId);
             $lookupModel->setData('salt', $salt);
             $lookupModel->setData('deposit_value', $deposit);
-            $lookupModel->setData('proposal_id', $response->id);
+            $lookupModel->setData('proposal_id', $result_id);
             $lookupModel->setData('initial_cart_value', $grandTotal);
             $lookupModel->save();
-            return $response->url;
+            return $result_redirect;
         } else {
             if ($response->status === 'error') {
-                throw new \Magento\Framework\Exception\LocalizedException(__($response->error));
+                throw new \Magento\Framework\Exception\LocalizedException(__($decode));
             }
         }
     }
@@ -453,14 +531,23 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 
     public function getScriptUrl()
     {
-        return "//cdn.divido.com/calculator/v2.1/production/js/template.divido.js";
+        $apiKey = $this->getApiKey();
+        if (empty($apiKey)) {
+            return "//cdn.divido.com/widget/dist/divido.calculator.js";
+        }
+
+        $platformEnv = $this->getPlatformEnv();
+        return "//cdn.divido.com/widget/dist/" . $platformEnv . ".calculator.js";
     }
 
     public function plans2list($plans)
     {
-        $plansBare = array_map(function ($plan) {
-            return $plan->id;
-        }, $plans);
+        $plansBare = array_map(
+            function ($plan) {
+                return $plan->id;
+            },
+            $plans
+        );
 
         $plansBare = array_unique($plansBare);
 
@@ -478,16 +565,18 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         }
 
         return [
-            'proposal_id'    => $lookupModel->getData('proposal_id'),
-            'application_id' => $lookupModel->getData('application_id'),
-            'deposit_amount' => $lookupModel->getData('deposit_value'),
-            'initial_cart_value' => $lookupModel->getData('initial_cart_value')
+            'proposal_id'        => $lookupModel->getData('proposal_id'),
+            'application_id'     => $lookupModel->getData('application_id'),
+            'deposit_amount'     => $lookupModel->getData('deposit_value'),
+            'initial_cart_value' => $lookupModel->getData('initial_cart_value'),
+            'order_id'           => $lookupModel->getData('order_id')
+
         ];
     }
 
     public function autoFulfill($order)
     {
-        // Check if it's a divido order
+        // Check if it's a finance order
         $lookup = $this->getLookupForOrder($order);
         if ($lookup === null) {
             return false;
@@ -526,21 +615,9 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 
         $trackingNumbers = implode(',', $trackingNumbers);
         $applicationId = $lookup['application_id'];
+        $grandTotal = $lookup['initial_cart_value'];
 
-        return $this->setFulfilled($applicationId, $shippingMethod, $trackingNumbers);
-    }
-
-    public function setFulfilled($applicationId, $shippingMethod = null, $trackingNumbers = null)
-    {
-        $apiKey = $this->getApiKey();
-        $params = [
-            'application'    => $applicationId,
-            'deliveryMethod' => $shippingMethod,
-            'trackingNumber' => $trackingNumbers
-        ];
-
-        \Divido::setMerchant($apiKey);
-        \Divido_Fulfillment::fulfill($params);
+        return $this->setFulfilled($applicationId, $grandTotal, $shippingMethod, $trackingNumbers);
     }
 
     public function createSignature($payload, $secret)
@@ -561,7 +638,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
      */
     public function getAddressDetail($addressObject)
     {
-        $street = str_replace("\n"," ", $addressObject['street']);
+        $street = str_replace("\n", " ", $addressObject['street']);
         $addressText     = implode(' ', [$street,$addressObject['city'],$addressObject['postcode']]);
         $addressArray = [
             'postcode'          => $addressObject['postcode'],
@@ -577,8 +654,23 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         return $addressArray;
     }
 
+
+    public function getHeadlessMode()
+    {
+        $headless = $this->config->getValue(
+            //TODO Fix Value
+            'payment/divido_financing/divido_financing_developer/headless_support',
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
+        return $headless;
+    }
+
+
     public function getCustomCheckoutUrl()
     {
+        if (0 == $this->getHeadlessMode()) {
+            return false;
+        }
         $customUrl = $this->config->getValue(
             'payment/divido_financing/custom_checkout_url',
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
@@ -610,11 +702,141 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         if (! $invoiceStatus) {
             return false;
         }
+        //todo understand what status we should update
         $currentStatus  = $order->getData('status');
         $previousStatus = $order->getOrigData('status');
         $order->setState(\Magento\Sales\Model\Order::STATE_PROCESSING, true);
         $order->setStatus($invoiceStatus);
         $order->addStatusToHistory($order->getStatus(), 'ORDER  processed successfully with reference');
         $order->save();
+    }
+
+    protected function getPlans()
+    {
+        $sdk            = $this->getSdk();
+        $finances       = false;
+        if (false === $finances) {
+            $request_options = (new \Divido\MerchantSDK\Handlers\ApiRequestOptions());
+            try {
+                $plans = $sdk->getAllPlans($request_options);
+                $plans = $plans->getResources();
+                return $plans;
+            } catch (Exception $e) {
+                return [];
+            }
+        }
+    }
+    public function setFulfilled($application_id, $order_total, $shipping_method = null, $tracking_numbers = null)
+    {
+        // First get the application you wish to create an activation for.
+        $application = (new \Divido\MerchantSDK\Models\Application())
+            ->withId($application_id);
+        $items       = [
+            [
+                'name'     => "Magento 2 Activation",
+                'quantity' => 1,
+                'price'    => $order_total * 100,
+            ],
+        ];
+        // Create a new application activation model.
+        $application_activation = (new \Divido\MerchantSDK\Models\ApplicationActivation())
+            ->withOrderItems($items)
+            ->withDeliveryMethod($shipping_method)
+            ->withTrackingNumber($tracking_numbers);
+        // Create a new activation for the application.
+        $env                      = $this->getEnvironment($this->getApiKey());
+        $sdk                      = $this->getSdk();
+        $response                 = $sdk->applicationActivations()->createApplicationActivation($application, $application_activation);
+        $activation_response_body = $response->getBody()->getContents();
+    }
+
+    public function autoCancel($order)
+    {
+        // Check if it's a finance order
+        $lookup = $this->getLookupForOrder($order);
+        if ($lookup === null) {
+            return false;
+        }
+
+        $applicationId = $lookup['application_id'];
+        $order_total = $lookup['initial_cart_value'];
+
+        $order_id = $lookup['order_id'];
+        return $this->sendCancellation($applicationId, $order_total, $order_id);
+    }
+
+    private function cancelLookup($orderId)
+    {
+        $lookupModel = $this->lookupFactory->create();
+        $lookupModel->load($orderId, 'order_id');
+
+        if (!$lookupModel->getId()) {
+            return null;
+        }
+        $lookupModel->setData('canceled', 1);
+        $lookupModel->save();
+
+        return;
+    }
+
+
+    public function sendCancellation($application_id, $order_total, $orderId)
+    {
+        // First get the application you wish to create an activation for.
+        $application = (new \Divido\MerchantSDK\Models\Application())
+            ->withId($application_id);
+        $items       = [
+            [
+                'name'     => "Magento 2 Cancellation",
+                'quantity' => 1,
+                'price'    => $order_total * 100,
+            ],
+        ];
+        // Create a new application activation model.
+        $application_cancellation = (new \Divido\MerchantSDK\Models\ApplicationCancellation())
+            ->withOrderItems($items);
+        // Create a new activation for the application.
+        $sdk                      = $this->getSdk();
+        $response                 = $sdk->applicationCancellations()->createApplicationCancellation($application, $application_cancellation);
+        $activation_response_body = $response->getBody()->getContents();
+
+        $this->cancelLookup($orderId);
+    }
+
+    public function autoRefund($order)
+    {
+        // Check if it's a finance order
+        $lookup = $this->getLookupForOrder($order);
+        if ($lookup === null) {
+            return false;
+        }
+
+        $applicationId = $lookup['application_id'];
+        $order_total = $lookup['initial_cart_value'];
+        $order_id = $lookup['order_id'];
+
+        return $this->sendRefund($applicationId, $order_total, $order_id);
+    }
+
+
+    public function sendRefund($application_id, $order_total, $order_id)
+    {
+        $application = (new \Divido\MerchantSDK\Models\Application())
+            ->withId($application_id);
+        $items       = [
+            [
+                'name'     => "Magento 2 Refund",
+                'quantity' => 1,
+                'price'    => $order_total * 100,
+            ],
+        ];
+        $application_refund = (new \Divido\MerchantSDK\Models\ApplicationRefund())
+            ->withOrderItems($items)
+            ->withComment('As per customer request.')
+            ->withAmount($order_total * 100);
+        // Create a new activation for the application.
+        $sdk                      = $this->getSdk();
+        $response                 = $sdk->applicationRefunds()->createApplicationRefund($application, $application_refund);
+        $activation_response_body = $response->getBody()->getContents();
     }
 }

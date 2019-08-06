@@ -3,7 +3,7 @@ namespace Divido\DividoFinancing\Observer;
 
 use Magento\Framework\Event\ObserverInterface;
 
-class InvoicedObserver implements ObserverInterface
+class CancelObserver implements ObserverInterface
 {
     public $helper;
     public function __construct(
@@ -14,11 +14,7 @@ class InvoicedObserver implements ObserverInterface
     }
     public function execute(\Magento\Framework\Event\Observer $observer)
     {
-        $order = $observer->getEvent()->getInvoice()->getOrder();
-        //TODO - Double test
-        $code  = $order->getPayment()->getMethodInstance()->getCode();
-        if ($code == 'divido_financing') {
-            return $this->helper->updateInvoiceStatus($order);
-        }
+        $order = $observer->getEvent()->getOrder();
+        return $this->helper->autoCancel($order);
     }
 }

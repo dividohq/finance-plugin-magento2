@@ -8,5 +8,11 @@
     </event>
     <event name="sales_model_service_quote_submit_success">
         <observer name="sendNoEmail" instance="Divido\DividoFinancing\Observer\SendNoEmail" />
+    </event>
+    <event name="order_cancel_after">
+        <observer name="divido_dividofinancing_order_cancel" instance="Divido\DividoFinancing\Observer\CancelObserver" />
+    </event>
+    <event name="sales_order_payment_refund">
+        <observer name="divido_dividofinancing_order_refund" instance="Divido\DividoFinancing\Observer\RefundObserver" />
     </event>  
 </config>

@@ -4,13 +4,15 @@
  */
 ?>
 <script> 
-    var dividoKey = "<?php echo $block->getDividoKey(); ?>";
+  __widgetConfig = {
+          apiKey: '<?php echo $block->getDividoKey(); ?>',
+        }
 </script>
 <script type="text/javascript" src="<?php echo $block->getScriptUrl(); ?>"></script>
 <script>// <![CDATA[
 function waitForElementToDisplay(selector, time) {
         if(document.querySelector(selector)!=null) {
-            TemplateCalculator.reload();
+            __widgetInstance.init();
             return;
         }
         else {

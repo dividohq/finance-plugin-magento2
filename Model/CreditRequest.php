@@ -7,8 +7,8 @@ use Divido\DividoFinancing\Api\CreditRequestInterface;
 class CreditRequest implements CreditRequestInterface
 {
     const
-        VERSION              = 'M2-1.1.0',
-        NEW_ORDER_STATUS     = 'processing',
+        VERSION              = 'M2-2.0.0',
+        NEW_ORDER_STATUS     = 'pending_payment',
         STATUS_ACCEPTED      = 'ACCEPTED',
         STATUS_ACTION_LENDER = 'ACTION-LENDER',
         STATUS_CANCELED      = 'CANCELED',
@@ -59,7 +59,7 @@ class CreditRequest implements CreditRequestInterface
         \Magento\Framework\Module\ResourceInterface $resourceInterface,
         \Divido\DividoFinancing\Helper\Data $helper,
         \Divido\DividoFinancing\Model\LookupFactory $lookupFactory,
-        \Psr\Log\LoggerInterface $logger,
+        \Divido\Financing\Logger\Logger $logger,
         \Magento\Framework\Event\Manager $eventManager,
         \Magento\Sales\Model\ResourceModel\Order\Collection $orderCollection
     ) {
@@ -89,17 +89,17 @@ class CreditRequest implements CreditRequestInterface
     {
         $response = [];
 
-        $planId  = $this->req->getQuery('plan', null);
-        $deposit = $this->req->getQuery('deposit', null);
-        $email   = $this->req->getQuery('email', null);
-        $cartValue   = $this->req->getQuery('initial_cart_value', null);
-        $quoteId = $this->req->getQuery('quote_id', null);
+        $planId    = $this->req->getQuery('plan', null);
+        $deposit   = $this->req->getQuery('deposit', null);
+        $email     = $this->req->getQuery('email', null);
+        $cartValue = $this->req->getQuery('initial_cart_value', null);
+        $quoteId   = $this->req->getQuery('quote_id', null);
         
         try {
             $creditRequestUrl = $this->helper->creditRequest($planId, $deposit, $email, $quoteId);
             $response['url']  = $creditRequestUrl;
         } catch (\Exception $e) {
-            $this->logger->addError($e);
+            $this->logger->info($e);
             $response['error'] = $e->getMessage();
         }
 
@@ -172,18 +172,18 @@ class CreditRequest implements CreditRequestInterface
         }
 
         //Fetch latest Divido order for quote ID
-        $this->orderCollection->addAttributeToFilter('quote_id',$quoteId);
+        $this->orderCollection->addAttributeToFilter('quote_id', $quoteId);
         $this->orderCollection->getSelect()
             ->join(
                 ["sop" => "sales_order_payment"],
                 'main_table.entity_id = sop.parent_id',
                 array('method')
             )
-            ->where('sop.method = ?','divido_financing');
+            ->where('sop.method = ?', 'divido_financing');
         $this->orderCollection->setOrder(
-                'created_at',
-                'desc'
-            );
+            'created_at',
+            'desc'
+        );
         $dividoOrderId = $this->orderCollection->getFirstItem()->getId();
 
         if (!empty($dividoOrderId)) {
@@ -361,5 +361,4 @@ class CreditRequest implements CreditRequestInterface
 
         return json_encode($response);
     }
-
 }

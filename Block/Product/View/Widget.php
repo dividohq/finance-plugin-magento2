@@ -56,18 +56,21 @@ class Widget extends \Magento\Catalog\Block\Product\AbstractProduct
         return $priceIncVat;
     }
 
-    public function loadWidget(){
+    public function loadWidget()
+    {
         return $this->helper->getActive();
     }
     
-    public function showWidget(){
+    public function showWidget()
+    {
         $threshold = $this->getThreshold();
         if($threshold === false || $this->getAmount() < $threshold){
             return false;
         }else return true;
     }
     
-    public function getThreshold(){
+    public function getThreshold()
+    {
         $selection = $this->helper->getProductSelection();
         
         switch($selection){
