@@ -223,7 +223,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             return [];
         }
 
-        $plans = $response->finances;
+        $plans = $response;
 
         $this->cache->save(
             serialize($plans),
