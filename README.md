@@ -1,11 +1,11 @@
-# Divido Magento 2 Extension
+# Powered By Divido Magento 2 Extension
 
-The Divido Extension for Magento 2 enables you to add Divido financing to you checkout payment options.
+The Powered by Divido Extension for Magento 2 enables you to add financing to you checkout payment options.
 
 ## Divido subscription
 Visit https://www.divido.com/sign-up/ to sign up for a demo account.
 
-##Installation
+## Installation
 ### Install with composer
 
 ```
