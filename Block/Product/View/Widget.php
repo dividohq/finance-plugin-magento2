@@ -23,6 +23,12 @@ class Widget extends \Magento\Catalog\Block\Product\AbstractProduct
         parent::__construct($context, $data);
     }
 
+    public function getFinancePlatform()
+    {
+        $env = $this->helper->getPlatformEnv();
+        return $env;
+    }
+
     public function getProductPlans()
     {
         $plans = $this->helper->getLocalPlans($this->getProduct()->getId());
@@ -48,21 +54,6 @@ class Widget extends \Magento\Catalog\Block\Product\AbstractProduct
         $priceIncVat = $this->catHelper->getTaxPrice($product, $price, true);
 
         return $priceIncVat;
-    }
-       
-    public function getPreOrSuffix($choice)
-    {
-        $output = '';
-
-        if($choice=="prefix"){
-            $ix = $this->helper->getPrefix();
-        }else{
-            $ix = $this->helper->getSuffix();
-        }
-        if($ix !=''){
-            $output="data-divido-".$choice."='".$ix."'";
-        }
-        return $output;
     }
 
     public function loadWidget(){
