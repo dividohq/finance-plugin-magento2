@@ -69,6 +69,8 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         } else {
             list($environment, $key) = explode("_", $apiKey);
             $environment = strtoupper($environment);
+            $this->logger->debug('getEnv:'.$environment);
+
             if (!is_null(
                 constant("\Divido\MerchantSDK\Environment::$environment")
             )) {
@@ -90,18 +92,19 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     public function getPlatformEnv()
     {
 
-        if ($env = $this->cache->load(self::CACHE_PLATFORM_KEY)) {
+        if ($env = $this->cache->load(self::CACHE_PLATFORM_KEY) && !is_null($env)) {
             return $env;
         } else {
             $sdk      = $this->getSdk();
             $response = $sdk->platformEnvironments()->getPlatformEnvironment();
             $finance_env = $response->getBody()->getContents();
             $decoded = json_decode($finance_env);
+            $this->logger->debug('getPlatformEnv:'.serialize($decoded));
 
             $this->cache->save(
                 $decoded->data->environment,
                 self::CACHE_PLATFORM_KEY,
-                [self::CACHE_FINANCE_TAG],
+                [self::CACHE_DIVIDO_TAG],
                 self::CACHE_PLATFORM_TTL
             );
 
@@ -115,7 +118,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $this->logger->debug('Get SDK');
 
         $env = $this->getEnvironment($apiKey);
-        $this->logger->debug('Get SDK'.$apiKey.$env);
+        $this->logger->debug('Get SDK'.$env);
 
         $client = new \GuzzleHttp\Client();
         $sdk = true;
@@ -532,13 +535,22 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 
     public function getScriptUrl()
     {
+        $this->logger->debug('GetScript URL HElper');
+
         $apiKey = $this->getApiKey();
+        $scriptUrl= "//cdn.divido.com/widget/dist/divido.calculator.js";
+
         if (empty($apiKey)) {
-            return "//cdn.divido.com/widget/dist/divido.calculator.js";
+            return $scriptUrl;
         }
 
         $platformEnv = $this->getPlatformEnv();
-        return "//cdn.divido.com/widget/dist/" . $platformEnv . ".calculator.js";
+        $this->logger->debug('platform env:'.$platformEnv);
+
+       $scriptUrl= "//cdn.divido.com/widget/dist/" . $platformEnv . ".calculator.js";
+       $this->logger->debug('Url:'.$scriptUrl);
+
+        return (string) $scriptUrl;
     }
 
     public function plans2list($plans)
