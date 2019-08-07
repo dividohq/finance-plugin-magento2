@@ -421,18 +421,18 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         if (! empty($shipping)) {
             $products[] = [
                 'type'     => 'product',
-                'text'     => 'Shipping & Handling',
-                'quantity' => '1',
-                'value'    => (int) $shipping,
+                'name'     => 'Shipping & Handling',
+                'quantity' => (int) '1',
+                'price'    => (int) $shipping,
             ];
         }
         $discount = $shipAddr->getDiscountAmount();
         if (! empty($discount)) {
             $products[] = [
                 'type'     => 'product',
-                'text'     => 'Discount',
-                'quantity' => '1',
-                'value'    => (int) $discount * 100,
+                'name'     => 'Discount',
+                'quantity' => (int) '1',
+                'price'    => (int) $discount * 100,
             ];
         }
         $quoteId   = $quote->getId();
@@ -480,9 +480,21 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
                 ]
             );
         //todo - improve error handling
-        $response                  = $sdk->applications()->createApplication($application, ['X-Divido-Hmac-Sha256' => $secret], ['Content-Type' => 'application/json']);
+        if ('' !== $secret ) {
+            $this->logger->debug('Hmac Version'.$secret);
+
+            $response              = $sdk->applications()->createApplication($application,[],['Content-Type' => 'application/json', 'X-Divido-Hmac-Sha256' => $secret]);
+        }else{
+            $this->logger->debug('Non Hmac');
+
+            $response              = $sdk->applications()->createApplication($application,[],['Content-Type' => 'application/json']);
+        }
+        $response              = $sdk->applications()->createApplication($application,[],['Content-Type' => 'application/json']);
+
         $application_response_body = $response->getBody()->getContents();
+        
         $decode                    = json_decode($application_response_body);
+        $this->logger->debug(serialize($decode));
         $result_id                 = $decode->data->id;
         $result_redirect           = $decode->data->urls->application_url;
         if ($response) {

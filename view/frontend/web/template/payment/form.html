@@ -35,9 +35,10 @@
             <div class="field required">
                 <div class="control">
                         <div id="dividoWidget" data-calculator-widget 
+                        data-mode='calculator'
                         data-bind="
                         attr: {
-                            'data-amount': window.checkoutConfig.totalsData.base_grand_total,
+                            'data-amount': window.checkoutConfig.totalsData.base_grand_total * 100,
                             'data-plans': window.checkoutConfig.payment.divido_financing.cart_plans
                         }
                      " 

@@ -53,7 +53,7 @@ class Widget extends \Magento\Catalog\Block\Product\AbstractProduct
         $price = $product->getFinalPrice();
         $priceIncVat = $this->catHelper->getTaxPrice($product, $price, true);
 
-        return $priceIncVat;
+        return $priceIncVat * 100;
     }
 
     public function loadWidget()
