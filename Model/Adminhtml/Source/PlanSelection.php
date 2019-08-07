@@ -33,7 +33,7 @@ class PlanSelection implements \Magento\Framework\Option\ArrayInterface
         foreach ($plans as $plan) {
             $options[] = [
                 'value' => $plan->id,
-                'label' => $plan->text,
+                'label' => $plan->description,
             ];
         }
 

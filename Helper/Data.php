@@ -112,9 +112,10 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     public function getSdk()
     {
         $apiKey = $this->getApiKey();
-        $this->logger->debug('Environment does not exist in the SDK');
+        $this->logger->debug('Get SDK');
 
         $env = $this->getEnvironment($apiKey);
+        $this->logger->debug('Get SDK'.$apiKey.$env);
 
         $client = new \GuzzleHttp\Client();
         $sdk = true;
