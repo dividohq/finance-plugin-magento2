@@ -23,7 +23,7 @@ require(['jquery'], function($){
     let threshold = <?php echo $block->getThreshold(); ?>;
     let price = $("#product-price-<?php echo($block->getProductId()); ?> .price").text().replace(/[^0-9.+]+/gi,'');
     if(price >= threshold){
-      document.getElementById("dividoWidget").setAttribute('data-divido-amount', price);
+      document.getElementById("dividoWidget").setAttribute('data-amount', price);
       document.getElementById("dividoWidget").style.display = "";
     }else{
       document.getElementById("dividoWidget").style.display = "none";
