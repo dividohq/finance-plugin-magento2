@@ -480,6 +480,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
                 ]
             );
         //todo - improve error handling
+        /*TODO FIX HMAC
         if ('' !== $secret ) {
             $this->logger->debug('Hmac Version'.$secret);
 
@@ -489,6 +490,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 
             $response              = $sdk->applications()->createApplication($application,[],['Content-Type' => 'application/json']);
         }
+        */
         $response              = $sdk->applications()->createApplication($application,[],['Content-Type' => 'application/json']);
 
         $application_response_body = $response->getBody()->getContents();
