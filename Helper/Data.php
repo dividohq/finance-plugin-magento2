@@ -92,7 +92,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     public function getPlatformEnv()
     {
 
-        if ($env = $this->cache->load(self::CACHE_PLATFORM_KEY) && !is_null($env)) {
+        if ($env = $this->cache->load(self::CACHE_PLATFORM_KEY)) {
             return $env;
         } else {
             $sdk      = $this->getSdk();
