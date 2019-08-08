@@ -63,7 +63,7 @@
                     <label>Show product page widget</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
-
+<!-->
                 <field id="product_page_widget_prefix" translate="label" type="text" sortOrder="15" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Widget Prefix</label>
                     <depends>
@@ -76,7 +76,7 @@
                     <depends>
                         <field id="product_page_display">1</field>
                     </depends>
-                </field>
+                </field> -->
 
                 <!--<field id="creation_status" translate="label" type="select" sortOrder="17" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Create order on</label>
