@@ -53,6 +53,7 @@ class Success extends \Magento\Framework\App\Action\Action implements CsrfAwareA
 
         $quoteId = $this->getRequest()->getParam('quote_id');
         $order   = $this->order->loadByAttribute('quote_id', $quoteId);
+        
         if ($order == null) {
             //get sleep value
             sleep($this->getTimeout());

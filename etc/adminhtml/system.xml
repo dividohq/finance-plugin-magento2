@@ -78,11 +78,10 @@
                     </depends>
                 </field>
 
-
-                <field id="creation_status" translate="label" type="select" sortOrder="17" showInDefault="1" showInWebsite="1" showInStore="0">
+                <!--<field id="creation_status" translate="label" type="select" sortOrder="17" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Create order on</label>
                     <source_model>Divido\DividoFinancing\Model\Adminhtml\Source\DividoStatus</source_model>
-                </field>
+                </field>-->
                 <field id="order_status" translate="label" type="select" sortOrder="18" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>New order status when Signed</label>
 				    <source_model>Magento\Sales\Model\Config\Source\Order\Status</source_model>

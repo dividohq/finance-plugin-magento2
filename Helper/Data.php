@@ -474,8 +474,8 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             ->withMetadata(
                 [
                     'initial_cart_value' => $grandTotal,
-                    'quote_id'   => $quoteId,
-                    'quote_hash' => $quoteHash,
+                    'quote_id'           => $quoteId,
+                    'quote_hash'         => $quoteHash,
 
                 ]
             );
