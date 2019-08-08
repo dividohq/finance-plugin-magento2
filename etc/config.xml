@@ -5,7 +5,7 @@
             <divido_financing>
                 <active>0</active>
                 <model>Divido\DividoFinancing\Model\Payment</model>
-                <title>Pay in instalments with Divido</title>
+                <title>Pay in instalments</title>
                 <api_key/>
                 <min_order_total>0.50</min_order_total>
                 <currency>GBP</currency>
