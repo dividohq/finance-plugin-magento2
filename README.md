@@ -16,9 +16,9 @@ $ php bin/magento setup:upgrade
 
 ## Setup
 To be able to checkout with Finance.
-In `Stores > Configuration > Sales > Payment Methods` you will find the **Divido Financing** option.
+In `Stores > Configuration > Sales > Payment Methods` you will find the **Powered by Divido Financing** option.
   
-Enter the API-key from your Divido account in the field **API-key**  
+Enter the API-key from your Finance Provider account in the field **API-key**  
 Set the field **Enabled** to **Yes**
 
 That should be it to get going with your chosen Finance Provider as a checkout option.
@@ -27,7 +27,7 @@ That should be it to get going with your chosen Finance Provider as a checkout o
 
 | Field | Description |
 | --- | --- |
-| API-key | Obtained from your provider, needed to identify your shop in communications with the Divido system |
+| API-key | Obtained from your provider, needed to identify your shop in communications with the PBD system |
 | Shared secret | Obtained from your provider, enables message signing. |
 | Enabled | Enables / Disables both the product page calculator and checkout option |
 | Debug | Logs useful information when troubleshooting |
