@@ -148,29 +148,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     {
         $this->cache->clean('matchingTag', [self::CACHE_DIVIDO_TAG]);
     }
-    /*
-    public function getSuffix()
-    {
-        $suffix = $this->config->getValue(
-            'payment/divido_financing/product_page_widget_suffix',
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-        );
-    
-        return $suffix;
-    }
-
-
-    public function getPrefix()
-    {
-        
-        $prefix = $this->config->getValue(
-            'payment/divido_financing/product_page_widget_prefix',
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-        );
-        
-        return $prefix;
-    }
-    */
     
     public function getProductSelection()
     {
@@ -385,7 +362,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
                 $email = $existingEmail;
             }
         }
-        //TODO
+        //TODO - get languages correctly
         $language = 'en';
         $store = $this->storeManager->getStore();
         $currency = $store->getCurrentCurrencyCode();
@@ -561,8 +538,8 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $platformEnv = $this->getPlatformEnv();
         $this->logger->debug('platform env:'.$platformEnv);
 
-       $scriptUrl= "//cdn.divido.com/widget/dist/" . $platformEnv . ".calculator.js";
-       $this->logger->debug('Url:'.$scriptUrl);
+        $scriptUrl= "//cdn.divido.com/widget/dist/" . $platformEnv . ".calculator.js";
+        $this->logger->debug('Url:'.$scriptUrl);
 
         return (string) $scriptUrl;
     }
