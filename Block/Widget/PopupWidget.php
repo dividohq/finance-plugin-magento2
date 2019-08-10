@@ -4,7 +4,8 @@ namespace Divido\DividoFinancing\Block\Widget;
 use Magento\Framework\View\Element\Template;
 use Magento\Widget\Block\BlockInterface;
 
-class PopupWidget extends Template implements BlockInterface{
+class PopupWidget extends Template implements BlockInterface
+{
     
     private $helper;
     protected $_template = "widget/popupwidget.phtml";
@@ -18,9 +19,12 @@ class PopupWidget extends Template implements BlockInterface{
         parent::__construct($context, $data);
     }
 
-    public function showable(){
-        if(!empty($this->helper->getApiKey()))
+    public function showable()
+    {
+        if (!empty($this->helper->getApiKey())) {
             return true;
-        else return false;
+        } else {
+            return false;
+        }
     }
 }

@@ -23,6 +23,12 @@ class Widget extends \Magento\Catalog\Block\Product\AbstractProduct
         parent::__construct($context, $data);
     }
 
+    public function getFinancePlatform()
+    {
+        $env = $this->helper->getPlatformEnv();
+        return $env;
+    }
+
     public function getProductPlans()
     {
         $plans = $this->helper->getLocalPlans($this->getProduct()->getId());
@@ -47,39 +53,29 @@ class Widget extends \Magento\Catalog\Block\Product\AbstractProduct
         $price = $product->getFinalPrice();
         $priceIncVat = $this->catHelper->getTaxPrice($product, $price, true);
 
-        return $priceIncVat;
+        return $priceIncVat * 100;
     }
-       
-    public function getPreOrSuffix($choice)
+
+    public function loadWidget()
     {
-        $output = '';
-
-        if($choice=="prefix"){
-            $ix = $this->helper->getPrefix();
-        }else{
-            $ix = $this->helper->getSuffix();
-        }
-        if($ix !=''){
-            $output="data-divido-".$choice."='".$ix."'";
-        }
-        return $output;
-    }
-
-    public function loadWidget(){
         return $this->helper->getActive();
     }
     
-    public function showWidget(){
+    public function showWidget()
+    {
         $threshold = $this->getThreshold();
-        if($threshold === false || $this->getAmount() < $threshold){
+        if ($threshold === false || $this->getAmount() < $threshold) {
             return false;
-        }else return true;
+        } else {
+            return true;
+        }
     }
     
-    public function getThreshold(){
+    public function getThreshold()
+    {
         $selection = $this->helper->getProductSelection();
         
-        switch($selection){
+        switch ($selection) {
             case self::ALL_PRODUCTS:
                 $threshold = 0;
                 break;

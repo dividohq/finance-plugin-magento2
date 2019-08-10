@@ -10,7 +10,6 @@ class Head extends \Magento\Framework\View\Element\Template
         \Magento\Framework\View\Element\Template\Context $context,
         \Divido\DividoFinancing\Helper\Data $helper
     ) {
-    
         $this->helper = $helper;
         parent::__construct($context);
     }
@@ -23,5 +22,10 @@ class Head extends \Magento\Framework\View\Element\Template
     public function getDividoKey()
     {
         return $this->helper->getDividoKey();
+    }
+
+    public function getPlatformEnv()
+    {
+        return $this->helper->getPlatformEnv();
     }
 }

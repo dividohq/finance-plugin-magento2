@@ -11,13 +11,10 @@ if($block->showable()):
     style="border-radius: 4px; padding: 4px; margin: 4px 0"
 />
 <div id="dividoCalcWidget"
-    data-divido-widget
-    data-divido-title-logo
-    data-divido-amount="<?php echo ($block->getData("defaultAmount")) ? $block->getData("defaultAmount") : 2000; ?>"
-    data-divido-apply="true"
-    data-divido-plans
-    data-divido-logo 
-    data-divido-mode="popup"
+    data-calculator-widget
+    data-amount="<?php echo ($block->getData("defaultAmount")) ? $block->getData("defaultAmount") : 2000; ?>"
+    data-plans
+    data-mode="lightbox"
     >
 </div>
                                         
@@ -26,7 +23,7 @@ document.getElementById('dividoAmountInput').addEventListener('keyup',function(e
     let amount = event.target.value;
     let widget = document.getElementById('dividoCalcWidget');
     if(amount >= 250 && amount <= 25000){
-        widget.setAttribute('data-divido-amount',amount);
+        widget.setAttribute('data-amount',amount);
         widget.style.display = "";
     }else{
         widget.style.display = "none";

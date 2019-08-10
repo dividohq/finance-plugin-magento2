@@ -33,7 +33,7 @@ class ProductPlanSelection extends \Magento\Eav\Model\Entity\Attribute\Source\Ab
         foreach ($plans as $plan) {
             $options[] = [
                 'value' => $plan->id,
-                'label' => $plan->text,
+                'label' => $plan->description,
             ];
         }
 

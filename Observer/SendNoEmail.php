@@ -17,14 +17,13 @@ class SendNoEmail implements ObserverInterface
         $this->_logger = $logger;
     }
 
-
     public function execute(EventObserver $observer)
     {
         $order = $observer->getEvent()->getOrder();
 
         $code = $order->getPayment()->getMethodInstance()->getCode();
         if ($code == 'divido_financing') {
-            $order->setCanSendNewEmailFlag (false);
+            $order->setCanSendNewEmailFlag(false);
             $order->setCustomerNoteNotify(false);
             $order->save();
         }

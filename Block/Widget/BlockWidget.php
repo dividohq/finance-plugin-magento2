@@ -18,9 +18,12 @@ class BlockWidget extends Template implements BlockInterface{
         parent::__construct($context, $data);
     }
 
-    public function showable(){
-        if(!empty($this->helper->getApiKey()))
+    public function showable()
+    {
+        if (!empty($this->helper->getApiKey())) {
             return true;
-        else return false;
+        } else {
+            return false;
+        }
     }
 }

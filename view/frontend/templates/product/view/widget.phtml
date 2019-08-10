@@ -1,13 +1,10 @@
 <?php /* @var $block \Divido\DividoFinancing\Block\Product\View\Extra */?>
 <?php if($block->loadWidget()){ ?>
   <div id='dividoWidget' 
-    data-divido-widget 
-    data-divido-plans="<?php echo $block->getProductPlans(); ?>"
-    data-divido-amount="<?php echo $block->getAmount(); ?>" 
-
-    data-divido-mode="popup"
-  <?php echo $block->getPreOrSuffix('suffix'); ?>
-  <?php echo $block->getPreOrSuffix('prefix'); ?>
+    data-calculator-widget 
+    data-plans="<?php echo $block->getProductPlans(); ?>"
+    data-amount="<?php echo $block->getAmount(); ?>" 
+    data-mode="lightbox"
   ></div>
 <script>
 require(['jquery'], function($){
@@ -22,8 +19,9 @@ require(['jquery'], function($){
     $("._1I3cfca1j8sC76qiXwArRu").remove();
     let threshold = <?php echo $block->getThreshold(); ?>;
     let price = $("#product-price-<?php echo($block->getProductId()); ?> .price").text().replace(/[^0-9.+]+/gi,'');
+    console.log(price + ' ' +  threshold);
     if(price >= threshold){
-      document.getElementById("dividoWidget").setAttribute('data-divido-amount', price);
+      document.getElementById("dividoWidget").setAttribute('data-amount', price * 100);
       document.getElementById("dividoWidget").style.display = "";
     }else{
       document.getElementById("dividoWidget").style.display = "none";
