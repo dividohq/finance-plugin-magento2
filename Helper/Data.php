@@ -393,7 +393,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         }
         $totals = $quote->getTotals();
         $grandTotal = $totals['grand_total']->getValue();
-        $deposit = round(($depositPercentage / 100) * $grandTotal, 2);
+        $deposit = round(($depositPercentage) / $grandTotal, 2);
         $shipping = $shipAddr->getShippingAmount() * 100;
         if (! empty($shipping)) {
             $products[] = [
