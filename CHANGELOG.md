@@ -3,6 +3,13 @@ All notable changes to this project will now be documented in this file.
 
 ## [Unreleased]
 
+
+## [2.0.1] - 2019-08-19
+
+### Changed
+- Bugfix for incorrect Deposit amount
+
+
 ## [2.0.0] - 2019-08-08
 Tested against magento 2.3.1 and 2.3.2
 ### Added
