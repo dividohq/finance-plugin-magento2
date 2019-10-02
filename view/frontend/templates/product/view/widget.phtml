@@ -18,7 +18,6 @@ require(['jquery'], function($){
   var updatePrice = function(){
     let threshold = <?php echo $block->getThreshold(); ?>;
     let price = $("#product-price-<?php echo($block->getProductId()); ?> .price").text().replace(/[^0-9.+]+/gi,'');
-    console.log(price + ' ' +  threshold);
     if(price >= threshold){
       document.getElementById("dividoWidget").setAttribute('data-amount', price * 100);
       document.getElementById("dividoWidget").style.display = "";
