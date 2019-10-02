@@ -433,8 +433,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $sdk                       = $this->getSdk();
         $application               = (new \Divido\MerchantSDK\Models\Application())
             ->withCountryId($country)
-            ->withCurrencyId($currency)
-            ->withLanguageId($language)
             ->withFinancePlanId($planId)
             ->withApplicants([$customer])
             ->withOrderItems($products)
