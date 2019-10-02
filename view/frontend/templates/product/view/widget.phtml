@@ -16,13 +16,13 @@ require(['jquery'], function($){
     })
   }
   var updatePrice = function(){
-    $("._1I3cfca1j8sC76qiXwArRu").remove();
     let threshold = <?php echo $block->getThreshold(); ?>;
     let price = $("#product-price-<?php echo($block->getProductId()); ?> .price").text().replace(/[^0-9.+]+/gi,'');
-    console.log(price + ' ' +  threshold);
     if(price >= threshold){
       document.getElementById("dividoWidget").setAttribute('data-amount', price * 100);
       document.getElementById("dividoWidget").style.display = "";
+      __widgetInstance.init()
+
     }else{
       document.getElementById("dividoWidget").style.display = "none";
     }
