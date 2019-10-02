@@ -3,6 +3,12 @@ All notable changes to this project will now be documented in this file.
 
 ## [Unreleased]
 
+## [2.0.2] - 2019-10-01
+
+### Changed
+- Bugfix for configurable products widget updating on change
+- Bugfix for international 
+
 
 ## [2.0.1] - 2019-08-19
 
