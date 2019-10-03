@@ -56,7 +56,9 @@
                 <field id="cart_threshold" translate="label" type="text" sortOrder="13" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Cart Threshold</label>
                 </field>
-
+                <field id="max_loan_amount" translate="label" type="text" sortOrder="13" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Max Loan Amount</label>
+                </field>
 
 
                 <field id="product_page_display" translate="label" type="select" sortOrder="14" showInDefault="1" showInWebsite="1" showInStore="1">

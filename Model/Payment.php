@@ -66,7 +66,18 @@ class Payment extends \Magento\Payment\Model\Method\AbstractMethod
                 \Magento\Store\Model\ScopeInterface::SCOPE_STORE
             );
 
+            $maxAmount = $this->_scopeConfig->getValue(
+                'payment/divido_financing/max_loan_amount',
+                \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+            );
+
+
+
             if (is_numeric($cartThreshhold) && $quote->getBaseGrandTotal() < $cartThreshhold) {
+                return false;
+            }
+
+            if (is_numeric($maxAmount) && $quote->getBaseGrandTotal() > $maxAmount) {
                 return false;
             }
 
