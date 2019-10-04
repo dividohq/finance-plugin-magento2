@@ -3,6 +3,12 @@ All notable changes to this project will now be documented in this file.
 
 ## [Unreleased]
 
+## [2.0.3] - 2019-10-04
+
+### Changed
+- Bugfix for country
+- Bugfix for deposit amount
+
 ## [2.0.2] - 2019-10-01
 
 ### Changed
