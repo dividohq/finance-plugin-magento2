@@ -329,7 +329,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         return $plans;
     }
 
-    public function creditRequest($planId, $depositPercentage, $email, $quoteId = null)
+    public function creditRequest($planId, $depositAmount, $email, $quoteId = null)
     {
         $secret = $this->config->getValue(
             'payment/divido_financing/secret',
@@ -393,7 +393,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         }
         $totals = $quote->getTotals();
         $grandTotal = $totals['grand_total']->getValue();
-        $deposit = round(($depositPercentage) / $grandTotal, 2);
+        $deposit = round($depositAmount);
         $shipping = $shipAddr->getShippingAmount() * 100;
         if (! empty($shipping)) {
             $products[] = [
@@ -436,7 +436,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             ->withFinancePlanId($planId)
             ->withApplicants([$customer])
             ->withOrderItems($products)
-            ->withDepositPercentage($deposit / 100)
+            ->withDepositAmount($deposit)
             ->withFinalisationRequired(false)
             ->withMerchantReference('')
             ->withUrls(
