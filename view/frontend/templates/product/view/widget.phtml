@@ -14,7 +14,6 @@ require(['jquery'], function($){
     option.addEventListener('change', function(){
       setTimeout(updatePrice,50);
     })
-    option.addEventListener('click',updatePrice);
   }
   var updatePrice = function(){
     let threshold = <?php echo $block->getThreshold(); ?>;
@@ -28,9 +27,11 @@ require(['jquery'], function($){
       document.getElementById("dividoWidget").style.display = "none";
     }
   }
-    // add update price event listener on click
-    //var wrapper = $(".product-options-wrapper")[0];
-    //wrapper.addEventListener('click',updatePrice);
+  if ($(".product-options-wrapper")[0]){
+    // Do something if class exists
+    var wrapper = $(".product-options-wrapper")[0];
+    wrapper.addEventListener('click',updatePrice);
+  }
     updatePrice();
 });
 </script>
