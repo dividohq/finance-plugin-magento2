@@ -14,6 +14,7 @@ require(['jquery'], function($){
     option.addEventListener('change', function(){
       setTimeout(updatePrice,50);
     })
+    option.addEventListener('click',updatePrice);
   }
   var updatePrice = function(){
     let threshold = <?php echo $block->getThreshold(); ?>;
