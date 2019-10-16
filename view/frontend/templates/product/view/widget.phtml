@@ -27,10 +27,12 @@ require(['jquery'], function($){
       document.getElementById("dividoWidget").style.display = "none";
     }
   }
-    // add update price event listener on click
+  if ($(".product-options-wrapper")[0]){
+    // Do something if class exists
     var wrapper = $(".product-options-wrapper")[0];
     wrapper.addEventListener('click',updatePrice);
-  updatePrice();
+  }
+    updatePrice();
 });
 </script>
 <?php } ?>
