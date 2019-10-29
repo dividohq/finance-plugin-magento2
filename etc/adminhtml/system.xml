@@ -116,11 +116,11 @@
                 <field id="headless_support" translate="label comment" type="select" sortOrder="25" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>headless_support_label</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                    <comment>headless_support_description</comment>
+                    <comment><![CDATA[headless_support_description]]></comment>
                 </field>
                  <field id="custom_checkout_url" translate="label comment" type="text" sortOrder="26" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>custom_checkout_url_label</label>
-                    <comment>custom_checkout_url_description</comment>
+                    <comment><![CDATA[custom_checkout_url_description]]></comment>
                     <depends>
                         <field id="headless_support">1</field>
                     </depends>
@@ -130,7 +130,7 @@
                     <depends>
                         <field id="headless_support">1</field>
                     </depends>
-                    <comment><![CDATA[Headless custom_redirect_url_description]]></comment>
+                    <comment><![CDATA[custom_redirect_url_description]]></comment>
                 </field>
             </group>
         </section>
