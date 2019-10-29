@@ -2,123 +2,135 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
     <system>
         <section id="payment">
-            <group id="divido_financing" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Powered by Divido Financing</label>
-                <field id="api_key" translate="label" type="text" sortOrder="2" showInDefault="1" showInWebsite="1" showInStore="0">
-                    <label>API-key</label>
+            <group id="divido_financing" translate="label comment" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>plugin_title</label>
+                <comment>plugin_description</comment>
+                <field id="api_key" translate="label comment" type="text" sortOrder="2" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>api_key_label</label>
+                    <comment>api_key_description</comment>
                 </field>
-                <field id="secret" translate="label" type="text" sortOrder="3" showInDefault="1" showInWebsite="1" showInStore="0">
-                    <label>Shared secret</label>
+                <field id="secret" translate="label comment" type="text" sortOrder="3" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>shared_secret_label</label>
+                    <comment>shared_secret_description</comment>
                 </field>
-                <field id="active" translate="label" type="select" sortOrder="4" showInDefault="1" showInWebsite="1" showInStore="0">
-                    <label>Enabled</label>
+                <field id="active" translate="label comment" type="select" sortOrder="4" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>plugin_active_label</label>
+                    <comment>plugin_active_description</comment>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
-                <field id="title" translate="label" type="text" sortOrder="5" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Checkout Title</label>
+                <field id="title" translate="label comment" type="text" sortOrder="5" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>checkout_title_label</label>
+                    <comment>checkout_title_description</comment>
                 </field>
                 <field id="sort_order" translate="label" type="text" sortOrder="6" showInDefault="1" showInWebsite="1"
                        showInStore="0">
-                    <label>Sort Order</label>
+                    <label>sort_order_label</label>
                     <frontend_class>validate-number</frontend_class>
                 </field>
-                <field id="allowspecific" translate="label" type="allowspecific" sortOrder="7" showInDefault="1" showInWebsite="1" showInStore="0" canRestore="1">
-                    <label>Payment from Applicable Countries</label>
+                <field id="allowspecific" translate="label comment" type="allowspecific" sortOrder="7" showInDefault="1" showInWebsite="1" showInStore="0" canRestore="1">
+                    <label>limit_countries_label</label>
+                    <comment>limit_countries_description</comment>
                     <source_model>Magento\Payment\Model\Config\Source\Allspecificcountries</source_model>
                 </field>
                 <field id="specificcountry" translate="label" type="multiselect" sortOrder="8" showInDefault="1" showInWebsite="1" showInStore="0">
-                    <label>Payment from Specific Countries</label>
+                    <label>refine_countries_label</label>
                     <source_model>Magento\Directory\Model\Config\Source\Country</source_model>
                     <can_be_empty>1</can_be_empty>
                 </field>
 
                 <field id="plans_displayed" translate="label" type="select" sortOrder="9" showInDefault="1" showInWebsite="1" showInStore="0">
-                    <label>Displayed plans</label>
+                    <label>limit_plans_label</label>
+                    <comment>limit_plans_description</comment>
                     <source_model>Divido\DividoFinancing\Model\Adminhtml\Source\PlansDisplayed</source_model>
                 </field>
                 <field id="plan_selection" translate="label" type="multiselect" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
-                    <label>Plan selection</label>
+                    <label>refine_plans_label</label>
                     <source_model>Divido\DividoFinancing\Model\Adminhtml\Source\PlanSelection</source_model>
                     <depends>
                         <field id="plans_displayed">plans_selected</field>
                     </depends>
                 </field>
-                <field id="product_selection" translate="label" type="select" sortOrder="11" showInDefault="1" showInWebsite="1" showInStore="0">
-                    <label>Product selection</label>
+                <field id="product_selection" translate="label comment" type="select" sortOrder="11" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>product_selection_label</label>
+                    <comment>product_selection_description</comment>
                     <source_model>Divido\DividoFinancing\Model\Adminhtml\Source\ProductSelection</source_model>
                 </field>
-                <field id="price_threshold" translate="label" type="text" sortOrder="12" showInDefault="1" showInWebsite="1" showInStore="0">
-                    <label>Price threshold</label>
+                <field id="price_threshold" translate="label comment" type="text" sortOrder="12" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>product_price_threshold_label</label>
+                    <comment>product_price_threshold_description</comment>
                     <depends>
                         <field id="product_selection">products_price_threshold</field>
                     </depends>
                 </field>
-                <field id="cart_threshold" translate="label" type="text" sortOrder="13" showInDefault="1" showInWebsite="1" showInStore="0">
-                    <label>Cart Threshold</label>
+                <field id="cart_threshold" translate="label comment" type="text" sortOrder="13" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>cart_threshold_label</label>
+                    <comment>cart_threshold_description</comment>
                 </field>
-                <field id="max_loan_amount" translate="label" type="text" sortOrder="13" showInDefault="1" showInWebsite="1" showInStore="0">
-                    <label>Max Loan Amount</label>
+                <field id="max_loan_amount" translate="label comment" type="text" sortOrder="13" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>cart_maximum_label</label>
+                    <comment>cart_maximum_description</comment>
                 </field>
-
-
                 <field id="product_page_display" translate="label" type="select" sortOrder="14" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Show product page widget</label>
+                    <label>show_widget_label</label>
+                    <comment>show_widget_description</comment>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
                 <field id="order_status" translate="label" type="select" sortOrder="18" showInDefault="1" showInWebsite="1" showInStore="0">
-                    <label>New order status when Signed</label>
-				    <source_model>Magento\Sales\Model\Config\Source\Order\Status</source_model>
+                    <label>order_status_signed_label</label>
+                    <source_model>Magento\Sales\Model\Config\Source\Order\Status</source_model>
                 </field>
-                <field id="auto_fulfilment" translate="label" type="select" sortOrder="19" showInDefault="1" showInWebsite="1" showInStore="0">
-                    <label>Automatic fulfilment</label>
+                <field id="auto_fulfilment" translate="label comment" type="select" sortOrder="19" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>automatic_fulfilment_label</label>
+                    <comment>automatic_fulfilment_description</comment>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
                 <field id="fulfilment_status" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0">
-                    <label>Fulfilment status</label>
-				    <source_model>Magento\Sales\Model\Config\Source\Order\Status</source_model>
+                    <label>automatic_fulfilment_status_label</label>
+                        <source_model>Magento\Sales\Model\Config\Source\Order\Status</source_model>
                     <depends>
                         <field id="auto_fulfilment">1</field>
                     </depends>
                 </field>
                 <field id="change_invoice_status" translate="label" type="select" sortOrder="21" showInDefault="1" showInWebsite="1" showInStore="0">
-                    <label>Change Invoice Status</label>
+                    <label>set_invoice_status_label</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
                 <field id="invoice_status" translate="label" type="select" sortOrder="22" showInDefault="1" showInWebsite="1" showInStore="0">
-                    <label>Invoice status</label>
-				    <source_model>Magento\Sales\Model\Config\Source\Order\Status</source_model>
+                    <label>choose_invoice_status_label</label>
+                        <source_model>Magento\Sales\Model\Config\Source\Order\Status</source_model>
                     <depends>
                         <field id="change_invoice_status">1</field>
                     </depends>
                 </field>
-   
-                <field id="debug" translate="label" type="select" sortOrder="23" showInDefault="1" showInWebsite="1" showInStore="0">
-                    <label>Debug</label>
+
+                <field id="debug" translate="label comment" type="select" sortOrder="23" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>debug_label</label>
+                    <comment>debug_description</comment>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
-               <field id="timeout_delay" translate="label" type="text" sortOrder="24" showInDefault="1" showInWebsite="1" showInStore="0">
-                    <label>Wait for Order Delay</label>
-                    <comment><![CDATA[For stores running on slower servers increase this delay to allow the order to be created]]></comment>
+               <field id="timeout_delay" translate="label comment" type="text" sortOrder="24" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>delay_order_creation_label</label>
+                    <comment><![CDATA[delay_order_creation_description]]></comment>
                 </field>
 
-                <field id="headless_support" translate="label" type="select" sortOrder="25" showInDefault="1" showInWebsite="1" showInStore="0">
-                    <label>Headless Support - Experimental</label>
+                <field id="headless_support" translate="label comment" type="select" sortOrder="25" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>headless_support_label</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                    <comment><![CDATA[Headless store options]]></comment>
+                    <comment>headless_support_description</comment>
                 </field>
-                 <field id="custom_checkout_url" translate="label" type="text" sortOrder="26" showInDefault="1" showInWebsite="1" showInStore="0">
-                    <label>Custom Checkout Url</label>
+                 <field id="custom_checkout_url" translate="label comment" type="text" sortOrder="26" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>custom_checkout_url_label</label>
+                    <comment>custom_checkout_url_description</comment>
                     <depends>
                         <field id="headless_support">1</field>
                     </depends>
-                    <comment><![CDATA[Headless store checkout url]]></comment>
                 </field>
                 <field id="custom_redirect_url" translate="label" type="text" sortOrder="27" showInDefault="1" showInWebsite="1" showInStore="0">
-                    <label>Custom Redirect Url</label>
+                    <label>custom_redirect_url_label</label>
                     <depends>
                         <field id="headless_support">1</field>
                     </depends>
-                    <comment><![CDATA[Headless store redirect url]]></comment>
+                    <comment><![CDATA[Headless custom_redirect_url_description]]></comment>
                 </field>
             </group>
         </section>
