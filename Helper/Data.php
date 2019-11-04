@@ -31,7 +31,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 
     public function __construct(
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
-        \Psr\Log\LoggerInterface $logger,
+        \Divido\DividoFinancing\Logger\Logger $logger,
         \Magento\Framework\App\CacheInterface $cache,
         \Magento\Checkout\Model\Cart $cart,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
@@ -64,13 +64,14 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $apiKey = (false === $apiKey) ? $this->getApiKey() : $apiKey;
 
         if (empty($apiKey)) {
-            $this->logger->debug('Empty API key');
+            $this->logger->error('Empty API key');
             return false;
         } else {
             list($environment, $key) = explode("_", $apiKey);
             $environment = strtoupper($environment);
-            $this->logger->debug('getEnv:'.$environment);
-
+            if ($this->debug()) {
+                $this->logger->info('getEnv:'.$environment);
+            }
             if (!is_null(
                 constant("\Divido\MerchantSDK\Environment::$environment")
             )) {
@@ -99,8 +100,9 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             $response = $sdk->platformEnvironments()->getPlatformEnvironment();
             $finance_env = $response->getBody()->getContents();
             $decoded = json_decode($finance_env);
-            $this->logger->debug('getPlatformEnv:'.serialize($decoded));
-
+            if ($this->debug()) {
+                $this->logger->info('getPlatformEnv:'.serialize($decoded));
+            }
             $this->cache->save(
                 $decoded->data->environment,
                 self::CACHE_PLATFORM_KEY,
@@ -115,10 +117,14 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     public function getSdk()
     {
         $apiKey = $this->getApiKey();
-        $this->logger->debug('Get SDK');
+        if ($this->debug()) {
+            $this->logger->info('Get SDK');
+        }
 
         $env = $this->getEnvironment($apiKey);
-        $this->logger->debug('Get SDK'.$env);
+        if ($this->debug()) {
+            $this->logger->info('Get SDK'.$env);
+        }
 
         $client = new \GuzzleHttp\Client();
         $sdk = true;
@@ -191,7 +197,9 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         }
 
         if ($plans = $this->cache->load(self::CACHE_PLANS_KEY)) {
-            $this->logger->addDebug('Cached Plans' . $plans);
+            if ($this->debug()){
+                   $this->logger->info('Cached Plans Key:'.self::CACHE_PLANS_KEY);
+               }
             $plans = unserialize($plans);
             return $plans;
         }
@@ -199,7 +207,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $response = $this->getPlans();
 
         if (!isset($response[0]->id)) {
-            $this->logger->addError('Could not get financing plans.');
+            $this->logger->error('Could not get financing plans.');
             $this->cleanCache();
             return [];
         }
@@ -471,7 +479,9 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $application_response_body = $response->getBody()->getContents();
         
         $decode                    = json_decode($application_response_body);
-        $this->logger->debug(serialize($decode));
+        if ($this->debug()){
+            $this->logger->info(serialize($decode));
+        }
         $result_id                 = $decode->data->id;
         $result_redirect           = $decode->data->urls->application_url;
         if ($response) {
@@ -524,8 +534,9 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 
     public function getScriptUrl()
     {
-        $this->logger->debug('GetScript URL HElper');
-
+        if ($this->debug()) {
+            $this->logger->info('GetScript URL HElper');
+        }
         $apiKey = $this->getApiKey();
         $scriptUrl= "//cdn.divido.com/widget/dist/divido.calculator.js";
 
@@ -534,11 +545,13 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         }
 
         $platformEnv = $this->getPlatformEnv();
-        $this->logger->debug('platform env:'.$platformEnv);
-
+        if ($this->debug()) {
+            $this->logger->info('platform env:'.$platformEnv);
+        }
         $scriptUrl= "//cdn.divido.com/widget/dist/" . $platformEnv . ".calculator.js";
-        $this->logger->debug('Url:'.$scriptUrl);
-
+        if ($this->debug()) {
+            $this->logger->info('Url:'.$scriptUrl);
+        }
         return (string) $scriptUrl;
     }
 
@@ -840,5 +853,14 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $sdk                      = $this->getSdk();
         $response                 = $sdk->applicationRefunds()->createApplicationRefund($application, $application_refund);
         $activation_response_body = $response->getBody()->getContents();
+    }
+    
+    public function debug()
+    {
+        $debug = $this->config->getValue(
+            'payment/divido_financing/debug',
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
+        return $debug;
     }
 }

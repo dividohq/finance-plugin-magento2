@@ -94,10 +94,11 @@ class CreditRequest implements CreditRequestInterface
         $email     = $this->req->getQuery('email', null);
         $cartValue = $this->req->getQuery('initial_cart_value', null);
         $quoteId   = $this->req->getQuery('quote_id', null);
-        
         try {
             $creditRequestUrl = $this->helper->creditRequest($planId, $deposit, $email, $quoteId);
             $response['url']  = $creditRequestUrl;
+            $this->logger->info($creditRequestUrl);
+
         } catch (\Exception $e) {
             $this->logger->info($e);
             $response['error'] = $e->getMessage();
@@ -114,6 +115,8 @@ class CreditRequest implements CreditRequestInterface
      */
     public function update()
     {
+        $this->logger->info('Application Update - CreditRequest');
+
         $debug = $this->config->getValue(
             'payment/divido_financing/debug',
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
@@ -128,6 +131,10 @@ class CreditRequest implements CreditRequestInterface
         if ($data === null) {
             $this->logger->error('Divido: Bad request, could not parse body: ' . $content);
             return $this->webhookResponse(false, 'Invalid json');
+        }
+        if($debug){
+            $this->logger->debug('Application Update Status:'.$data->status);
+
         }
 
         $quoteId = $data->metadata->quote_id;
@@ -147,7 +154,7 @@ class CreditRequest implements CreditRequestInterface
             $sign = $this->helper->createSignature($content, $secret);
 
             if ($reqSign !== $sign) {
-                $this->logger->addError('Divido: Bad request, invalid signature. Req: ' . $content);
+                $this->logger->error('Divido: Bad request, invalid signature. Req: ' . $content);
                 return $this->webhookResponse(false, 'Invalid signature');
             }
         }
@@ -155,7 +162,7 @@ class CreditRequest implements CreditRequestInterface
         $salt = $lookup->getSalt();
         $hash = $this->helper->hashQuote($salt, $data->metadata->quote_id);
         if ($hash !== $data->metadata->quote_hash) {
-            $this->logger->addError('Divido: Bad request, mismatch in hash. Req: ' . $content);
+                $this->logger->error('Divido: Bad request, mismatch in hash. Req: ' . $content);
             return $this->webhookResponse(false, 'Invalid hash');
         }
 
@@ -165,7 +172,7 @@ class CreditRequest implements CreditRequestInterface
 
         if (isset($data->application)) {
             if ($debug) {
-                $this->logger->addDebug('Divido: update application id');
+                    $this->logger->debug('Divido: update application id');
             }
             $lookup->setData('application_id', $data->application);
             $lookup->save();
@@ -195,7 +202,7 @@ class CreditRequest implements CreditRequestInterface
 
         if (in_array($data->status, $this->noGo)) {
             if ($debug) {
-                $this->logger->addDebug('Divido: No go: ' . $data->status);
+                $this->logger->debug('Divido: No go: ' . $data->status);
             }
 
             if ($data->status == self::STATUS_DECLINED) {
@@ -214,13 +221,9 @@ class CreditRequest implements CreditRequestInterface
             $this->eventManager->dispatch('divido_financing_quote_referred', ['quote_id' => $quoteId]);
         }
 
-        $creationStatus = $this->config->getValue(
-            'payment/divido_financing/creation_status',
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-        );
+        $creationStatus=self::STATUS_SIGNED;
 
         //Check if Divido order already exists (as with same quoteID, other orders with different payment method may be present with status as cancelled)
-        
         //Divido order not exists
         $isOrderExists = false;
 
@@ -254,7 +257,7 @@ class CreditRequest implements CreditRequestInterface
 
             if ($debug) {
                 $this->logger->debug('Current Cart Value : ' . $grandTotal);
-                $this->logger->debug('Divido Inital Value: ' . $iv);
+                $this->logger->debug('Divido Initial Value: ' . $iv);
             }
 
             $orderId = $this->quoteManagement->placeOrder($quoteId);
@@ -289,7 +292,7 @@ class CreditRequest implements CreditRequestInterface
                     return $this->webhookResponse();
                 } else {
                     if ($debug) {
-                        $this->logger->addDebug('Divido: Cannot Hold Order');
+                        $this->logger->debug('Divido: Cannot Hold Order');
                     };
                     $order->addStatusHistoryComment(__('Value of cart changed before completion - cannot hold order'));
                 }
@@ -306,8 +309,10 @@ class CreditRequest implements CreditRequestInterface
                 
 
         if ($data->status == self::STATUS_SIGNED) {
+            $this->logger->info('Divido: Escalate order');
+
             if ($debug) {
-                $this->logger->addDebug('Divido: Escalate order');
+                $this->logger->debug('Divido: Escalate order');
             }
 
             $status = self::NEW_ORDER_STATUS;
@@ -333,6 +338,7 @@ class CreditRequest implements CreditRequestInterface
 
         $order->addStatusHistoryComment($comment);
         $order->save();
+        $this->logger->info('Application Update - CreditRequest END');
 
         return $this->webhookResponse();
     }

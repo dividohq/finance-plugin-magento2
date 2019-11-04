@@ -2,6 +2,7 @@
 All notable changes to this project will now be documented in this file.
 
 ## [Unreleased]
+- Bugfix for js on products without select
 
 ## [2.0.3] - 2019-10-04
 
