@@ -376,8 +376,8 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             'postcode'          => $shipAddr->getPostcode(),
             'email'             => $email,
             'phoneNumber'       => $shipAddr->getTelephone(),
-            'shippingAddress'   => $shippingAddress,
             'addresses'         => [$billingAddress],
+            'shippingAddress'   => $shippingAddress,
         ];
 
         $products = [];
@@ -641,15 +641,8 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     public function getAddressDetail($addressObject)
     {
         $street = str_replace("\n", " ", $addressObject['street']);
-        $addressText     = implode(' ', [$street,$addressObject['city'],$addressObject['postcode']]);
+        $addressText     = implode(' ', [$street, $addressObject['city'],$addressObject['postcode']]);
         $addressArray = [
-            'postcode'          => $addressObject['postcode'],
-            'street'            => $street,
-            'flat'              => '',
-            'buildingNumber'    => '',
-            'buildingName'      => '',
-            'town'              => $addressObject['city'],
-            'flat'              => '',
             'text'              => $addressText,
         ];
 
