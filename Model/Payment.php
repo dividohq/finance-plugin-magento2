@@ -76,11 +76,11 @@ class Payment extends \Magento\Payment\Model\Method\AbstractMethod
             if (is_numeric($cartThreshhold) && $quote->getBaseGrandTotal() < $cartThreshhold) {
                 return false;
             }
-            /*
+            
             if (is_numeric($maxAmount) && $quote->getBaseGrandTotal() > $maxAmount) {
                 return false;
             }
-            */
+            
             $plans = $this->dividoHelper->getQuotePlans($quote);
             if (! $plans) {
                 return false;
