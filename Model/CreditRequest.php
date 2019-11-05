@@ -7,7 +7,7 @@ use Divido\DividoFinancing\Api\CreditRequestInterface;
 class CreditRequest implements CreditRequestInterface
 {
     const
-        VERSION              = 'M2-2.0.3',
+        VERSION              = 'M2-2.0.4',
         NEW_ORDER_STATUS     = 'pending_payment',
         STATUS_ACCEPTED      = 'ACCEPTED',
         STATUS_ACTION_LENDER = 'ACTION-LENDER',

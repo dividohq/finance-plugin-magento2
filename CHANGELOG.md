@@ -1,8 +1,13 @@
 # Changelog
 All notable changes to this project will now be documented in this file.
 
-## [Unreleased]
+## [2.0.4] - 2019-11-05
+Tested against magento 2.3.2 and 2.3.3
+
 - Bugfix for js on products without select
+- Bugfix Application Creation
+- Debugging Adjustments
+- Address Text Adjustment
 
 ## [2.0.3] - 2019-10-04
 
