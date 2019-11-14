@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to this project will now be documented in this file.
 
+## [2.0.5] - 2019-11-14
+- Bugfix for configurable products on sites that use multiple js libs
+
 ## [2.0.4] - 2019-11-05
 Tested against magento 2.3.2 and 2.3.3
 
