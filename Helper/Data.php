@@ -474,7 +474,9 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             $response              = $sdk->applications()->createApplication($application,[],['Content-Type' => 'application/json']);
         }
         */
-        if($this->getLookupForOrder() != null){
+        $lookupExists=$this->getLookupForOrder();
+        if($lookupExists!= null){
+            $application->withId($lookupExists['proposal_id']);
             $response              = $sdk->applications()->updateApplication($application,[],['Content-Type' => 'application/json']);
         }else{
             $response              = $sdk->applications()->createApplication($application,[],['Content-Type' => 'application/json']);
