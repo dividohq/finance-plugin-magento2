@@ -474,7 +474,11 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             $response              = $sdk->applications()->createApplication($application,[],['Content-Type' => 'application/json']);
         }
         */
-        $response              = $sdk->applications()->createApplication($application,[],['Content-Type' => 'application/json']);
+        if($this->getLookupForOrder() != null){
+            $response              = $sdk->applications()->updateApplication($application,[],['Content-Type' => 'application/json']);
+        }else{
+            $response              = $sdk->applications()->createApplication($application,[],['Content-Type' => 'application/json']);
+        }
 
         $application_response_body = $response->getBody()->getContents();
         
