@@ -7,8 +7,8 @@
     data-mode="lightbox"
   ></div>
 <script>
-require(['jquery'], function($){
-  var options = $(".product-options-wrapper input, .product-options-wrapper select");
+require(['jquery'], function(jQuery){
+  var options = jQuery(".product-options-wrapper input, .product-options-wrapper select");
   for(var iteration = 0; iteration < options.length; iteration++){
     var option = options[iteration];
     option.addEventListener('change', function(){
@@ -17,7 +17,7 @@ require(['jquery'], function($){
   }
   var updatePrice = function(){
     let threshold = <?php echo $block->getThreshold(); ?>;
-    let price = $("#product-price-<?php echo($block->getProductId()); ?> .price").text().replace(/[^0-9.+]+/gi,'');
+    let price = jQuery("#product-price-<?php echo($block->getProductId()); ?> .price").text().replace(/[^0-9.+]+/gi,'');
     if(price >= threshold){
       document.getElementById("dividoWidget").setAttribute('data-amount', price * 100);
       document.getElementById("dividoWidget").style.display = "";
@@ -27,9 +27,9 @@ require(['jquery'], function($){
       document.getElementById("dividoWidget").style.display = "none";
     }
   }
-  if ($(".product-options-wrapper")[0]){
+  if (jQuery(".product-options-wrapper")[0]){
     // Do something if class exists
-    var wrapper = $(".product-options-wrapper")[0];
+    var wrapper = jQuery(".product-options-wrapper")[0];
     wrapper.addEventListener('click',updatePrice);
   }
     updatePrice();
