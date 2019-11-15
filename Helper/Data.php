@@ -475,10 +475,16 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         }
         */
         $lookupExists=$this->checkLookup($quoteId);
-        if($lookupExists!= null){
+        if($lookupExists == null){
+            if ($this->debug()){
+                $this->logger->info('Update Application Request');
+            }
             $application->withId($lookupExists['proposal_id']);
             $response              = $sdk->applications()->updateApplication($application,[],['Content-Type' => 'application/json']);
         }else{
+            if ($this->debug()){
+                $this->logger->info('Create Application Request');
+            }
             $response              = $sdk->applications()->createApplication($application,[],['Content-Type' => 'application/json']);
         }
 
