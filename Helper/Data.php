@@ -474,7 +474,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             $response              = $sdk->applications()->createApplication($application,[],['Content-Type' => 'application/json']);
         }
         */
-        $lookupExists=$this->getLookupForOrder($quoteId);
+        $lookupExists=$this->checkLookup($quoteId);
         if($lookupExists!= null){
             $application->withId($lookupExists['proposal_id']);
             $response              = $sdk->applications()->updateApplication($application,[],['Content-Type' => 'application/json']);
@@ -573,6 +573,24 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $plansBare = array_unique($plansBare);
 
         return implode(',', $plansBare);
+    }
+    public function checkLookup($quoteId){
+
+        $lookupModel = $this->lookupFactory->create();
+        $lookupModel->load($quoteId, 'quote_id');
+        if (! $lookupModel->getId()) {
+            return null;
+        }
+
+        return [
+            'proposal_id'        => $lookupModel->getData('proposal_id'),
+            'application_id'     => $lookupModel->getData('application_id'),
+            'deposit_amount'     => $lookupModel->getData('deposit_value'),
+            'initial_cart_value' => $lookupModel->getData('initial_cart_value'),
+            'order_id'           => $lookupModel->getData('order_id')
+
+        ];
+
     }
 
     public function getLookupForOrder($order)
