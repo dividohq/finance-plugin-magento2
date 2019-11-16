@@ -52,7 +52,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $this->productFactory = $productFactory;
     }
 
-       /**
+    /**
      * Checks the SDK's Environment class for the given environment type
      *
      * @param string $apiKey The config API key
@@ -475,17 +475,64 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         }
         */
         $lookupExists=$this->checkLookup($quoteId);
-        if($lookupExists == null){
+        //Check for lookup -
+        //If lookup exists update the application
+        //If updating application fails - create an application
+        if(is_null($lookupExists)){
+
+            if ($this->debug()){
+                $this->logger->info('Lookup is null');
+                $this->logger->info('Create Application Request');
+            }
+            try {
+                $response              = $sdk->applications()->createApplication($application,[],['Content-Type' => 'application/json']);
+            }catch (\Exception $e){
+                if ($this->debug()){
+                    $this->logger->error($e->getMessage());
+                }
+                throw new \Magento\Framework\Exception\LocalizedException(__($e));
+
+            }
+        }else{
             if ($this->debug()){
                 $this->logger->info('Update Application Request');
             }
-            $application->withId($lookupExists['proposal_id']);
-            $response              = $sdk->applications()->updateApplication($application,[],['Content-Type' => 'application/json']);
-        }else{
+            $application               = (new \Divido\MerchantSDK\Models\Application())
+            ->withId($lookupExists['proposal_id'])
+            ->withCountryId($country)
+            ->withFinancePlanId($planId)
+            ->withApplicants([$customer])
+            ->withOrderItems($products)
+            ->withDepositAmount($deposit)
+            ->withFinalisationRequired(false)
+            ->withMerchantReference('')
+            ->withUrls(
+                [
+                    'merchant_redirect_url' => $redirect_url,
+                    'merchant_checkout_url' => $checkout_url,
+                    'merchant_response_url' => $response_url,
+                ]
+            )
+            ->withMetadata(
+                [
+                    'initial_cart_value' => $grandTotal,
+                    'quote_id'           => $quoteId,
+                    'quote_hash'         => $quoteHash,
+
+                ]
+            );
             if ($this->debug()){
-                $this->logger->info('Create Application Request');
+                $this->logger->info('Update Application Request DETAILS:');
+                $this->logger->info($lookupExists['proposal_id']);
+                $this->logger->info(serialize($application));
+
             }
-            $response              = $sdk->applications()->createApplication($application,[],['Content-Type' => 'application/json']);
+
+            try {
+                $response              = $sdk->applications()->updateApplication($application,[],['Content-Type' => 'application/json']);
+            }catch (\Exception $e){
+                throw new \Magento\Framework\Exception\LocalizedException(__($e));
+            }
         }
 
         $application_response_body = $response->getBody()->getContents();
