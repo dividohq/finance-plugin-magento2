@@ -856,4 +856,12 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         );
         return $debug;
     }
+
+    public function getDescription()
+    {
+            return $this->config->getValue(
+                'payment/divido_financing/description',
+                \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+            );
+    }
 }

@@ -33,6 +33,7 @@ final class ConfigProvider implements ConfigProviderInterface
         $plans       = $this->helper->getQuotePlans($quote);
         $plans       = $this->helper->plans2list($plans);
         $platformEnv = $this->helper->getPlatformEnv();
+        $description = $this->helper->getDescription();
 
         return [
             'payment' => [
@@ -41,6 +42,7 @@ final class ConfigProvider implements ConfigProviderInterface
                     'env_amount_title' =>  'data-'. $platformEnv .'-amount',
                     'env_widget_title' =>  'data-'. $platformEnv .'-widget',
                     'env_plans_title'  =>  'data-'. $platformEnv .'-plans',
+                    'description' => $description,
                 ]
             ]
         ];
