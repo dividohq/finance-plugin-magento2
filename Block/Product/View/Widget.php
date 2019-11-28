@@ -32,13 +32,13 @@ class Widget extends \Magento\Catalog\Block\Product\AbstractProduct
     public function getFootnote()
     {
         $footnote = $this->helper->getFootnote();
-        return $footnote;
+        return ($footnote) ? "data-footnote='{$footnote}'" : "";
     }
     
     public function getButtonText()
     {
         $button_text = $this->helper->getButtonText();
-        return $button_text;
+        return ($button_text) ? "data-button-text='{$button_text}'" : "";
     }
 
     public function getWidgetMode()
