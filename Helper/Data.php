@@ -178,6 +178,36 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         
         return $active;
     }
+
+    public function getWidgetMode()
+    {
+        $active = $this->config->getValue(
+            'payment/divido_financing/widget_mode',
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
+        
+        return $active;
+    }
+
+    public function getWidgetButtonText()
+    {
+        $active = $this->config->getValue(
+            'payment/divido_financing/widget_button_text',
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
+        
+        return $active;
+    }
+
+    public function getWidgetFootnote()
+    {
+        $active = $this->config->getValue(
+            'payment/divido_financing/widget_footnote',
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
+        
+        return $active;
+    }
     
     public function getAllPlans()
     {

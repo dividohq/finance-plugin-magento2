@@ -29,6 +29,24 @@ class Widget extends \Magento\Catalog\Block\Product\AbstractProduct
         return $env;
     }
 
+    public function getFootnote()
+    {
+        $footnote = $this->helper->getFootnote();
+        return $footnote;
+    }
+    
+    public function getButtonText()
+    {
+        $button_text = $this->helper->getButtonText();
+        return $button_text;
+    }
+
+    public function getWidgetMode()
+    {
+        $widget_mode = $this->helper->getWidgetMode();
+        return $widget_mode;
+    }
+
     public function getProductPlans()
     {
         $plans = $this->helper->getLocalPlans($this->getProduct()->getId());

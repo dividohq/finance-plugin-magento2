@@ -1,10 +1,12 @@
 <?php /* @var $block \Divido\DividoFinancing\Block\Product\View\Extra */?>
 <?php if($block->loadWidget()){ ?>
-  <div id='dividoWidget' 
-    data-calculator-widget 
+  <div id='dividoWidget'
+    data-calculator-widget
     data-plans="<?php echo $block->getProductPlans(); ?>"
-    data-amount="<?php echo $block->getAmount(); ?>" 
-    data-mode="lightbox"
+    data-amount="<?php echo $block->getAmount(); ?>"
+    <?php echo $block->getWidgetFootnote(); ?>
+    <?php echo $block->getWidgetButtonText(); ?> 
+    data-mode="<?php echo $block->getWidgetMode(); ?>"
   ></div>
 <script>
 require(['jquery'], function($){
@@ -22,13 +24,12 @@ require(['jquery'], function($){
       document.getElementById("dividoWidget").setAttribute('data-amount', price * 100);
       document.getElementById("dividoWidget").style.display = "";
       __widgetInstance.init()
-
     }else{
       document.getElementById("dividoWidget").style.display = "none";
     }
   }
   if ($(".product-options-wrapper")[0]){
-    // Do something if class exists
+    // Add event listener to update the price on options change if product has options
     var wrapper = $(".product-options-wrapper")[0];
     wrapper.addEventListener('click',updatePrice);
   }

@@ -4,11 +4,11 @@
  */
 ?>
 <script> 
-__widgetConfig = {apiKey: '<?php echo $block->getDividoKey(); ?>',}
+    __widgetConfig = {apiKey: '<?php echo $block->getDividoKey(); ?>',}
 </script>
 <script type="text/javascript" src="<?php echo $block->getScriptUrl(); ?>"></script>
 <script>// <![CDATA[
-function waitForElementToDisplay(selector, time) {
+    function waitForElementToDisplay(selector, time) {
         if(document.querySelector(selector)!=null) {
             __widgetInstance.init();
             return;
@@ -19,11 +19,11 @@ function waitForElementToDisplay(selector, time) {
             }, time);
         }
     }
-        require([
-            'jquery',
-            'domReady!'
-        ], function ($) {
-            waitForElementToDisplay('#dividoWidget', 1000); 
-        });
-        // ]]>
+    require([
+        'jquery',
+        'domReady!'
+    ], function ($) {
+        waitForElementToDisplay('#dividoWidget', 1000); 
+    });
+    // ]]>
 </script>

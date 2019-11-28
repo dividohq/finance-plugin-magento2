@@ -94,7 +94,7 @@ class CreditRequest implements CreditRequestInterface
         $email     = $this->req->getQuery('email', null);
         $cartValue = $this->req->getQuery('initial_cart_value', null);
         $quoteId   = $this->req->getQuery('quote_id', null);
-        
+
         try {
             $creditRequestUrl = $this->helper->creditRequest($planId, $deposit, $email, $quoteId);
             $response['url']  = $creditRequestUrl;
@@ -191,7 +191,7 @@ class CreditRequest implements CreditRequestInterface
         } else {
             $order = NULL;
         }
-        
+
 
         if (in_array($data->status, $this->noGo)) {
             if ($debug) {
@@ -220,7 +220,7 @@ class CreditRequest implements CreditRequestInterface
         );
 
         //Check if Divido order already exists (as with same quoteID, other orders with different payment method may be present with status as cancelled)
-        
+
         //Divido order not exists
         $isOrderExists = false;
 
@@ -235,7 +235,7 @@ class CreditRequest implements CreditRequestInterface
             }
             return $this->webhookResponse();
         }
-        
+
         if (! $isOrderExists && ($data->status == $creationStatus || $data->status == self::STATUS_REFERRED)) {
             if ($debug) {
                 $this->logger->debug('Divido: Create order');
@@ -293,17 +293,17 @@ class CreditRequest implements CreditRequestInterface
                     };
                     $order->addStatusHistoryComment(__('Value of cart changed before completion - cannot hold order'));
                 }
-                
+
                 if ($debug) {
                     $this->logger->warning('HOLD Order - Cart value changed: '.(string)$appId);
                 }
             }
         }
-        
-        
+
+
         $lookup->setData('order_id', $order->getId());
         $lookup->save();
-                
+
 
         if ($data->status == self::STATUS_SIGNED) {
             if ($debug) {

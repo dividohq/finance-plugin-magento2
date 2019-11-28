@@ -75,6 +75,19 @@
                     <comment>show_widget_description</comment>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
+                <field id="widget_mode" translate="label comment" type="select" sortOrder="23" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>widget_mode_label</label>
+                    <comment>widget_mode_description</comment>
+                    <source_model>Divido\DividoFinancing\Model\Adminhtml\Source\WidgetMode</source_model>
+                </field>
+                <field id="widget_button_text" translate="label comment" type="text" sortOrder="13" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>widget_button_text_label</label>
+                    <comment>widget_button_text_description</comment>
+                </field>
+                <field id="widget_footnote" translate="label comment" type="text" sortOrder="13" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>widget_footnote_label</label>
+                    <comment>widget_footnote_description</comment>
+                </field>
                 <field id="order_status" translate="label" type="select" sortOrder="18" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>order_status_signed_label</label>
                     <source_model>Magento\Sales\Model\Config\Source\Order\Status</source_model>
