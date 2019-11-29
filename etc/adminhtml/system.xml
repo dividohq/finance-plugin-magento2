@@ -17,6 +17,9 @@
                 <field id="title" translate="label" type="text" sortOrder="5" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Checkout Title</label>
                 </field>
+                <field id="description" translate="label" type="text" sortOrder="5" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Checkout Description</label>
+                </field>
                 <field id="sort_order" translate="label" type="text" sortOrder="6" showInDefault="1" showInWebsite="1"
                        showInStore="0">
                     <label>Sort Order</label>
