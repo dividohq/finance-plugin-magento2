@@ -395,7 +395,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
                     'type'     => 'product',
                     'name'     => $item->getName(),
                     'quantity' => (int)$item->getQty(),
-                    'price'    => (int)$item->getPriceInclTax() * 100,
+                    'price'    => round($item->getPriceInclTax()) * 100,
                 ];
             }
         }
