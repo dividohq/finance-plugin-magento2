@@ -8,10 +8,12 @@
                 <title>Pay in instalments</title>
                 <api_key/>
                 <min_order_total>0.50</min_order_total>
-                 <max_loan_amount>25000</max_loan_amount>
+                <max_loan_amount>25000</max_loan_amount>
                 <currency>GBP</currency>
                 <timeout_delay>7</timeout_delay>
                 <can_use_internal>0</can_use_internal>
+                <allowspecific>1</allowspecific>
+                <specificcountry>GB,FI</specificcountry>
             </divido_financing>
         </payment>
     </default>

@@ -31,8 +31,9 @@
                 </field>
                 <field id="specificcountry" translate="label" type="multiselect" sortOrder="8" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Payment from Specific Countries</label>
-                    <source_model>Magento\Directory\Model\Config\Source\Country</source_model>
+                    <source_model>Divido\DividoFinancing\Model\Adminhtml\Source\AllowedCountries</source_model>
                     <can_be_empty>1</can_be_empty>
+
                 </field>
 
                 <field id="plans_displayed" translate="label" type="select" sortOrder="9" showInDefault="1" showInWebsite="1" showInStore="0">
