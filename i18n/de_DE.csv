@@ -29,6 +29,8 @@
 "widget_button_text_label","Schaltflächentext"
 "widget_button_text_description","Text, der auf der Widget-Schaltfläche angezeigt wird"
 "widget_footnote_description","Kleingedrucktes am Ende des Widgets"
+"lightbox_option","Leuchtkasten"
+"calculator_option","Taschenrechner"
 "widget_mode_label","Modus"
 "widget_mode_description","Gibt an, ob das Widget sofort angezeigt wird (Taschenrechner) oder wenn auf eine Schaltfläche geklickt wird (Leuchtkasten)."
 "product_price_threshold_label","Produktpreisschwelle"

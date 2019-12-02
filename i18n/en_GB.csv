@@ -29,6 +29,8 @@
 "widget_button_text_label","Button text"
 "widget_button_text_description","Text that appears on the widget button"
 "widget_footnote_description","Small print that appears at the end of the widget"
+"lightbox_option","Lightbox"
+"calculator_option","Calculator"
 "widget_mode_label","Mode"
 "widget_mode_description","Whether the widget appears as immediately (calculator), or when a button is clicked (lightbox)"
 "product_price_threshold_label","Product Price Threshold"

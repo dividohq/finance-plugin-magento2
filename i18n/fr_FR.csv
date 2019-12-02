@@ -29,6 +29,8 @@
 "widget_button_text_label","Texte du bouton"
 "widget_button_text_description","Texte qui apparaît sur le bouton du widget"
 "widget_footnote_description","Petits caractères qui apparaissent à la fin du widget"
+"lightbox_option","Boite à lumière"
+"calculator_option","Calculatrice"
 "widget_mode_label","Mode"
 "widget_mode_description","Si le widget apparaît immédiatement (calculatrice) ou lorsqu'un bouton est cliqué (lightbox)"
 "product_price_threshold_label","Seuil de prix du produit"
