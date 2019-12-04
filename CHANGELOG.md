@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will now be documented in this file.
 
+## [2.0.6] - 2019-12-04
+- Specified Country Logic Added
+- Rounding Logic corrected
+- Fix shipping product value issue on first page load
+
 ## [2.0.5] - 2019-11-14
 - Bugfix for configurable products on sites that use multiple js libs
 
