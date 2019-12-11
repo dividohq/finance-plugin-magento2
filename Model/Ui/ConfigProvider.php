@@ -32,17 +32,15 @@ final class ConfigProvider implements ConfigProviderInterface
         $quote       = $this->cart->getQuote();
         $plans       = $this->helper->getQuotePlans($quote);
         $plans       = $this->helper->plans2list($plans);
-        $platformEnv = $this->helper->getPlatformEnv();
         $description = $this->helper->getDescription();
+        $footnote    = $this->helper->getWidgetFootnote();
 
         return [
             'payment' => [
                 self::CODE => [
                     'cart_plans'       => $plans,
-                    'env_amount_title' =>  'data-'. $platformEnv .'-amount',
-                    'env_widget_title' =>  'data-'. $platformEnv .'-widget',
-                    'env_plans_title'  =>  'data-'. $platformEnv .'-plans',
                     'description' => $description,
+                    'widget_footnote' => $footnote,
                 ]
             ]
         ];
