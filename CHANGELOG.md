@@ -6,6 +6,7 @@ All notable changes to this project will now be documented in this file.
 - Pass Address Postcode as sanity value
 - Widget Button Text
 - Widget Footer
+- Widget Mode option
 
 ## [2.0.6] - 2019-12-04
 - Specified Country Logic Added
