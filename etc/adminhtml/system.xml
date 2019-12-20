@@ -69,6 +69,20 @@
                     <label>Show product page widget</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
+                <field id="widget_footer" translate="label" type="text" sortOrder="15" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Widget Footer</label>
+                    <comment><![CDATA[Allows a smaller footer text to be appended to the calculator widget]]></comment>
+                </field>
+    
+                <field id="widget_button_text" translate="label" type="text" sortOrder="16" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Widget Button Text</label>
+                    <comment><![CDATA[Allows a custom button text for the popup widget to place the product price use  $p ]]></comment>
+                </field>
+                <field id="widget_mode" translate="label" type="select" sortOrder="17" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Widget Mode</label>
+                    <source_model>Divido\DividoFinancing\Model\Adminhtml\Source\WidgetMode</source_model>
+                    <comment><![CDATA[Allows users to swap between lightbox popup and large calculator view ]]></comment>
+                </field>
                 <field id="order_status" translate="label" type="select" sortOrder="18" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>New order status when Signed</label>
 				    <source_model>Magento\Sales\Model\Config\Source\Order\Status</source_model>

@@ -27,4 +27,14 @@ class PopupWidget extends Template implements BlockInterface
             return false;
         }
     }
+
+    public function getFootnote()
+    {
+        return $this->helper->getWidgetFootnote();
+    }
+    public function getButtonText()
+    {
+        return $this->helper->getWidgetButtonText();
+    }
+
 }

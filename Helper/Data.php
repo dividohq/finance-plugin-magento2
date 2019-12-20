@@ -656,7 +656,8 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $street = str_replace("\n", " ", $addressObject['street']);
         $addressText     = implode(' ', [$street, $addressObject['city'],$addressObject['postcode']]);
         $addressArray = [
-            'text'              => $addressText,
+            'postcode' => $addressObject['postcode'],
+            'text'     => $addressText,
         ];
 
         return $addressArray;
@@ -728,6 +729,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             try {
                 $plans = $sdk->getAllPlans($request_options);
                 $plans = $plans->getResources();
+                
                 return $plans;
             } catch (Exception $e) {
                 return [];
@@ -864,4 +866,28 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
                 \Magento\Store\Model\ScopeInterface::SCOPE_STORE
             );
     }
+
+    public function getWidgetFootnote()
+    {
+            return $this->config->getValue(
+                'payment/divido_financing/widget_footer',
+                \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+            );
+    }
+    public function getWidgetButtonText()
+    {
+            return $this->config->getValue(
+                'payment/divido_financing/widget_button_text',
+                \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+            );
+    }
+
+    public function getWidgetMode()
+    {
+            return $this->config->getValue(
+                'payment/divido_financing/widget_mode',
+                \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+            );
+    }
+
 }
