@@ -39,6 +39,9 @@ class AllowedCountries implements \Magento\Framework\Option\ArrayInterface
             ],            [
                 'value' => 'SE',
                 'label' => __('Sweden'),
+            ],            [
+                'value' => 'ES',
+                'label' => __('Spain'),
             ],
             [
                 'value' => 'GB',
