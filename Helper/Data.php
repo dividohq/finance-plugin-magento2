@@ -890,4 +890,13 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             );
     }
 
+    public function getLenderPreset()
+    {
+
+    }
+    public function getCalcTheme()
+    {
+        
+    }
+
 }

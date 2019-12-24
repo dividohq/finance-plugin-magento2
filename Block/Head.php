@@ -28,4 +28,14 @@ class Head extends \Magento\Framework\View\Element\Template
     {
         return $this->helper->getPlatformEnv();
     }
+    public function getDividoCustomCalculatorColour()
+    {
+        return $this->helper->getCalcTheme();
+
+    }
+    public function getDividoLenderPreset()
+    {
+        return $this->helper->getLenderPreset();
+
+    }
 }

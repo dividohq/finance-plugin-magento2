@@ -4,7 +4,12 @@
  */
 ?>
 <script> 
-__widgetConfig = {apiKey: '<?php echo $block->getDividoKey(); ?>',}
+__widgetConfig = {apiKey: '<?php echo $block->getDividoKey(); ?>',
+                lenderConfig: { <?php echo $block->getDividoLenderPreset(); ?>
+                    preset: 'ing' },
+                theme: {<?php echo $block->getDividoCustomCalculatorColour(); ?>
+                     colors: { primary: '#ff6200' } },
+            }
 </script>
 <script type="text/javascript" src="<?php echo $block->getScriptUrl(); ?>"></script>
 <script>// <![CDATA[
