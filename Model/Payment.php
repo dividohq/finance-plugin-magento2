@@ -90,12 +90,12 @@ class Payment extends \Magento\Payment\Model\Method\AbstractMethod
         return parent::isAvailable($quote);
     }
 
-    public function canUseForCurrency($currencyCode)
+/*    public function canUseForCurrency($currencyCode)
     {
         
         return $currencyCode === 'GBP';
     }
-
+*/
     public function canUseForCountry($country)
     {
 

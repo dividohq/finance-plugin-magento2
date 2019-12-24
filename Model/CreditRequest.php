@@ -124,7 +124,7 @@ class CreditRequest implements CreditRequestInterface
 
         $content = $this->req->getContent();
         if ($debug) {
-            $this->logger->debug('Divido: Request: ' . $content);
+            $this->logger->info('Divido: Request: ' . $content);
         }
 
         $data = json_decode($content);
@@ -133,7 +133,7 @@ class CreditRequest implements CreditRequestInterface
             return $this->webhookResponse(false, 'Invalid json');
         }
         if($debug){
-            $this->logger->debug('Application Update Status:'.$data->status);
+            $this->logger->info('Application Update Status:'.$data->status);
 
         }
 
@@ -172,7 +172,7 @@ class CreditRequest implements CreditRequestInterface
 
         if (isset($data->application)) {
             if ($debug) {
-                    $this->logger->debug('Divido: update application id');
+                    $this->logger->info('Divido: update application id');
             }
             $lookup->setData('application_id', $data->application);
             $lookup->save();
@@ -241,7 +241,7 @@ class CreditRequest implements CreditRequestInterface
         
         if (! $isOrderExists && ($data->status == $creationStatus || $data->status == self::STATUS_REFERRED)) {
             if ($debug) {
-                $this->logger->debug('Divido: Create order');
+                $this->logger->info('Divido: Create order');
             }
 
             $quote = $this->quote->loadActive($quoteId);
@@ -256,8 +256,8 @@ class CreditRequest implements CreditRequestInterface
             $iv=(string ) $lookup->getData('initial_cart_value');
 
             if ($debug) {
-                $this->logger->debug('Current Cart Value : ' . $grandTotal);
-                $this->logger->debug('Divido Initial Value: ' . $iv);
+                $this->logger->info('Current Cart Value : ' . $grandTotal);
+                $this->logger->info('Divido Initial Value: ' . $iv);
             }
 
             $orderId = $this->quoteManagement->placeOrder($quoteId);
