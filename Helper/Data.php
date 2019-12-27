@@ -892,11 +892,17 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 
     public function getLenderPreset()
     {
-
+        return $this->config->getValue(
+            'payment/divido_financing/widget_lender_preset',
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
     }
     public function getCalcTheme()
     {
-        
+        return $this->config->getValue(
+            'payment/divido_financing/widget_calculator_theme',
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
     }
 
 }

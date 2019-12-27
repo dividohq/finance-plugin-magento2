@@ -83,6 +83,14 @@
                     <source_model>Divido\DividoFinancing\Model\Adminhtml\Source\WidgetMode</source_model>
                     <comment><![CDATA[Allows users to swap between lightbox popup and large calculator view ]]></comment>
                 </field>
+                    <field id="widget_lender_preset" translate="label" type="text" sortOrder="17" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Widget Lender Preset</label>
+                    <comment><![CDATA[Allows users to swap between lightbox popup and large calculator view ]]></comment>
+                </field>
+                    <field id="widget_calculator_theme" translate="label" type="text" sortOrder="17" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Widget Style</label>
+                    <comment><![CDATA[Allows users to swap between lightbox popup and large calculator view ]]></comment>
+                </field>
                 <field id="order_status" translate="label" type="select" sortOrder="18" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>New order status when Signed</label>
 				    <source_model>Magento\Sales\Model\Config\Source\Order\Status</source_model>
