@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this project will now be documented in this file.
 
+## [2.0.8] - 2020-05-05
+- Removed unused variables from config 
+-Tested against Magento 2.3.5-p1
+
 ## [2.0.7] - 2019-12-12
 - Removed unused variables from config 
 - Pass Address Postcode as sanity value
