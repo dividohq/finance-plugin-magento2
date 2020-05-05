@@ -44,10 +44,10 @@ define(
                 var totals = quote.getTotals()();
     
                 if (totals) {
-                    return totals['grand_total'];
+                    return totals['base_grand_total'];
                 }
     
-                return quote['grand_total'];
+                return quote['base_grand_total'];
             },
     
             /**
