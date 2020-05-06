@@ -2,11 +2,7 @@
 
 namespace Divido\DividoFinancing\Controller\Financing;
 
-use Magento\Framework\App\CsrfAwareActionInterface;
-use Magento\Framework\App\RequestInterface;
-use Magento\Framework\App\Request\InvalidRequestException;
-
-class Success extends \Magento\Framework\App\Action\Action implements CsrfAwareActionInterface
+class Success extends \Magento\Framework\App\Action\Action
 {
     private $checkoutSession;
     private $config;
@@ -28,16 +24,6 @@ class Success extends \Magento\Framework\App\Action\Action implements CsrfAwareA
         $this->logger          = $logger;
 
         parent::__construct($context);
-    }
-
-    public function createCsrfValidationException(RequestInterface $request): ?InvalidRequestException
-    {
-        return null;
-    }
-
-    public function validateForCsrf(RequestInterface $request): ?bool
-    {
-        return true;
     }
 
     public function getTimeout()
