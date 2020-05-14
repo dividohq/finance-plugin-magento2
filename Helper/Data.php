@@ -383,7 +383,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             'country'           => $country,
             'postcode'          => $shipAddr->getPostcode(),
             'email'             => $email,
-            'phoneNumber'       => $shipAddr->getTelephone(),
+            'phoneNumber'       => $this->stripWhite($shipAddr->getTelephone()),
             'addresses'         => [$billingAddress],
             'shippingAddress'   => $shippingAddress,
         ];
@@ -504,6 +504,10 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     public function hashQuote($salt, $quoteId)
     {
         return hash('sha256', $salt.$quoteId);
+    }
+
+    public function stripWhite($item){
+        return str_replace(' ', '', $item);
     }
 
     public function getApiKey()
