@@ -21,7 +21,7 @@ require(['jquery'], function(jQuery){
     let threshold = <?php echo $block->getThreshold(); ?>;
     //Work out if price has . or ,
     let priceString = jQuery("#product-price-<?php echo($block->getProductId()); ?> .price").text();
-    let endOfString = price.slice(-4);
+    let endOfString = priceString.slice(-4);
     if(endOfString.includes(",")){
         let price = jQuery("#product-price-<?php echo($block->getProductId()); ?> .price").text().replace(/[^0-9,+]+/gi,'');
       }else{
