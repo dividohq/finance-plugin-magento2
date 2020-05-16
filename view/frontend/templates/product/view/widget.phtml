@@ -3,7 +3,7 @@
   <div id='dividoWidget' 
     data-calculator-widget 
     data-plans="<?php echo $block->getProductPlans(); ?>"
-    data-amount="<?php echo $block->getAmount(); ?>" 
+    data-amount="<?php echo $block->getProductAmount(); ?>" 
     data-footnote="<?php echo $block->getFootnote(); ?>" 
     data-button-text="<?php echo $block->getButtonText(); ?>" 
     data-mode="<?php echo $block->getMode(); ?>"
@@ -19,7 +19,14 @@ require(['jquery'], function(jQuery){
   }
   var updatePrice = function(){
     let threshold = <?php echo $block->getThreshold(); ?>;
-    let price = jQuery("#product-price-<?php echo($block->getProductId()); ?> .price").text().replace(/[^0-9.+]+/gi,'');
+    //Work out if price has . or ,
+    let priceString = jQuery("#product-price-<?php echo($block->getProductId()); ?> .price").text();
+    let endOfString = price.slice(-4);
+    if(endOfString.includes(",")){
+        let price = jQuery("#product-price-<?php echo($block->getProductId()); ?> .price").text().replace(/[^0-9,+]+/gi,'');
+      }else{
+        let price = jQuery("#product-price-<?php echo($block->getProductId()); ?> .price").text().replace(/[^0-9.+]+/gi,'');
+    }
     if(price >= threshold){
       document.getElementById("dividoWidget").setAttribute('data-amount', price * 100);
       document.getElementById("dividoWidget").style.display = "";
