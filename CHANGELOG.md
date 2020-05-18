@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will now be documented in this file.
 
+## [2.0.9] - 2020-05-05
+- Add Euro as allowed currency
+- Add helper to remove whitespace from phonenumber
+- Fix Deposit amount in admin was displaying in pence.
+
 ## [2.0.8] - 2020-05-05
 - Adjusted grand_total value on checkout to base_grand_total to account for tax changes
 - Tested against Magento 2.3.5-p1
