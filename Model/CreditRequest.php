@@ -360,9 +360,13 @@ class CreditRequest implements CreditRequestInterface
 
     public function version()
     {
+        
         $pluginVersion = $this->resourceInterface->getDbVersion('Divido_DividoFinancing');
         $response = [
-            'plugin_version'   => $pluginVersion
+            'plugin_version'   => $this->helper->getVersion(),
+            'plugin_db_version'   => $pluginVersion,
+
+
         ];
 
         return json_encode($response);

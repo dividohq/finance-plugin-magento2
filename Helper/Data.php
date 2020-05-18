@@ -17,6 +17,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     const CALLBACK_PATH    = 'rest/V1/divido/update/';
     const REDIRECT_PATH    = 'divido/financing/success/';
     const CHECKOUT_PATH    = 'checkout/';
+    const VERSION          = '2.0.9';
 
     private $config;
     private $logger;
@@ -446,6 +447,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             ->withOrderItems($products)
             ->withDepositAmount($deposit)
             ->withFinalisationRequired(false)
+            //todo getOrderId
             ->withMerchantReference('')
             ->withUrls(
                 [
@@ -459,6 +461,11 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
                     'initial_cart_value' => $grandTotal,
                     'quote_id'           => $quoteId,
                     'quote_hash'         => $quoteHash,
+                    'ecom_platform'      => 'Magento_2',
+                    //todo get version in here nicer - this should be cached or something
+                    'ecom_platform_version' => $this->getMagentoVersion(),
+                    'ecom_base_url'      => $store,
+                    'plugin_version'     => $this->getVersion()
 
                 ]
             );
@@ -892,6 +899,19 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
                 'payment/divido_financing/widget_mode',
                 \Magento\Store\Model\ScopeInterface::SCOPE_STORE
             );
+    }
+
+    public function getVersion()
+    {
+        return self::VERSION;
+    }
+
+    public function getMagentoVersion()
+    {
+        $client = new \GuzzleHttp\Client(['base_uri' => $this->urlBuilder->getBaseUrl()]);
+        $res = $client->request('GET', '/magento_version', ['allow_redirects' => false]);
+        return $res->getBody();
+    
     }
 
 }
