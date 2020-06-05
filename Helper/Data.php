@@ -462,9 +462,8 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
                     'quote_id'           => $quoteId,
                     'quote_hash'         => $quoteHash,
                     'ecom_platform'      => 'Magento_2',
-                    //todo get version in here nicer - this should be cached or something
                     'ecom_platform_version' => $this->getMagentoVersion(),
-                    'ecom_base_url'      => $store,
+                    'ecom_base_url'      => $this->urlBuilder->getBaseUrl(),
                     'plugin_version'     => $this->getVersion()
 
                 ]
@@ -908,10 +907,9 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 
     public function getMagentoVersion()
     {
-        $client = new \GuzzleHttp\Client(['base_uri' => $this->urlBuilder->getBaseUrl()]);
-        $res = $client->request('GET', '/magento_version', ['allow_redirects' => false]);
-        return $res->getBody();
-    
+        $this->_objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+        $productMetadata = $this->_objectManager->get('Magento\Framework\App\ProductMetadataInterface'); 
+        return $productMetadata->getVersion();
     }
 
 }

@@ -305,6 +305,7 @@ class CreditRequest implements CreditRequestInterface
         
         
         $lookup->setData('order_id', $order->getId());
+        //todo post patch to application with orderID to meta
         $lookup->save();
                 
 
@@ -360,13 +361,9 @@ class CreditRequest implements CreditRequestInterface
 
     public function version()
     {
-        
-        $pluginVersion = $this->resourceInterface->getDbVersion('Divido_DividoFinancing');
         $response = [
-            'plugin_version'   => $this->helper->getVersion(),
-            'plugin_db_version'   => $pluginVersion,
-
-
+            'plugin_version'   => self::VERSION,
+            'm2_version'   => $this->helper->getMagentoVersion(),H
         ];
 
         return json_encode($response);
