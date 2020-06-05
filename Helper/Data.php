@@ -371,10 +371,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
                 $email = $existingEmail;
             }
         }
-        //TODO - get languages correctly
-        $language = 'en';
         $store = $this->storeManager->getStore();
-        $currency = $store->getCurrentCurrencyCode();
 
         $customer = [
             'title'             => '',
@@ -458,13 +455,13 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             )
             ->withMetadata(
                 [
-                    'initial_cart_value' => $grandTotal,
-                    'quote_id'           => $quoteId,
-                    'quote_hash'         => $quoteHash,
-                    'ecom_platform'      => 'Magento_2',
+                    'initial_cart_value'    => $grandTotal,
+                    'quote_id'              => $quoteId,
+                    'quote_hash'            => $quoteHash,
+                    'ecom_platform'         => 'Magento_2',
                     'ecom_platform_version' => $this->getMagentoVersion(),
-                    'ecom_base_url'      => $this->urlBuilder->getBaseUrl(),
-                    'plugin_version'     => $this->getVersion()
+                    'ecom_base_url'         => $this->returnUrl(),
+                    'plugin_version'        => $this->getVersion()
 
                 ]
             );
@@ -910,6 +907,10 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $this->_objectManager = \Magento\Framework\App\ObjectManager::getInstance();
         $productMetadata = $this->_objectManager->get('Magento\Framework\App\ProductMetadataInterface'); 
         return $productMetadata->getVersion();
+    }
+    public function returnUrl()
+    {
+        return $this->urlBuilder->getBaseUrl();
     }
 
 }

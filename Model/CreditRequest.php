@@ -363,7 +363,7 @@ class CreditRequest implements CreditRequestInterface
     {
         $response = [
             'plugin_version'   => self::VERSION,
-            'm2_version'   => $this->helper->getMagentoVersion(),H
+            'm2_version'   => $this->helper->getMagentoVersion()
         ];
 
         return json_encode($response);
