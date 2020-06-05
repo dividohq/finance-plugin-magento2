@@ -908,6 +908,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $productMetadata = $this->_objectManager->get('Magento\Framework\App\ProductMetadataInterface'); 
         return $productMetadata->getVersion();
     }
+    
     public function returnUrl()
     {
         return $this->urlBuilder->getBaseUrl();
