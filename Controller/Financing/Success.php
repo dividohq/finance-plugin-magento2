@@ -46,7 +46,7 @@ class Success extends \Magento\Framework\App\Action\Action implements CsrfAwareA
             'payment/divido_financing/timeout_delay',
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         );
-    
+
         return $timeout;
     }
 
@@ -63,10 +63,12 @@ class Success extends \Magento\Framework\App\Action\Action implements CsrfAwareA
 
         if ($order->getId()) {
             $this->logger->info('Order Found found with quote:'.$quoteId);
-        } else {
-            $this->logger->info('Order not found with quote:'.$quoteId);
-            sleep($this->getTimeout());
-            $order   = $this->order->loadByAttribute('quote_id', $quoteId);
+        } else if(!empty($this->getTimeout())){
+            for($x = 0; $x < $this->getTimeout() ; $x++ ){
+                $this->logger->info('Order not found with quote:'.$quoteId);
+                sleep(1);
+                $order   = $this->order->loadByAttribute('quote_id', $quoteId);
+            }
         }
 
         if($debug){
