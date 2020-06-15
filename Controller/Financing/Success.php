@@ -68,6 +68,10 @@ class Success extends \Magento\Framework\App\Action\Action implements CsrfAwareA
                 $this->logger->info('Order not found with quote:'.$quoteId);
                 sleep(1);
                 $order   = $this->order->loadByAttribute('quote_id', $quoteId);
+                if($order->getId()){
+                    $this->logger->info('Order Found found with quote:'.$quoteId);
+                    break;
+                }
             }
         }
 
