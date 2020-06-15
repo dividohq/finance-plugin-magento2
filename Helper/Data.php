@@ -17,6 +17,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     const CALLBACK_PATH    = 'rest/V1/divido/update/';
     const REDIRECT_PATH    = 'divido/financing/success/';
     const CHECKOUT_PATH    = 'checkout/';
+    const VERSION          = '2.0.9';
 
     private $config;
     private $logger;
@@ -370,10 +371,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
                 $email = $existingEmail;
             }
         }
-        //TODO - get languages correctly
-        $language = 'en';
         $store = $this->storeManager->getStore();
-        $currency = $store->getCurrentCurrencyCode();
 
         $customer = [
             'title'             => '',
@@ -446,6 +444,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             ->withOrderItems($products)
             ->withDepositAmount($deposit)
             ->withFinalisationRequired(false)
+            //todo getOrderId
             ->withMerchantReference('')
             ->withUrls(
                 [
@@ -456,9 +455,13 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             )
             ->withMetadata(
                 [
-                    'initial_cart_value' => $grandTotal,
-                    'quote_id'           => $quoteId,
-                    'quote_hash'         => $quoteHash,
+                    'initial_cart_value'    => $grandTotal,
+                    'quote_id'              => $quoteId,
+                    'quote_hash'            => $quoteHash,
+                    'ecom_platform'         => 'Magento_2',
+                    'ecom_platform_version' => $this->getMagentoVersion(),
+                    'ecom_base_url'         => $this->returnUrl(),
+                    'plugin_version'        => $this->getVersion()
 
                 ]
             );
@@ -892,6 +895,23 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
                 'payment/divido_financing/widget_mode',
                 \Magento\Store\Model\ScopeInterface::SCOPE_STORE
             );
+    }
+
+    public function getVersion()
+    {
+        return self::VERSION;
+    }
+
+    public function getMagentoVersion()
+    {
+        $this->_objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+        $productMetadata = $this->_objectManager->get('Magento\Framework\App\ProductMetadataInterface'); 
+        return $productMetadata->getVersion();
+    }
+    
+    public function returnUrl()
+    {
+        return $this->urlBuilder->getBaseUrl();
     }
 
 }
