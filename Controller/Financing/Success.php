@@ -64,7 +64,7 @@ class Success extends \Magento\Framework\App\Action\Action implements CsrfAwareA
         if ($order->getId()) {
             $this->logger->info('Order Found found with quote:'.$quoteId);
         } else if(!empty($this->getTimeout())){
-            for($x = 0; $x < $this->getTimeout() ; $x++ ){
+            for($x = 0; $x < (int)$this->getTimeout() ; $x++ ){
                 $this->logger->info('Order not found with quote:'.$quoteId);
                 sleep(1);
                 $order   = $this->order->loadByAttribute('quote_id', $quoteId);
