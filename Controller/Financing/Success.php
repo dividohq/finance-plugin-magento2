@@ -12,8 +12,6 @@ class Success extends \Magento\Framework\App\Action\Action implements CsrfAwareA
     private $config;
     private $order;
     private $quoteRepository;
-    private $logger;
-    private $helper;
 
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
@@ -21,15 +19,13 @@ class Success extends \Magento\Framework\App\Action\Action implements CsrfAwareA
         \Magento\Sales\Model\Order $order,
         \Magento\Quote\Model\QuoteRepository $quoteRepository,
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
-        \Divido\DividoFinancing\Logger\Logger $logger,
-        \Divido\DividoFinancing\Helper\Data $helper
+        \Divido\DividoFinancing\Logger\Logger $logger
     ) {
         $this->checkoutSession = $checkoutSession;
         $this->order           = $order;
         $this->quoteRepository = $quoteRepository;
         $this->config          = $scopeConfig;
         $this->logger          = $logger;
-        $this->helper           = $helper;
 
         parent::__construct($context);
     }
