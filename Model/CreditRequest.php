@@ -307,7 +307,7 @@ class CreditRequest implements CreditRequestInterface
             }
         }
         // update application with order id
-        $this->logger->info('Application Update - order id update'. $order->getId);
+        $this->logger->info('Application Update - order id update'. $order->getId());
         $this->helper->updateApplication($data->application, $order->getId());
 
         $lookup->setData('order_id', $order->getId());
