@@ -530,7 +530,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 
             $applicationResponseBody = $response->getBody()->getContents();
 
-            $this->container->get('Logger')->info('update response', [$applicationResponseBody]);
+            $this->logger->get('Logger')->info('update response', [$applicationResponseBody]);
 
         } catch(\Exception $e){
             $this->logger->info("Error updating application" ,[$e->getMessage()]);
