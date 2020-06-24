@@ -521,6 +521,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             $applicants = $application->data->applicants;
 
             $application    = (new \Divido\MerchantSDK\Models\Application())
+                ->withId($applicationId)
                 ->withFinancePlanId($financePlanId)
                 ->withApplicants($applicants)
                 ->withOrderItems($orderItems)
