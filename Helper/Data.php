@@ -525,12 +525,13 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
                 ->withApplicants($applicants)
                 ->withOrderItems($orderItems)
                 ->withMerchantReference($orderId);
-            $this->logger->info("updating order id ". $orderId);
+            $this->logger->info("updating order id ". (string)$orderId);
             $response = $sdk->applications()->updateApplication($application, [], ['Content-Type' => 'application/json']);
 
             $applicationResponseBody = $response->getBody()->getContents();
 
-            $this->logger->info('update response', [$applicationResponseBody]);
+            $this->logger->info('update response');
+            $this->logger->info(serialize($applicationResponseBody));
 
         } catch(\Exception $e){
             $this->logger->info("Error updating application" ,[$e->getMessage()]);

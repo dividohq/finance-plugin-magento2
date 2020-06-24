@@ -242,9 +242,6 @@ class CreditRequest implements CreditRequestInterface
         $this->logger->info('Application Update ----- test' );
         if (! $isOrderExists && ($data->status == $creationStatus || $data->status == self::STATUS_REFERRED)) {
 
-            // update application with order id
-            $this->logger->info('Application Update - order id update top'.$order->getId());
-            $this->helper->updateApplication($data->application, $order->getId());
 
             if ($debug) {
                 $this->logger->debug('Divido: Create order');
@@ -268,8 +265,6 @@ class CreditRequest implements CreditRequestInterface
 
             $orderId = $this->quoteManagement->placeOrder($quoteId);
             $order = $this->order->load($orderId);
-
-
 
             if ($grandTotal != $iv) {
                 if ($debug) {
@@ -297,6 +292,7 @@ class CreditRequest implements CreditRequestInterface
                     $order->save();
                     $lookup->setData('order_id', $order->getId());
                     $lookup->save();
+                    $this->logger->info('Got away');
                     return $this->webhookResponse();
                 } else {
                     if ($debug) {
@@ -311,15 +307,12 @@ class CreditRequest implements CreditRequestInterface
             }
         }
         // update application with order id
-        $this->logger->info('Application Update - order id update'.$order->getId());
+        $this->logger->info('Application Update - order id update'. $order->getId);
         $this->helper->updateApplication($data->application, $order->getId());
 
         $lookup->setData('order_id', $order->getId());
 
-
-
         $lookup->save();
-
 
         if ($data->status == self::STATUS_SIGNED) {
             $this->logger->info('Divido: Escalate order');
