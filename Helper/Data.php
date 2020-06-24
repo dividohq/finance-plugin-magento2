@@ -525,7 +525,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
                 ->withApplicants($applicants)
                 ->withOrderItems($orderItems)
                 ->withMerchantReference($orderId);
-            $this->logger->info("updating");
+            $this->logger->info("updating order id ". $orderId);
             $response = $sdk->applications()->updateApplication($application, [], ['Content-Type' => 'application/json']);
 
             $applicationResponseBody = $response->getBody()->getContents();
