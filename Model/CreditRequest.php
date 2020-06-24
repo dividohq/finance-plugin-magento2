@@ -94,6 +94,8 @@ class CreditRequest implements CreditRequestInterface
         $email     = $this->req->getQuery('email', null);
         $cartValue = $this->req->getQuery('initial_cart_value', null);
         $quoteId   = $this->req->getQuery('quote_id', null);
+
+
         try {
             $creditRequestUrl = $this->helper->creditRequest($planId, $deposit, $email, $quoteId);
             $response['url']  = $creditRequestUrl;
@@ -134,7 +136,6 @@ class CreditRequest implements CreditRequestInterface
         }
         if($debug){
             $this->logger->debug('Application Update Status:'.$data->status);
-
         }
 
         $quoteId = $data->metadata->quote_id;
@@ -198,7 +199,7 @@ class CreditRequest implements CreditRequestInterface
         } else {
             $order = NULL;
         }
-        
+
 
         if (in_array($data->status, $this->noGo)) {
             if ($debug) {
@@ -221,7 +222,7 @@ class CreditRequest implements CreditRequestInterface
             $this->eventManager->dispatch('divido_financing_quote_referred', ['quote_id' => $quoteId]);
         }
 
-        $creationStatus=self::STATUS_SIGNED;
+        $creationStatus = self::STATUS_SIGNED;
 
         //Check if Divido order already exists (as with same quoteID, other orders with different payment method may be present with status as cancelled)
         //Divido order not exists
@@ -238,7 +239,7 @@ class CreditRequest implements CreditRequestInterface
             }
             return $this->webhookResponse();
         }
-        
+
         if (! $isOrderExists && ($data->status == $creationStatus || $data->status == self::STATUS_REFERRED)) {
             if ($debug) {
                 $this->logger->debug('Divido: Create order');
@@ -263,11 +264,14 @@ class CreditRequest implements CreditRequestInterface
             $orderId = $this->quoteManagement->placeOrder($quoteId);
             $order = $this->order->load($orderId);
 
+            // update application with order id
+            $this->helper->updateApplication($data->application, $orderId);
+
             if ($grandTotal != $iv) {
                 if ($debug) {
                     $this->logger->warning('HOLD Order - Cart value changed: ');
                 }
-                //Highlight order for review
+                // Highlight order for review
                 $lookup->setData('canceled', 1);
                 $lookup->save();
                 $appId = $lookup->getProposalId();
@@ -296,18 +300,18 @@ class CreditRequest implements CreditRequestInterface
                     };
                     $order->addStatusHistoryComment(__('Value of cart changed before completion - cannot hold order'));
                 }
-                
+
                 if ($debug) {
                     $this->logger->warning('HOLD Order - Cart value changed: '.(string)$appId);
                 }
             }
         }
-        
-        
+
+
         $lookup->setData('order_id', $order->getId());
         //todo post patch to application with orderID to meta
         $lookup->save();
-                
+
 
         if ($data->status == self::STATUS_SIGNED) {
             $this->logger->info('Divido: Escalate order');

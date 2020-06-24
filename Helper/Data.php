@@ -41,7 +41,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         UrlInterface $urlBuilder,
         ProductFactory $productFactory
     ) {
-    
+
         $this->config        = $scopeConfig;
         $this->logger        = $logger;
         $this->cache         = $cache;
@@ -155,14 +155,14 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     {
         $this->cache->clean('matchingTag', [self::CACHE_DIVIDO_TAG]);
     }
-    
+
     public function getProductSelection()
     {
         $selection= $this->config->getValue(
             'payment/divido_financing/product_selection',
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         );
-        
+
         return $selection;
     }
 
@@ -172,7 +172,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             'payment/divido_financing/price_threshold',
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         );
-        
+
         return $threshold;
     }
 
@@ -182,10 +182,10 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             'payment/divido_financing/active',
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         );
-        
+
         return $active;
     }
-    
+
     public function getAllPlans()
     {
         $apiKey = $this->config->getValue(
@@ -221,7 +221,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             [self::CACHE_DIVIDO_TAG],
             self::CACHE_PLANS_TTL
         );
-        
+
         return $plans;
     }
 
@@ -344,7 +344,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             'payment/divido_financing/secret',
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         );
-  
+
         $quote       = $this->cart->getQuote();
         if ($quoteId != null) {
             $this->_objectManager = \Magento\Framework\App\ObjectManager::getInstance();
@@ -355,12 +355,12 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $billingAddr = $quote->getBillingAddress();
         $shippingAddress = $this->getAddressDetail($shipAddr);
         $billingAddress  = $this->getAddressDetail($billingAddr);
-        
+
         if (empty($country)) {
             $shipAddr = $quote->getBillingAddress();
             $country = $shipAddr->getCountry();
         }
-        
+
         if (!empty($email)) {
             if (!$quote->getCustomerEmail()) {
                 $quote->setCustomerEmail($email);
@@ -423,11 +423,11 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $quoteHash = $this->hashQuote($salt, $quoteId);
         $response_url = $this->urlBuilder->getBaseUrl() . self::CALLBACK_PATH;
         $checkout_url = $this->urlBuilder->getUrl(self::CHECKOUT_PATH);
-        
+
         if (!empty($this->getCustomCheckoutUrl())) {
             $checkout_url = $this->urlBuilder->getUrl($this->getCustomCheckoutUrl());
         }
-        
+
         $redirect_url = $this->urlBuilder->getUrl(
             self::REDIRECT_PATH,
             ['quote_id' => $quoteId]
@@ -480,7 +480,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $response              = $sdk->applications()->createApplication($application,[],['Content-Type' => 'application/json']);
 
         $application_response_body = $response->getBody()->getContents();
-        
+
         $decode                    = json_decode($application_response_body);
         if ($this->debug()){
             $this->logger->info(serialize($decode));
@@ -502,6 +502,36 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
                 throw new \Magento\Framework\Exception\LocalizedException(__($decode));
             }
         }
+    }
+
+
+    /**
+     * @param $applicationId
+     * @param $orderId
+     */
+    public function updateApplication($applicationId, $orderId)
+    {
+        try{
+            $sdk  = $this->getSdk();
+            $application = $sdk->applications()->getSingleApplication($applicationId);
+            $application = json_decode($application->getBody()->getContents());
+
+            $financePlanId =  $application->data->finance_plan->id;
+            $orderItems = $application->data->order_items;
+            $applicants = $application->data->applicants;
+
+            $application    = (new \Divido\MerchantSDK\Models\Application())
+                ->withFinancePlanId($financePlanId)
+                ->withApplicants([$applicants])
+                ->withOrderItems($orderItems)
+                ->withMerchantReference($orderId);
+
+            $this->sdk->applications()->updateApplication($application, [], ['Content-Type' => 'application/json']);
+
+        } catch(\Exception $e){
+            $this->logger->info("Error updating application" ,[$e->getMessage()]);
+        }
+
     }
 
     public function hashQuote($salt, $quoteId)
@@ -526,16 +556,16 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     public function getDividoKey()
     {
         $apiKey = $this->getApiKey();
-        
+
         if (empty($apiKey)) {
             return '';
         }
-    
+
             $keyParts = explode('.', $apiKey);
             $relevantPart = array_shift($keyParts);
-    
+
             $jsKey = strtolower($relevantPart);
-            
+
             return $jsKey;
     }
 
@@ -736,7 +766,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             try {
                 $plans = $sdk->getAllPlans($request_options);
                 $plans = $plans->getResources();
-                
+
                 return $plans;
             } catch (Exception $e) {
                 return [];
@@ -856,7 +886,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $response                 = $sdk->applicationRefunds()->createApplicationRefund($application, $application_refund);
         $activation_response_body = $response->getBody()->getContents();
     }
-    
+
     public function debug()
     {
         $debug = $this->config->getValue(
@@ -905,10 +935,10 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     public function getMagentoVersion()
     {
         $this->_objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-        $productMetadata = $this->_objectManager->get('Magento\Framework\App\ProductMetadataInterface'); 
+        $productMetadata = $this->_objectManager->get('Magento\Framework\App\ProductMetadataInterface');
         return $productMetadata->getVersion();
     }
-    
+
     public function returnUrl()
     {
         return $this->urlBuilder->getBaseUrl();
