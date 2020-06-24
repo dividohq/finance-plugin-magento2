@@ -234,7 +234,7 @@ class CreditRequest implements CreditRequestInterface
             // update application with order id
 
             $this->logger->info('Application Update - order id update'. $order->getId());
-            $this->helper->updateApplication($data->application, $order->getId());
+            //$this->helper->updateApplication($data->application, $order->getId());
         }
 
         if (! $isOrderExists && $data->status != $creationStatus && $data->status != self::STATUS_REFERRED) {
@@ -244,7 +244,6 @@ class CreditRequest implements CreditRequestInterface
             return $this->webhookResponse();
         }
         $this->logger->info('Application Update ----- test' );
-
         if (! $isOrderExists && ($data->status == $creationStatus || $data->status == self::STATUS_REFERRED)) {
 
             $this->logger->info('order does not exist' );
@@ -311,7 +310,7 @@ class CreditRequest implements CreditRequestInterface
                 }
             }
         }
-
+        $this->logger->info('this far');
 
         $lookup->setData('order_id', $order->getId());
 
