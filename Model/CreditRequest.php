@@ -234,7 +234,7 @@ class CreditRequest implements CreditRequestInterface
             // update application with order id
 
             $this->logger->info('Application Update - order id update'. $order->getId());
-            //$this->helper->updateApplication($data->application, $order->getId());
+
         }
 
         if (! $isOrderExists && $data->status != $creationStatus && $data->status != self::STATUS_REFERRED) {
@@ -268,8 +268,11 @@ class CreditRequest implements CreditRequestInterface
             }
 
             $orderId = $this->quoteManagement->placeOrder($quoteId);
-            $order = $this->order->load($orderId);
+            $this->logger->info('new order id ---'.$orderId  );
+            $this->helper->updateApplication($data->application, $orderId);
 
+            $order = $this->order->load($orderId);
+            $this->logger->info('other order id ---'.$order->getId() );
             if ($grandTotal != $iv) {
                 if ($debug) {
                     $this->logger->warning('HOLD Order - Cart value changed: ');
