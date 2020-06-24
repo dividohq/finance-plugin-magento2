@@ -227,10 +227,18 @@ class CreditRequest implements CreditRequestInterface
         //Check if Divido order already exists (as with same quoteID, other orders with different payment method may be present with status as cancelled)
         //Divido order not exists
         $isOrderExists = false;
-
+        $this->logger->info('order id'. $order->getId());
+        $this->logger->info('order id'. $order->getId());
+        $this->logger->info('payment'. $order->getPayment()->getMethodInstance()->getCode());
+        $this->logger->info('status'. $data->status);
+        $this->logger->info('application'. $data->application);
         //Divido Order already exists
         if (!empty($order) && $order->getId() && $order->getPayment()->getMethodInstance()->getCode() == 'divido_financing') {
             $isOrderExists = true;
+
+            // update application with order id
+            $this->logger->info('order already exists'. $order->getId());
+            $this->helper->updateApplication($data->application, $order->getId());
         }
 
         if (! $isOrderExists && $data->status != $creationStatus && $data->status != self::STATUS_REFERRED) {
@@ -240,9 +248,10 @@ class CreditRequest implements CreditRequestInterface
             return $this->webhookResponse();
         }
         $this->logger->info('Application Update ----- test' );
+        $this->logger->info($isOrderExists );
         if (! $isOrderExists && ($data->status == $creationStatus || $data->status == self::STATUS_REFERRED)) {
 
-
+            $this->logger->info('order does not exist' );
             if ($debug) {
                 $this->logger->debug('Divido: Create order');
             }
