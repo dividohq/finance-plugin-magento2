@@ -264,8 +264,7 @@ class CreditRequest implements CreditRequestInterface
             $orderId = $this->quoteManagement->placeOrder($quoteId);
             $order = $this->order->load($orderId);
 
-            // update application with order id
-            $this->helper->updateApplication($data->application, $orderId);
+
 
             if ($grandTotal != $iv) {
                 if ($debug) {
@@ -309,7 +308,10 @@ class CreditRequest implements CreditRequestInterface
 
 
         $lookup->setData('order_id', $order->getId());
-        //todo post patch to application with orderID to meta
+
+        // update application with order id
+        $this->helper->updateApplication($data->application, $order->getId());
+
         $lookup->save();
 
 
