@@ -17,7 +17,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     const CALLBACK_PATH    = 'rest/V1/divido/update/';
     const REDIRECT_PATH    = 'divido/financing/success/';
     const CHECKOUT_PATH    = 'checkout/';
-    const VERSION          = '2.0.9';
+    const VERSION          = '2.1.0';
 
     private $config;
     private $logger;
