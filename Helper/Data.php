@@ -522,11 +522,15 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 
             $application    = (new \Divido\MerchantSDK\Models\Application())
                 ->withFinancePlanId($financePlanId)
-                ->withApplicants([$applicants])
+                ->withApplicants($applicants)
                 ->withOrderItems($orderItems)
                 ->withMerchantReference($orderId);
+            $this->logger->info("updating");
+            $response = $sdk->applications()->updateApplication($application, [], ['Content-Type' => 'application/json']);
 
-            $sdk->applications()->updateApplication($application, [], ['Content-Type' => 'application/json']);
+            $applicationResponseBody = $response->getBody()->getContents();
+
+            $this->container->get('Logger')->info('update response', [$applicationResponseBody]);
 
         } catch(\Exception $e){
             $this->logger->info("Error updating application" ,[$e->getMessage()]);
