@@ -239,8 +239,13 @@ class CreditRequest implements CreditRequestInterface
             }
             return $this->webhookResponse();
         }
-
+        $this->logger->info('Application Update ----- test' );
         if (! $isOrderExists && ($data->status == $creationStatus || $data->status == self::STATUS_REFERRED)) {
+
+            // update application with order id
+            $this->logger->info('Application Update - order id update top'.$order->getId());
+            $this->helper->updateApplication($data->application, $order->getId());
+
             if ($debug) {
                 $this->logger->debug('Divido: Create order');
             }
@@ -305,12 +310,13 @@ class CreditRequest implements CreditRequestInterface
                 }
             }
         }
-
+        // update application with order id
+        $this->logger->info('Application Update - order id update'.$order->getId());
+        $this->helper->updateApplication($data->application, $order->getId());
 
         $lookup->setData('order_id', $order->getId());
 
-        // update application with order id
-        $this->helper->updateApplication($data->application, $order->getId());
+
 
         $lookup->save();
 
