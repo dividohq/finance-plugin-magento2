@@ -14,4 +14,10 @@
             </argument>
         </arguments>
     </type>
+    <type name="Divido\LogStreamer">
+        <arguments>
+            <argument name="channelName" xsi:type="string">finance-plugin-magento2</argument>
+            <argument name="logLevel" xsi:type="number">100</argument>
+        </arguments>
+    </type>
 </config>

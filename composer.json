@@ -12,8 +12,15 @@
             "Divido\\DividoFinancing\\": ""
         }
     },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "git@github.com:dividohq/log-streamer-lib-php.git"
+        }
+    ],
     "require": {
         "divido/merchant-sdk": "^2.1",
-        "divido/merchant-sdk-guzzle-6": "^1.0"
+        "divido/merchant-sdk-guzzle-6": "^1.0",
+        "divido/log-streamer": "^1.1"
         }
 }
