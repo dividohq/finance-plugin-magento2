@@ -187,11 +187,14 @@ class CreditRequest implements CreditRequestInterface
                 array('method')
             )
             ->where('sop.method = ?', 'divido_financing');
-        $this->orderCollection->setOrder(
-            'created_at',
-            'desc'
-        );
-        $dividoOrderId = $this->orderCollection->getFirstItem()->getId();
+        $this->orderCollection->getSelect()
+            ->limit(1)
+            ->reset(\Zend_Db_Select::COLUMNS)
+            ->columns(['entity_id']);
+
+        $this->orderCollection->setOrder('created_at', 'desc');
+
+        $dividoOrderId = $this->orderCollection->getConnection()->fetchOne($this->orderCollection->getSelect());
 
         if (!empty($dividoOrderId)) {
             $order = $this->order->loadByAttribute('entity_id', $dividoOrderId);
