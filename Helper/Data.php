@@ -29,6 +29,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     private $resource;
     private $connection;
     private $urlBuilder;
+    private $localeResolver;
 
     public function __construct(
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
@@ -39,18 +40,20 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         \Magento\Framework\App\ResourceConnection $resource,
         LookupFactory $lookupFactory,
         UrlInterface $urlBuilder,
-        ProductFactory $productFactory
+        ProductFactory $productFactory,
+        \Magento\Framework\Locale\Resolver $localeResolver
     ) {
     
-        $this->config        = $scopeConfig;
-        $this->logger        = $logger;
-        $this->cache         = $cache;
-        $this->cart          = $cart;
-        $this->storeManager  = $storeManager;
-        $this->resource      = $resource;
-        $this->lookupFactory = $lookupFactory;
-        $this->urlBuilder    = $urlBuilder;
+        $this->config         = $scopeConfig;
+        $this->logger         = $logger;
+        $this->cache          = $cache;
+        $this->cart           = $cart;
+        $this->storeManager   = $storeManager;
+        $this->resource       = $resource;
+        $this->lookupFactory  = $lookupFactory;
+        $this->urlBuilder     = $urlBuilder;
         $this->productFactory = $productFactory;
+        $this->localeResolver = $localeResolver;
     }
 
        /**
@@ -873,6 +876,13 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
                 \Magento\Store\Model\ScopeInterface::SCOPE_STORE
             );
     }
+    public function getLanguageOverride()
+    {
+            return $this->config->getValue(
+                'payment/divido_financing/language_override',
+                \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+            );
+    }
 
     public function getWidgetFootnote()
     {
@@ -881,6 +891,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
                 \Magento\Store\Model\ScopeInterface::SCOPE_STORE
             );
     }
+
     public function getWidgetButtonText()
     {
             return $this->config->getValue(
@@ -912,6 +923,18 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     public function returnUrl()
     {
         return $this->urlBuilder->getBaseUrl();
+    }
+
+    public function getWidgetLanguage() {
+        if(0 === $this->getLanguageOverride()){
+            return null;
+        }
+        $locale = $this->localeResolver->getLocale();
+        if($this->debug()){
+            $this->logger->info("Locale: {$locale}");
+        }
+        list($code, $country)  = explode("_", $locale);
+        return null;//$code;
     }
 
 }
