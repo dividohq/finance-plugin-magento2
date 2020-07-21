@@ -9,15 +9,16 @@ use Magento\Catalog\Model\ProductFactory;
 class Data extends \Magento\Framework\App\Helper\AbstractHelper
 {
 
-    const CACHE_DIVIDO_TAG = 'divido_cache';
-    const CACHE_PLANS_KEY  = 'divido_plans';
-    const CACHE_PLANS_TTL  = 3600;
-    const CACHE_PLATFORM_KEY  = 'platform_env';
-    const CACHE_PLATFORM_TTL  = 3600;
-    const CALLBACK_PATH    = 'rest/V1/divido/update/';
-    const REDIRECT_PATH    = 'divido/financing/success/';
-    const CHECKOUT_PATH    = 'checkout/';
-    const VERSION          = '2.1.0';
+    const CACHE_DIVIDO_TAG   = 'divido_cache';
+    const CACHE_PLANS_KEY    = 'divido_plans';
+    const CACHE_PLANS_TTL    = 3600;
+    const CACHE_PLATFORM_KEY = 'platform_env';
+    const CACHE_PLATFORM_TTL = 3600;
+    const CALLBACK_PATH      = 'rest/V1/divido/update/';
+    const REDIRECT_PATH      = 'divido/financing/success/';
+    const CHECKOUT_PATH      = 'checkout/';
+    const VERSION            = '2.1.0';
+    const WIDGET_LANGUAGES   = ["en", "fi" , "se", "no", "es", "da"];
 
     private $config;
     private $logger;
@@ -929,12 +930,16 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         if(0 === $this->getLanguageOverride()){
             return null;
         }
+
         $locale = $this->localeResolver->getLocale();
         if($this->debug()){
             $this->logger->info("Locale: {$locale}");
         }
         list($code, $country)  = explode("_", $locale);
-        return null;//$code;
+        if(!in_array($code, self::WIDGET_LANGUAGES)){
+            return null;
+        }
+        return $code;
     }
 
 }
