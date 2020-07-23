@@ -480,7 +480,14 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         
         $decode                    = json_decode($application_response_body);
         if ($this->debug()){
-            $this->logger->info(serialize($decode));
+            $this->logger->info(
+                "Application Request Load",
+                [
+                    'quote_id'   => $quoteId,
+                    'quote_hash' => $quoteHash,
+                    'salt'       => $salt,
+                ]
+            );
         }
         $result_id                 = $decode->data->id;
         $result_redirect           = $decode->data->urls->application_url;

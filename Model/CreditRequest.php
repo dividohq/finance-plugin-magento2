@@ -162,7 +162,15 @@ class CreditRequest implements CreditRequestInterface
         $salt = $lookup->getSalt();
         $hash = $this->helper->hashQuote($salt, $data->metadata->quote_id);
         if ($hash !== $data->metadata->quote_hash) {
-                $this->logger->error('Divido: Bad request, mismatch in hash. Req: ' . $content);
+            $this->logger->error(
+                'Divido: Bad request, mismatch in hash.',
+                [
+                    'request'    => $content,
+                    'salt'       => $salt,
+                    'quote_hash' => $hash,
+                    'quote_id'   => $quoteId,
+                ]
+            );
             return $this->webhookResponse(false, 'Invalid hash');
         }
 
