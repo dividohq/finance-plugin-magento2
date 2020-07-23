@@ -9,15 +9,16 @@ use Magento\Catalog\Model\ProductFactory;
 class Data extends \Magento\Framework\App\Helper\AbstractHelper
 {
 
-    const CACHE_DIVIDO_TAG = 'divido_cache';
-    const CACHE_PLANS_KEY  = 'divido_plans';
-    const CACHE_PLANS_TTL  = 3600;
-    const CACHE_PLATFORM_KEY  = 'platform_env';
-    const CACHE_PLATFORM_TTL  = 3600;
-    const CALLBACK_PATH    = 'rest/V1/divido/update/';
-    const REDIRECT_PATH    = 'divido/financing/success/';
-    const CHECKOUT_PATH    = 'checkout/';
-    const VERSION          = '2.1.0';
+    const CACHE_DIVIDO_TAG   = 'divido_cache';
+    const CACHE_PLANS_KEY    = 'divido_plans';
+    const CACHE_PLANS_TTL    = 3600;
+    const CACHE_PLATFORM_KEY = 'platform_env';
+    const CACHE_PLATFORM_TTL = 3600;
+    const CALLBACK_PATH      = 'rest/V1/divido/update/';
+    const REDIRECT_PATH      = 'divido/financing/success/';
+    const CHECKOUT_PATH      = 'checkout/';
+    const VERSION            = '2.1.0';
+    const WIDGET_LANGUAGES   = ["en", "fi" , "no", "es", "da", "fr", "de"];
 
     private $config;
     private $logger;
@@ -29,6 +30,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     private $resource;
     private $connection;
     private $urlBuilder;
+    private $localeResolver;
 
     public function __construct(
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
@@ -39,18 +41,20 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         \Magento\Framework\App\ResourceConnection $resource,
         LookupFactory $lookupFactory,
         UrlInterface $urlBuilder,
-        ProductFactory $productFactory
+        ProductFactory $productFactory,
+        \Magento\Framework\Locale\Resolver $localeResolver
     ) {
     
-        $this->config        = $scopeConfig;
-        $this->logger        = $logger;
-        $this->cache         = $cache;
-        $this->cart          = $cart;
-        $this->storeManager  = $storeManager;
-        $this->resource      = $resource;
-        $this->lookupFactory = $lookupFactory;
-        $this->urlBuilder    = $urlBuilder;
+        $this->config         = $scopeConfig;
+        $this->logger         = $logger;
+        $this->cache          = $cache;
+        $this->cart           = $cart;
+        $this->storeManager   = $storeManager;
+        $this->resource       = $resource;
+        $this->lookupFactory  = $lookupFactory;
+        $this->urlBuilder     = $urlBuilder;
         $this->productFactory = $productFactory;
+        $this->localeResolver = $localeResolver;
     }
 
        /**
@@ -545,7 +549,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             $this->logger->info('GetScript URL HElper');
         }
         $apiKey = $this->getApiKey();
-        $scriptUrl= "//cdn.divido.com/widget/dist/divido.calculator.js";
+        $scriptUrl= "//cdn.divido.com/widget/v3/divido.calculator.js";
 
         if (empty($apiKey)) {
             return $scriptUrl;
@@ -555,7 +559,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         if ($this->debug()) {
             $this->logger->info('platform env:'.$platformEnv);
         }
-        $scriptUrl= "//cdn.divido.com/widget/dist/" . $platformEnv . ".calculator.js";
+        $scriptUrl= "//cdn.divido.com/widget/v3/" . $platformEnv . ".calculator.js";
         if ($this->debug()) {
             $this->logger->info('Url:'.$scriptUrl);
         }
@@ -874,6 +878,19 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             );
     }
 
+    /**
+     * Retrieve the language override value from the merchant configuration
+     *
+     * @return int A boolean integer with 1 signifying the language should be overriden
+     */
+    public function getLanguageOverride():int
+    {
+            return $this->config->getValue(
+                'payment/divido_financing/language_override',
+                \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+            );
+    }
+
     public function getWidgetFootnote()
     {
             return $this->config->getValue(
@@ -881,6 +898,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
                 \Magento\Store\Model\ScopeInterface::SCOPE_STORE
             );
     }
+
     public function getWidgetButtonText()
     {
             return $this->config->getValue(
@@ -912,6 +930,27 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     public function returnUrl()
     {
         return $this->urlBuilder->getBaseUrl();
+    }
+
+    /**
+     * Returns the ISO code of the store's native language
+     *
+     * @return string|null The ISO code or null if config states otherwise or code not supported
+     */
+    public function getWidgetLanguage():?string {
+        if(0 === $this->getLanguageOverride()){
+            return null;
+        }
+
+        $locale = $this->localeResolver->getLocale();
+        if($this->debug()){
+            $this->logger->info("Locale: {$locale}");
+        }
+        list($code, $country)  = explode("_", $locale);
+        if(!in_array($code, self::WIDGET_LANGUAGES)){
+            return null;
+        }
+        return $code;
     }
 
 }
