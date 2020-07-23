@@ -877,7 +877,13 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
                 \Magento\Store\Model\ScopeInterface::SCOPE_STORE
             );
     }
-    public function getLanguageOverride()
+
+    /**
+     * Retrieve the language override value from the merchant configuration
+     *
+     * @return int A boolean integer with 1 signifying the language should be overriden
+     */
+    public function getLanguageOverride():int
     {
             return $this->config->getValue(
                 'payment/divido_financing/language_override',
@@ -926,7 +932,12 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         return $this->urlBuilder->getBaseUrl();
     }
 
-    public function getWidgetLanguage() {
+    /**
+     * Returns the ISO code of the store's native language
+     *
+     * @return string|null The ISO code or null if config states otherwise or code not supported
+     */
+    public function getWidgetLanguage():?string {
         if(0 === $this->getLanguageOverride()){
             return null;
         }
