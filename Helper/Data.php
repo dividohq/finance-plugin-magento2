@@ -549,7 +549,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             $this->logger->info('GetScript URL HElper');
         }
         $apiKey = $this->getApiKey();
-        $scriptUrl= "//cdn.divido.com/widget/dist/divido.calculator.js";
+        $scriptUrl= "//cdn.divido.com/widget/v3/divido.calculator.js";
 
         if (empty($apiKey)) {
             return $scriptUrl;
@@ -559,7 +559,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         if ($this->debug()) {
             $this->logger->info('platform env:'.$platformEnv);
         }
-        $scriptUrl= "//cdn.divido.com/widget/dist/" . $platformEnv . ".calculator.js";
+        $scriptUrl= "//cdn.divido.com/widget/v3/" . $platformEnv . ".calculator.js";
         if ($this->debug()) {
             $this->logger->info('Url:'.$scriptUrl);
         }
@@ -939,7 +939,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         if(!in_array($code, self::WIDGET_LANGUAGES)){
             return null;
         }
-        return $code;
+        return "fr";//$code;
     }
 
 }
