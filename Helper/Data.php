@@ -18,7 +18,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     const REDIRECT_PATH      = 'divido/financing/success/';
     const CHECKOUT_PATH      = 'checkout/';
     const VERSION            = '2.1.0';
-    const WIDGET_LANGUAGES   = ["en", "fi" , "no", "es", "da", "fr", "de"];
+    const WIDGET_LANGUAGES   = ["en", "fi" , "no", "es", "da", "fr", "de", "se", "pe"];
 
     private $config;
     private $logger;
@@ -409,7 +409,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             $products[] = [
                 'type'     => 'product',
                 'name'     => 'Shipping & Handling',
-                'quantity' => (int) '1',
+                'quantity' => (int) 1,
                 'price'    => (int) $shipping,
             ];
         }
@@ -418,7 +418,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             $products[] = [
                 'type'     => 'product',
                 'name'     => 'Discount',
-                'quantity' => (int) '1',
+                'quantity' => (int) 1,
                 'price'    => (int) $discount * 100,
             ];
         }
@@ -460,7 +460,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             ->withMetadata(
                 [
                     'initial_cart_value'    => $grandTotal,
-                    'quote_id'              => $quoteId,
+                    'merchant_reference'    => $quoteId,
                     'quote_hash'            => $quoteHash,
                     'ecom_platform'         => 'Magento_2',
                     'ecom_platform_version' => $this->getMagentoVersion(),
