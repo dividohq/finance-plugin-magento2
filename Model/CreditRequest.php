@@ -7,7 +7,7 @@ use Divido\DividoFinancing\Api\CreditRequestInterface;
 class CreditRequest implements CreditRequestInterface
 {
     const
-        VERSION              = 'M2-2.1.0',
+        VERSION              = 'M2-2.3.0',
         NEW_ORDER_STATUS     = 'pending_payment',
         STATUS_ACCEPTED      = 'ACCEPTED',
         STATUS_ACTION_LENDER = 'ACTION-LENDER',
@@ -126,10 +126,12 @@ class CreditRequest implements CreditRequestInterface
         if ($debug) {
             $this->logger->debug('Divido: Request: ' . $content);
         }
-
         $data = json_decode($content);
+
         if ($data === null) {
-            $this->logger->error('Divido: Bad request, could not parse body: ' . $content);
+            if($debug){
+                $this->logger->error('Divido: Bad request, could not parse body: ' . $content);
+            }
             return $this->webhookResponse(false, 'Invalid json');
         }
         if($debug){
@@ -141,7 +143,9 @@ class CreditRequest implements CreditRequestInterface
 
         $lookup = $this->lookupFactory->create()->load($quoteId, 'quote_id');
         if (! $lookup->getId()) {
-            $this->logger->error('Divido: Bad request, could not find lookup. Req: ' . $content);
+            if($debug){
+                $this->logger->error('Divido: Bad request, could not find lookup. Req: ' . $content);
+            }
             return $this->webhookResponse(false, 'No lookup');
         }
 
@@ -149,9 +153,13 @@ class CreditRequest implements CreditRequestInterface
             'payment/divido_financing/secret',
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         );
-        if ($secret) {
-            $reqSign = $this->req->getHeader('X-DIVIDO-HMAC-SHA256');
-            $sign = $this->helper->createSignature($content, $secret);
+        if (!empty($secret)) {
+
+            $reqSign = 
+                isset($_SERVER['HTTP_X_DIVIDO_HMAC_SHA256']) 
+                ? $_SERVER['HTTP_X_DIVIDO_HMAC_SHA256'] 
+                : '';
+            $sign = $this->helper->create_signature($content, $secret);
 
             if ($reqSign !== $sign) {
                 $this->logger->error('Divido: Bad request, invalid signature. Req: ' . $content);
@@ -228,11 +236,19 @@ class CreditRequest implements CreditRequestInterface
         $isOrderExists = false;
 
         //Divido Order already exists
-        if (!empty($order) && $order->getId() && $order->getPayment()->getMethodInstance()->getCode() == 'divido_financing') {
+        if (
+            !empty($order) 
+            && $order->getId() 
+            && $order->getPayment()->getMethodInstance()->getCode() == 'divido_financing'
+        ) {
             $isOrderExists = true;
         }
 
-        if (! $isOrderExists && $data->status != $creationStatus && $data->status != self::STATUS_REFERRED) {
+        if (
+            !$isOrderExists 
+            && $data->status != $creationStatus 
+            && $data->status != self::STATUS_REFERRED
+        ) {
             if ($debug) {
                 $this->logger->debug('Divido: No order, not creation status: ' . $data->status);
             }
@@ -349,10 +365,11 @@ class CreditRequest implements CreditRequestInterface
         $pluginVersion = $this->resourceInterface->getDbVersion('Divido_DividoFinancing');
         $status = $ok ? 'ok' : 'error';
         $response = [
-            'status'           => $status,
-            'message'          => $message,
-            'platform'         => 'Magento',
-            'plugin_version'   => $pluginVersion,
+            'status'                => $status,
+            'message'               => $message,
+            'ecom_platform'         => 'Magento_2',
+            'plugin_version'        => $this->helper->getVersion(),
+            'ecom_platform_version' => $this->helper->getMagentoVersion()
         ];
 
         return json_encode($response);
@@ -362,8 +379,9 @@ class CreditRequest implements CreditRequestInterface
     public function version()
     {
         $response = [
-            'plugin_version'   => self::VERSION,
-            'm2_version'   => $this->helper->getMagentoVersion()
+            'ecom_platform'         => 'Magento_2',
+            'plugin_version'        => $this->helper->getVersion(),
+            'ecom_platform_version' => $this->helper->getMagentoVersion()
         ];
 
         return json_encode($response);

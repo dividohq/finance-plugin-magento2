@@ -17,7 +17,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     const CALLBACK_PATH      = 'rest/V1/divido/update/';
     const REDIRECT_PATH      = 'divido/financing/success/';
     const CHECKOUT_PATH      = 'checkout/';
-    const VERSION            = '2.1.0';
+    const VERSION            = '2.3.0';
     const WIDGET_LANGUAGES   = ["en", "fi" , "no", "es", "da", "fr", "de", "se", "pe"];
 
     private $config;
@@ -440,15 +440,14 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             $redirect_url = $this->getCustomRedirectUrl().'/quote_id/'.$quoteId;
         }
 
-        $sdk                       = $this->getSdk();
-        $application               = (new \Divido\MerchantSDK\Models\Application())
+        $sdk = $this->getSdk();
+        $application = (new \Divido\MerchantSDK\Models\Application())
             ->withCountryId($country)
             ->withFinancePlanId($planId)
             ->withApplicants([$customer])
             ->withOrderItems($products)
             ->withDepositAmount($deposit)
             ->withFinalisationRequired(false)
-            //todo getOrderId
             ->withMerchantReference('')
             ->withUrls(
                 [
@@ -469,28 +468,32 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 
                 ]
             );
-        //todo - improve error handling
-        /*TODO FIX HMAC
-        if ('' !== $secret ) {
+        
+        if (!empty($secret)) {
+            $secret = $this->create_signature(json_encode($application->getPayload()), $secret);
             $this->logger->debug('Hmac Version'.$secret);
-
-            $response              = $sdk->applications()->createApplication($application,[],['Content-Type' => 'application/json', 'X-Divido-Hmac-Sha256' => $secret]);
+            $response = $sdk
+                ->applications()
+                ->createApplication(
+                    $application,
+                    [],
+                    ['Content-Type' => 'application/json', 'X-Divido-Hmac-Sha256' => $secret]
+                );
         }else{
             $this->logger->debug('Non Hmac');
-
-            $response              = $sdk->applications()->createApplication($application,[],['Content-Type' => 'application/json']);
+            $response = $sdk
+                ->applications()
+                ->createApplication($application,[],['Content-Type' => 'application/json']);
         }
-        */
-        $response              = $sdk->applications()->createApplication($application,[],['Content-Type' => 'application/json']);
-
+        
         $application_response_body = $response->getBody()->getContents();
         
-        $decode                    = json_decode($application_response_body);
+        $decode = json_decode($application_response_body);
         if ($this->debug()){
             $this->logger->info(serialize($decode));
         }
-        $result_id                 = $decode->data->id;
-        $result_redirect           = $decode->data->urls->application_url;
+        $result_id = $decode->data->id;
+        $result_redirect = $decode->data->urls->application_url;
         if ($response) {
             $lookupModel = $this->lookupFactory->create();
             $lookupModel->load($quoteId, 'quote_id');
@@ -951,6 +954,19 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             return null;
         }
         return $code;
+    }
+
+    /**
+     * Generates a signature hash, based on the API key secret 
+     *
+     * @param string $payload A json string of the application
+     * @param string $secret The API key secret set in the merchant portal
+     * @return string The signature hash
+     */
+    public function create_signature(string $payload, string $secret):string {
+        $hmac = hash_hmac('sha256', $payload, $secret, true);
+        $signature = base64_encode($hmac);
+        return $signature;
     }
 
 }
