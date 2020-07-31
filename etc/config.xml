@@ -14,6 +14,7 @@
                 <can_use_internal>0</can_use_internal>
                 <allowspecific>1</allowspecific>
                 <specificcountry>GB,FI</specificcountry>
+                <language_override>0</language_override>
                 <widget_footer></widget_footer>
                 <widget_button_text></widget_button_text>
             </divido_financing>
