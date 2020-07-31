@@ -246,7 +246,7 @@ class CreditRequest implements CreditRequestInterface
 
             $this->logger->info('Application Update - order id update'. $order->getId());
             $this->logger->info($data->application);
-            $this->helper->updateApplication($data->application, $order->getId());
+            $this->helper->updateMerchantReference($data->application, $order->getId());
         }
 
         if (
@@ -329,7 +329,7 @@ class CreditRequest implements CreditRequestInterface
         $this->logger->info('new order id'. $order->getId());
         $this->logger->info($order->getId());
 
-        $this->helper->updateApplication($data->application, $order->getId());
+        $this->helper->updateMerchantReference($data->application, $order->getId());
         $lookup->setData('order_id', $order->getId());
 
         $lookup->save();

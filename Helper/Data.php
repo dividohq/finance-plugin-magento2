@@ -515,10 +515,12 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 
 
     /**
-     * @param $applicationId
-     * @param $orderId
+     * Updates the metadata of the Application to include the Magento 2 internal Order id
+     * 
+     * @param $applicationId The Divido Application ID
+     * @param $orderId The ID Magento attributes to the order
      */
-    public function updateApplication($applicationId, $orderId)
+    public function updateMerchantReference($applicationId, $orderId)
     {
         try{
             $sdk  = $this->getSdk();
@@ -534,7 +536,9 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
                 ->withFinancePlanId($financePlanId)
                 ->withApplicants($applicants)
                 ->withOrderItems($orderItems)
-                ->withMerchantReference((string)$orderId);
+                ->withMetadata([
+                    "merchant_reference" => $orderId
+                ]);
             $this->logger->info("updating order id ". (string)$orderId);
             $response = $sdk->applications()->updateApplication($application, [], ['Content-Type' => 'application/json']);
 
