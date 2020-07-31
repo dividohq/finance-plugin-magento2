@@ -93,6 +93,8 @@ class CreditRequest implements CreditRequestInterface
         $email     = $this->req->getQuery('email', null);
         $cartValue = $this->req->getQuery('initial_cart_value', null);
         $quoteId   = $this->req->getQuery('quote_id', null);
+
+
         try {
             $creditRequestUrl = $this->helper->creditRequest($planId, $deposit, $email, $quoteId);
             $response['url']  = $creditRequestUrl;
@@ -135,7 +137,6 @@ class CreditRequest implements CreditRequestInterface
         }
         if($debug){
             $this->logger->debug('Application Update Status:'.$data->status);
-
         }
 
         $quoteId = $data->metadata->quote_id;
@@ -205,7 +206,7 @@ class CreditRequest implements CreditRequestInterface
         } else {
             $order = NULL;
         }
-        
+
 
         if (in_array($data->status, $this->noGo)) {
             if ($debug) {
@@ -228,7 +229,7 @@ class CreditRequest implements CreditRequestInterface
             $this->eventManager->dispatch('divido_financing_quote_referred', ['quote_id' => $quoteId]);
         }
 
-        $creationStatus=self::STATUS_SIGNED;
+        $creationStatus = self::STATUS_SIGNED;
 
         //Check if Divido order already exists (as with same quoteID, other orders with different payment method may be present with status as cancelled)
         //Divido order not exists
@@ -241,6 +242,11 @@ class CreditRequest implements CreditRequestInterface
             && $order->getPayment()->getMethodInstance()->getCode() == 'divido_financing'
         ) {
             $isOrderExists = true;
+            // update application with order id
+
+            $this->logger->info('Application Update - order id update'. $order->getId());
+            $this->logger->info($data->application);
+            $this->helper->updateApplication($data->application, $order->getId());
         }
 
         if (
@@ -253,8 +259,10 @@ class CreditRequest implements CreditRequestInterface
             }
             return $this->webhookResponse();
         }
-        
+        $this->logger->info('Application Update ----- test' );
         if (! $isOrderExists && ($data->status == $creationStatus || $data->status == self::STATUS_REFERRED)) {
+
+            $this->logger->info('order does not exist' );
             if ($debug) {
                 $this->logger->debug('Divido: Create order');
             }
@@ -282,7 +290,7 @@ class CreditRequest implements CreditRequestInterface
                 if ($debug) {
                     $this->logger->warning('HOLD Order - Cart value changed: ');
                 }
-                //Highlight order for review
+                // Highlight order for review
                 $lookup->setData('canceled', 1);
                 $lookup->save();
                 $appId = $lookup->getProposalId();
@@ -304,6 +312,7 @@ class CreditRequest implements CreditRequestInterface
                     $order->save();
                     $lookup->setData('order_id', $order->getId());
                     $lookup->save();
+                    $this->logger->info('Got away');
                     return $this->webhookResponse();
                 } else {
                     if ($debug) {
@@ -311,18 +320,19 @@ class CreditRequest implements CreditRequestInterface
                     };
                     $order->addStatusHistoryComment(__('Value of cart changed before completion - cannot hold order'));
                 }
-                
+
                 if ($debug) {
                     $this->logger->warning('HOLD Order - Cart value changed: '.(string)$appId);
                 }
             }
         }
-        
-        
+        $this->logger->info('new order id'. $order->getId());
+        $this->logger->info($order->getId());
+
+        $this->helper->updateApplication($data->application, $order->getId());
         $lookup->setData('order_id', $order->getId());
-        //todo post patch to application with orderID to meta
+
         $lookup->save();
-                
 
         if ($data->status == self::STATUS_SIGNED) {
             $this->logger->info('Divido: Escalate order');
