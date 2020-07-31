@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this project will now be documented in this file.
 
+## [2.3.0] - 2020-30-07
+- fix: Adds shared secret compatibility 
+- change: Updates the Application with a merchant reference
+
 ## [2.2.0] - 2020-23-07
 - feat: Adds widget language override feature
 - chore: Ups the widget version to v3
