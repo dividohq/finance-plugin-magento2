@@ -138,7 +138,7 @@ class CreditRequest implements CreditRequestInterface
 
         }
 
-        $quoteId = $data->metadata->merchant_reference;
+        $quoteId = $data->metadata->quote_id;
 
         $lookup = $this->lookupFactory->create()->load($quoteId, 'quote_id');
         if (! $lookup->getId()) {
@@ -167,7 +167,7 @@ class CreditRequest implements CreditRequestInterface
         }
 
         $salt = $lookup->getSalt();
-        $hash = $this->helper->hashQuote($salt, $data->metadata->merchant_reference);
+        $hash = $this->helper->hashQuote($salt, $data->metadata->quote_id);
         if ($hash !== $data->metadata->quote_hash) {
                 $this->logger->error('Divido: Bad request, mismatch in hash. Req: ' . $content);
             return $this->webhookResponse(false, 'Invalid hash');

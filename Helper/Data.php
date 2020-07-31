@@ -459,7 +459,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             ->withMetadata(
                 [
                     'initial_cart_value'    => $grandTotal,
-                    'merchant_reference'    => $quoteId,
+                    'quote_id'              => $quoteId,
                     'quote_hash'            => $quoteHash,
                     'ecom_platform'         => 'Magento_2',
                     'ecom_platform_version' => $this->getMagentoVersion(),
