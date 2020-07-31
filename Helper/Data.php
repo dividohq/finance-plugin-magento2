@@ -18,7 +18,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     const REDIRECT_PATH      = 'divido/financing/success/';
     const CHECKOUT_PATH      = 'checkout/';
     const VERSION            = '2.3.0';
-    const WIDGET_LANGUAGES   = ["en", "fi" , "no", "es", "da", "fr", "de", "se", "pe"];
+    const WIDGET_LANGUAGES   = ["en", "fi" , "no", "es", "da", "fr", "de", "pe"];
 
     private $config;
     private $logger;
