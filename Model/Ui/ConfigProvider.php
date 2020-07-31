@@ -34,13 +34,15 @@ final class ConfigProvider implements ConfigProviderInterface
         $plans       = $this->helper->plans2list($plans);
         $description = $this->helper->getDescription();
         $footnote    = $this->helper->getWidgetFootnote();
+        $language    = $this->helper->getWidgetLanguage();
 
         return [
             'payment' => [
                 self::CODE => [
-                    'cart_plans'       => $plans,
-                    'description' => $description,
-                    'widget_footnote' => $footnote,
+                    'cart_plans'        => $plans,
+                    'description'       => $description,
+                    'widget_footnote'   => $footnote,
+                    'language_override' => $language,
                 ]
             ]
         ];

@@ -1,6 +1,14 @@
 # Changelog
 All notable changes to this project will now be documented in this file.
 
+## [2.2.0] - 2020-23-07
+- feat: Adds widget language override feature
+- chore: Ups the widget version to v3
+
+## [2.1.0] - 2020-15-06
+- Update order logic to create within loop rather than end of loop
+- Update metadata for additional logging
+
 ## [2.0.9] - 2020-05-05
 - Add Euro as allowed currency
 - Add helper to remove whitespace from phonenumber

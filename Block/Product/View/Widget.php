@@ -91,14 +91,17 @@ class Widget extends \Magento\Catalog\Block\Product\AbstractProduct
         
         return $threshold;
     }
+    
     public function getButtonText()
     {
         return $this->helper->getWidgetButtonText();
     }
+
     public function getFootnote()
     {
         return $this->helper->getWidgetFootnote();
     }
+
     public function getMode()
     {
         return $this->helper->getWidgetMode();
