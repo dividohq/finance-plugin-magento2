@@ -62,3 +62,5 @@
 "custom_redirect_url_description","URL du magasin sans tête"
 "custom_checkout_url_description","URL de sortie de magasin sans tête"
 "continue_label","Continuez"
+"use_store_language_label","Utiliser la langue du magasin?"
+"use_store_language_description","Remplacer la langue de la calculatrice financière par la langue des paramètres régionaux du magasin"

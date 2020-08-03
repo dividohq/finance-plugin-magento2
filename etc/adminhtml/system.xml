@@ -53,7 +53,6 @@
                 </field>
                 <field id="plan_selection" translate="label" type="multiselect" sortOrder="11" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>refine_plans_label</label>
-                    <label>Payment from Specific Countries</label>
                     <source_model>Divido\DividoFinancing\Model\Adminhtml\Source\AllowedCountries</source_model>
                     <can_be_empty>1</can_be_empty>
                 </field>

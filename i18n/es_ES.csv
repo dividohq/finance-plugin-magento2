@@ -62,3 +62,5 @@
 "custom_redirect_url_description","URL de redireccionamiento de tienda sin cabeza"
 "custom_checkout_url_description","URL de pago de tienda sin cabeza"
 "continue_label","Hacer continuación"
+"use_store_language_label","¿Usar el idioma de la tienda?"
+"use_store_language_description","Anule el idioma de la calculadora financiera con el idioma de la tienda"

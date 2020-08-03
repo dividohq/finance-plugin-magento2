@@ -62,3 +62,5 @@
 "custom_redirect_url_description","Headless store redirect url"
 "custom_checkout_url_description","Headless store checkout url"
 "continue_label","Continue"
+"use_store_language_label","Use store language?"
+"use_store_language_description","Override the language of the finance calculator with store locale language"

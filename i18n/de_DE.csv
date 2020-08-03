@@ -62,3 +62,5 @@
 "custom_redirect_url_description","Headless Store-Weiterleitungs-URL"
 "custom_checkout_url_description","Headless Store Checkout-URL"
 "continue_label","Fortsetzen"
+"use_store_language_label","Geschäftssprache verwenden?"
+"use_store_language_description","Überschreiben Sie die Sprache des Finanzrechners mit der Sprache des Gebietsschemas"
