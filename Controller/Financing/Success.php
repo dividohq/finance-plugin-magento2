@@ -18,12 +18,14 @@ class Success extends \Magento\Framework\App\Action\Action implements CsrfAwareA
         \Magento\Checkout\Model\Session $checkoutSession,
         \Magento\Sales\Model\Order $order,
         \Magento\Quote\Model\QuoteRepository $quoteRepository,
-        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
+        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
+        \Divido\DividoFinancing\Logger\Logger $logger
     ) {
         $this->checkoutSession = $checkoutSession;
         $this->order           = $order;
         $this->quoteRepository = $quoteRepository;
         $this->config          = $scopeConfig;
+        $this->logger          = $logger;
 
         parent::__construct($context);
     }
@@ -44,20 +46,40 @@ class Success extends \Magento\Framework\App\Action\Action implements CsrfAwareA
             'payment/divido_financing/timeout_delay',
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         );
-    
+
         return $timeout;
     }
 
     public function execute()
     {
+        $this->logger->info('SuccessController Start');
+        $debug = $this->config->getValue(
+            'payment/divido_financing/debug',
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
 
         $quoteId = $this->getRequest()->getParam('quote_id');
         $order   = $this->order->loadByAttribute('quote_id', $quoteId);
-        
-        if ($order == null) {
-            //get sleep value
-            sleep($this->getTimeout());
-            $order   = $this->order->loadByAttribute('quote_id', $quoteId);
+
+        if ($order->getId()) {
+            $this->logger->info('Order Found found with quote:'.$quoteId);
+        } else if(!empty($this->getTimeout())){
+            for($x = 0; $x < (int)$this->getTimeout() ; $x++ ){
+                $this->logger->info('Order not found with quote:'.$quoteId);
+                sleep(1);
+                $order   = $this->order->loadByAttribute('quote_id', $quoteId);
+                if($order->getId()){
+                    $this->logger->info('Order Found found with quote:'.$quoteId);
+                    break;
+                }
+            }
+        }
+
+        if($debug){
+            $this->logger->info('SuccessController');
+            $this->logger->info('quoteId:'.$quoteId);
+            $this->logger->info('orderId:'.$order->getId());
+            $this->logger->info('Sleep Timeout:'.$this->getTimeout());
         }
 
         $this->checkoutSession->setLastQuoteId($quoteId);
@@ -71,7 +93,7 @@ class Success extends \Magento\Framework\App\Action\Action implements CsrfAwareA
         $this->checkoutSession->setQuoteId(null);
         $quote->setIsActive(false);
         $this->quoteRepository->save($quote);
-
+        $this->logger->info('SuccessController End');
         $this->_redirect('checkout/onepage/success');
     }
 }

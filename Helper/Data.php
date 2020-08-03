@@ -9,14 +9,16 @@ use Magento\Catalog\Model\ProductFactory;
 class Data extends \Magento\Framework\App\Helper\AbstractHelper
 {
 
-    const CACHE_DIVIDO_TAG = 'divido_cache';
-    const CACHE_PLANS_KEY  = 'divido_plans';
-    const CACHE_PLANS_TTL  = 3600;
-    const CACHE_PLATFORM_KEY  = 'platform_env';
-    const CACHE_PLATFORM_TTL  = 3600;
-    const CALLBACK_PATH    = 'rest/V1/divido/update/';
-    const REDIRECT_PATH    = 'divido/financing/success/';
-    const CHECKOUT_PATH    = 'checkout/';
+    const CACHE_DIVIDO_TAG   = 'divido_cache';
+    const CACHE_PLANS_KEY    = 'divido_plans';
+    const CACHE_PLANS_TTL    = 3600;
+    const CACHE_PLATFORM_KEY = 'platform_env';
+    const CACHE_PLATFORM_TTL = 3600;
+    const CALLBACK_PATH      = 'rest/V1/divido/update/';
+    const REDIRECT_PATH      = 'divido/financing/success/';
+    const CHECKOUT_PATH      = 'checkout/';
+    const VERSION            = '2.3.0';
+    const WIDGET_LANGUAGES   = ["en", "fi" , "no", "es", "da", "fr", "de", "pe"];
 
     private $config;
     private $logger;
@@ -28,28 +30,31 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     private $resource;
     private $connection;
     private $urlBuilder;
+    private $localeResolver;
 
     public function __construct(
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
-        \Psr\Log\LoggerInterface $logger,
+        \Divido\DividoFinancing\Logger\Logger $logger,
         \Magento\Framework\App\CacheInterface $cache,
         \Magento\Checkout\Model\Cart $cart,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \Magento\Framework\App\ResourceConnection $resource,
         LookupFactory $lookupFactory,
         UrlInterface $urlBuilder,
-        ProductFactory $productFactory
+        ProductFactory $productFactory,
+        \Magento\Framework\Locale\Resolver $localeResolver
     ) {
     
-        $this->config        = $scopeConfig;
-        $this->logger        = $logger;
-        $this->cache         = $cache;
-        $this->cart          = $cart;
-        $this->storeManager  = $storeManager;
-        $this->resource      = $resource;
-        $this->lookupFactory = $lookupFactory;
-        $this->urlBuilder    = $urlBuilder;
+        $this->config         = $scopeConfig;
+        $this->logger         = $logger;
+        $this->cache          = $cache;
+        $this->cart           = $cart;
+        $this->storeManager   = $storeManager;
+        $this->resource       = $resource;
+        $this->lookupFactory  = $lookupFactory;
+        $this->urlBuilder     = $urlBuilder;
         $this->productFactory = $productFactory;
+        $this->localeResolver = $localeResolver;
     }
 
        /**
@@ -64,13 +69,14 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $apiKey = (false === $apiKey) ? $this->getApiKey() : $apiKey;
 
         if (empty($apiKey)) {
-            $this->logger->debug('Empty API key');
+            $this->logger->error('Empty API key');
             return false;
         } else {
             list($environment, $key) = explode("_", $apiKey);
             $environment = strtoupper($environment);
-            $this->logger->debug('getEnv:'.$environment);
-
+            if ($this->debug()) {
+                $this->logger->info('getEnv:'.$environment);
+            }
             if (!is_null(
                 constant("\Divido\MerchantSDK\Environment::$environment")
             )) {
@@ -99,8 +105,9 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             $response = $sdk->platformEnvironments()->getPlatformEnvironment();
             $finance_env = $response->getBody()->getContents();
             $decoded = json_decode($finance_env);
-            $this->logger->debug('getPlatformEnv:'.serialize($decoded));
-
+            if ($this->debug()) {
+                $this->logger->info('getPlatformEnv:'.serialize($decoded));
+            }
             $this->cache->save(
                 $decoded->data->environment,
                 self::CACHE_PLATFORM_KEY,
@@ -115,10 +122,14 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     public function getSdk()
     {
         $apiKey = $this->getApiKey();
-        $this->logger->debug('Get SDK');
+        if ($this->debug()) {
+            $this->logger->info('Get SDK');
+        }
 
         $env = $this->getEnvironment($apiKey);
-        $this->logger->debug('Get SDK'.$env);
+        if ($this->debug()) {
+            $this->logger->info('Get SDK'.$env);
+        }
 
         $client = new \GuzzleHttp\Client();
         $sdk = true;
@@ -148,14 +159,14 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     {
         $this->cache->clean('matchingTag', [self::CACHE_DIVIDO_TAG]);
     }
-    
+
     public function getProductSelection()
     {
         $selection= $this->config->getValue(
             'payment/divido_financing/product_selection',
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         );
-        
+
         return $selection;
     }
 
@@ -165,7 +176,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             'payment/divido_financing/price_threshold',
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         );
-        
+
         return $threshold;
     }
 
@@ -175,40 +186,10 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             'payment/divido_financing/active',
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         );
-        
+
         return $active;
     }
 
-    public function getWidgetMode()
-    {
-        $active = $this->config->getValue(
-            'payment/divido_financing/widget_mode',
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-        );
-        
-        return $active;
-    }
-
-    public function getWidgetButtonText()
-    {
-        $active = $this->config->getValue(
-            'payment/divido_financing/widget_button_text',
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-        );
-        
-        return $active;
-    }
-
-    public function getWidgetFootnote()
-    {
-        $active = $this->config->getValue(
-            'payment/divido_financing/widget_footnote',
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-        );
-        
-        return $active;
-    }
-    
     public function getAllPlans()
     {
         $apiKey = $this->config->getValue(
@@ -221,7 +202,9 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         }
 
         if ($plans = $this->cache->load(self::CACHE_PLANS_KEY)) {
-            $this->logger->addDebug('Cached Plans' . $plans);
+            if ($this->debug()){
+                   $this->logger->info('Cached Plans Key:'.self::CACHE_PLANS_KEY);
+               }
             $plans = unserialize($plans);
             return $plans;
         }
@@ -229,7 +212,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $response = $this->getPlans();
 
         if (!isset($response[0]->id)) {
-            $this->logger->addError('Could not get financing plans.');
+            $this->logger->error('Could not get financing plans.');
             $this->cleanCache();
             return [];
         }
@@ -242,7 +225,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             [self::CACHE_DIVIDO_TAG],
             self::CACHE_PLANS_TTL
         );
-        
+
         return $plans;
     }
 
@@ -365,7 +348,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             'payment/divido_financing/secret',
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         );
-  
+
         $quote       = $this->cart->getQuote();
         if ($quoteId != null) {
             $this->_objectManager = \Magento\Framework\App\ObjectManager::getInstance();
@@ -376,12 +359,12 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $billingAddr = $quote->getBillingAddress();
         $shippingAddress = $this->getAddressDetail($shipAddr);
         $billingAddress  = $this->getAddressDetail($billingAddr);
-        
+
         if (empty($country)) {
             $shipAddr = $quote->getBillingAddress();
             $country = $shipAddr->getCountry();
         }
-        
+
         if (!empty($email)) {
             if (!$quote->getCustomerEmail()) {
                 $quote->setCustomerEmail($email);
@@ -392,10 +375,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
                 $email = $existingEmail;
             }
         }
-        //TODO - get languages correctly
-        $language = 'en';
         $store = $this->storeManager->getStore();
-        $currency = $store->getCurrentCurrencyCode();
 
         $customer = [
             'title'             => '',
@@ -405,9 +385,9 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             'country'           => $country,
             'postcode'          => $shipAddr->getPostcode(),
             'email'             => $email,
-            'phoneNumber'       => $shipAddr->getTelephone(),
-            'shippingAddress'   => $shippingAddress,
+            'phoneNumber'       => $this->stripWhite($shipAddr->getTelephone()),
             'addresses'         => [$billingAddress],
+            'shippingAddress'   => $shippingAddress,
         ];
 
         $products = [];
@@ -417,7 +397,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
                     'type'     => 'product',
                     'name'     => $item->getName(),
                     'quantity' => (int)$item->getQty(),
-                    'price'    => (int)$item->getPriceInclTax() * 100,
+                    'price'    => round($item->getPriceInclTax() * 100),
                 ];
             }
         }
@@ -429,7 +409,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             $products[] = [
                 'type'     => 'product',
                 'name'     => 'Shipping & Handling',
-                'quantity' => (int) '1',
+                'quantity' => (int) 1,
                 'price'    => (int) $shipping,
             ];
         }
@@ -438,7 +418,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             $products[] = [
                 'type'     => 'product',
                 'name'     => 'Discount',
-                'quantity' => (int) '1',
+                'quantity' => (int) 1,
                 'price'    => (int) $discount * 100,
             ];
         }
@@ -447,11 +427,11 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $quoteHash = $this->hashQuote($salt, $quoteId);
         $response_url = $this->urlBuilder->getBaseUrl() . self::CALLBACK_PATH;
         $checkout_url = $this->urlBuilder->getUrl(self::CHECKOUT_PATH);
-        
+
         if (!empty($this->getCustomCheckoutUrl())) {
             $checkout_url = $this->urlBuilder->getUrl($this->getCustomCheckoutUrl());
         }
-        
+
         $redirect_url = $this->urlBuilder->getUrl(
             self::REDIRECT_PATH,
             ['quote_id' => $quoteId]
@@ -460,8 +440,8 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             $redirect_url = $this->getCustomRedirectUrl().'/quote_id/'.$quoteId;
         }
 
-        $sdk                       = $this->getSdk();
-        $application               = (new \Divido\MerchantSDK\Models\Application())
+        $sdk = $this->getSdk();
+        $application = (new \Divido\MerchantSDK\Models\Application())
             ->withCountryId($country)
             ->withFinancePlanId($planId)
             ->withApplicants([$customer])
@@ -478,32 +458,44 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             )
             ->withMetadata(
                 [
-                    'initial_cart_value' => $grandTotal,
-                    'quote_id'           => $quoteId,
-                    'quote_hash'         => $quoteHash,
+                    'initial_cart_value'    => $grandTotal,
+                    'quote_id'              => $quoteId,
+                    'quote_hash'            => $quoteHash,
+                    'ecom_platform'         => 'Magento_2',
+                    'ecom_platform_version' => $this->getMagentoVersion(),
+                    'ecom_base_url'         => $this->returnUrl(),
+                    'plugin_version'        => $this->getVersion()
 
                 ]
             );
-        //todo - improve error handling
-        /*TODO FIX HMAC
-        if ('' !== $secret ) {
+        
+        if (!empty($secret)) {
+            $secret = $this->create_signature(json_encode($application->getPayload()), $secret);
             $this->logger->debug('Hmac Version'.$secret);
-
-            $response              = $sdk->applications()->createApplication($application,[],['Content-Type' => 'application/json', 'X-Divido-Hmac-Sha256' => $secret]);
+            $response = $sdk
+                ->applications()
+                ->createApplication(
+                    $application,
+                    [],
+                    ['Content-Type' => 'application/json', 'X-Divido-Hmac-Sha256' => $secret]
+                );
         }else{
             $this->logger->debug('Non Hmac');
-
-            $response              = $sdk->applications()->createApplication($application,[],['Content-Type' => 'application/json']);
+            $response = $sdk
+                ->applications()
+                ->createApplication($application,[],['Content-Type' => 'application/json']);
         }
-        */
-        $response              = $sdk->applications()->createApplication($application,[],['Content-Type' => 'application/json']);
-
+        
         $application_response_body = $response->getBody()->getContents();
         
-        $decode                    = json_decode($application_response_body);
-        $this->logger->debug(serialize($decode));
-        $result_id                 = $decode->data->id;
-        $result_redirect           = $decode->data->urls->application_url;
+        $decode = json_decode($application_response_body);
+        if ($this->debug()){
+            $debug = $decode->data;
+            unset($debug->applicants);
+            $this->logger->info("Application Payload: ".serialize($debug));
+        }
+        $result_id = $decode->data->id;
+        $result_redirect = $decode->data->urls->application_url;
         if ($response) {
             $lookupModel = $this->lookupFactory->create();
             $lookupModel->load($quoteId, 'quote_id');
@@ -521,9 +513,53 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         }
     }
 
+
+    /**
+     * Updates the metadata of the Application to include the Magento 2 internal Order id
+     * 
+     * @param $applicationId The Divido Application ID
+     * @param $orderId The ID Magento attributes to the order
+     */
+    public function updateMerchantReference($applicationId, $orderId)
+    {
+        try{
+            $sdk  = $this->getSdk();
+            $application = $sdk->applications()->getSingleApplication($applicationId);
+            $application = json_decode($application->getBody()->getContents());
+
+            $financePlanId =  $application->data->finance_plan->id;
+            $orderItems = $application->data->order_items;
+            $applicants = $application->data->applicants;
+
+            $application    = (new \Divido\MerchantSDK\Models\Application())
+                ->withId($applicationId)
+                ->withFinancePlanId($financePlanId)
+                ->withApplicants($applicants)
+                ->withOrderItems($orderItems)
+                ->withMetadata([
+                    "merchant_reference" => $orderId
+                ]);
+            $this->logger->info("updating order id ". (string)$orderId);
+            $response = $sdk->applications()->updateApplication($application, [], ['Content-Type' => 'application/json']);
+
+            $applicationResponseBody = $response->getBody()->getContents();
+
+            $this->logger->info('update response');
+            $this->logger->info(serialize($applicationResponseBody));
+
+        } catch(\Exception $e){
+            $this->logger->info("Error updating application" ,[$e->getMessage()]);
+        }
+
+    }
+
     public function hashQuote($salt, $quoteId)
     {
         return hash('sha256', $salt.$quoteId);
+    }
+
+    public function stripWhite($item){
+        return str_replace(' ', '', $item);
     }
 
     public function getApiKey()
@@ -539,36 +575,39 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     public function getDividoKey()
     {
         $apiKey = $this->getApiKey();
-        
+
         if (empty($apiKey)) {
             return '';
         }
-    
+
             $keyParts = explode('.', $apiKey);
             $relevantPart = array_shift($keyParts);
-    
+
             $jsKey = strtolower($relevantPart);
-            
+
             return $jsKey;
     }
 
     public function getScriptUrl()
     {
-        $this->logger->debug('GetScript URL HElper');
-
+        if ($this->debug()) {
+            $this->logger->info('GetScript URL HElper');
+        }
         $apiKey = $this->getApiKey();
-        $scriptUrl= "//cdn.divido.com/widget/dist/divido.calculator.js";
+        $scriptUrl= "//cdn.divido.com/widget/v3/divido.calculator.js";
 
         if (empty($apiKey)) {
             return $scriptUrl;
         }
 
         $platformEnv = $this->getPlatformEnv();
-        $this->logger->debug('platform env:'.$platformEnv);
-
-        $scriptUrl= "//cdn.divido.com/widget/dist/" . $platformEnv . ".calculator.js";
-        $this->logger->debug('Url:'.$scriptUrl);
-
+        if ($this->debug()) {
+            $this->logger->info('platform env:'.$platformEnv);
+        }
+        $scriptUrl= "//cdn.divido.com/widget/v3/" . $platformEnv . ".calculator.js";
+        if ($this->debug()) {
+            $this->logger->info('Url:'.$scriptUrl);
+        }
         return (string) $scriptUrl;
     }
 
@@ -671,16 +710,10 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     public function getAddressDetail($addressObject)
     {
         $street = str_replace("\n", " ", $addressObject['street']);
-        $addressText     = implode(' ', [$street,$addressObject['city'],$addressObject['postcode']]);
+        $addressText     = implode(' ', [$street, $addressObject['city'],$addressObject['postcode']]);
         $addressArray = [
-            'postcode'          => $addressObject['postcode'],
-            'street'            => $street,
-            'flat'              => '',
-            'buildingNumber'    => '',
-            'buildingName'      => '',
-            'town'              => $addressObject['city'],
-            'flat'              => '',
-            'text'              => $addressText,
+            'postcode' => $addressObject['postcode'],
+            'text'     => $addressText,
         ];
 
         return $addressArray;
@@ -752,6 +785,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             try {
                 $plans = $sdk->getAllPlans($request_options);
                 $plans = $plans->getResources();
+
                 return $plans;
             } catch (Exception $e) {
                 return [];
@@ -871,4 +905,110 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $response                 = $sdk->applicationRefunds()->createApplicationRefund($application, $application_refund);
         $activation_response_body = $response->getBody()->getContents();
     }
+
+    public function debug()
+    {
+        $debug = $this->config->getValue(
+            'payment/divido_financing/debug',
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
+        return $debug;
+    }
+
+    public function getDescription()
+    {
+            return $this->config->getValue(
+                'payment/divido_financing/description',
+                \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+            );
+    }
+
+    /**
+     * Retrieve the language override value from the merchant configuration
+     *
+     * @return int A boolean integer with 1 signifying the language should be overriden
+     */
+    public function getLanguageOverride():int
+    {
+            return $this->config->getValue(
+                'payment/divido_financing/language_override',
+                \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+            );
+    }
+
+    public function getWidgetFootnote()
+    {
+            return $this->config->getValue(
+                'payment/divido_financing/widget_footer',
+                \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+            );
+    }
+
+    public function getWidgetButtonText()
+    {
+            return $this->config->getValue(
+                'payment/divido_financing/widget_button_text',
+                \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+            );
+    }
+
+    public function getWidgetMode()
+    {
+            return $this->config->getValue(
+                'payment/divido_financing/widget_mode',
+                \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+            );
+    }
+
+    public function getVersion()
+    {
+        return self::VERSION;
+    }
+
+    public function getMagentoVersion()
+    {
+        $this->_objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+        $productMetadata = $this->_objectManager->get('Magento\Framework\App\ProductMetadataInterface');
+        return $productMetadata->getVersion();
+    }
+
+    public function returnUrl()
+    {
+        return $this->urlBuilder->getBaseUrl();
+    }
+
+    /**
+     * Returns the ISO code of the store's native language
+     *
+     * @return string|null The ISO code or null if config states otherwise or code not supported
+     */
+    public function getWidgetLanguage():?string {
+        if(0 === $this->getLanguageOverride()){
+            return null;
+        }
+
+        $locale = $this->localeResolver->getLocale();
+        if($this->debug()){
+            $this->logger->info("Locale: {$locale}");
+        }
+        list($code, $country)  = explode("_", $locale);
+        if(!in_array($code, self::WIDGET_LANGUAGES)){
+            return null;
+        }
+        return $code;
+    }
+
+    /**
+     * Generates a signature hash, based on the API key secret 
+     *
+     * @param string $payload A json string of the application
+     * @param string $secret The API key secret set in the merchant portal
+     * @return string The signature hash
+     */
+    public function create_signature(string $payload, string $secret):string {
+        $hmac = hash_hmac('sha256', $payload, $secret, true);
+        $signature = base64_encode($hmac);
+        return $signature;
+    }
+
 }

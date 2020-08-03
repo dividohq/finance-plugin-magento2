@@ -19,6 +19,7 @@
                         visible: isRadioButtonVisible()"/>
             <label class="label" data-bind="attr: {'for': getCode()}">
                 <span data-bind="text: getTitle()"></span>
+                <span class='divido-method-description' data-bind="text: window.checkoutConfig.payment.divido_financing.description"></span>
             </label>
         </div>
 
@@ -38,8 +39,10 @@
                         data-mode='calculator'
                         data-bind="
                         attr: {
-                            'data-amount': window.checkoutConfig.totalsData.base_grand_total * 100,
-                            'data-plans': window.checkoutConfig.payment.divido_financing.cart_plans
+                            'data-amount': getValue()  * 100,
+                            'data-plans': window.checkoutConfig.payment.divido_financing.cart_plans,
+                            'data-language': window.checkoutConfig.payment.divido_financing.language_override,
+                            'data-footnote': window.checkoutConfig.payment.divido_financing.widget_footnote
                         }
                      "
                         >

@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright © 2016 Divido. All rights reserved.
+ * Copyright © 2019 Divido. All rights reserved.
  * See COPYING.txt for license details.
  */
 

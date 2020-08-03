@@ -1,7 +1,49 @@
 # Changelog
 All notable changes to this project will now be documented in this file.
 
-## [Unreleased]
+## [2.3.0] - 2020-30-07
+- fix: Adds shared secret compatibility 
+- change: Updates the Application with a merchant reference
+
+## [2.2.0] - 2020-23-07
+- feat: Adds widget language override feature
+- chore: Ups the widget version to v3
+
+## [2.1.0] - 2020-15-06
+- Update order logic to create within loop rather than end of loop
+- Update metadata for additional logging
+
+## [2.0.9] - 2020-05-05
+- Add Euro as allowed currency
+- Add helper to remove whitespace from phonenumber
+- Fix Deposit amount in admin was displaying in pence.
+
+## [2.0.8] - 2020-05-05
+- Adjusted grand_total value on checkout to base_grand_total to account for tax changes
+- Tested against Magento 2.3.5-p1
+
+## [2.0.7] - 2019-12-12
+- Removed unused variables from config 
+- Pass Address Postcode as sanity value
+- Widget Button Text
+- Widget Footer
+- Widget Mode option
+
+## [2.0.6] - 2019-12-04
+- Specified Country Logic Added
+- Rounding Logic corrected
+- Fix shipping product value issue on first page load
+
+## [2.0.5] - 2019-11-14
+- Bugfix for configurable products on sites that use multiple js libs
+
+## [2.0.4] - 2019-11-05
+Tested against magento 2.3.2 and 2.3.3
+
+- Bugfix for js on products without select
+- Bugfix Application Creation
+- Debugging Adjustments
+- Address Text Adjustment
 
 ## [2.0.3] - 2019-10-04
 

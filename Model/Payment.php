@@ -8,6 +8,8 @@ class Payment extends \Magento\Payment\Model\Method\AbstractMethod
 
     protected $_code = self::METHOD_CODE;
     protected $_isOffline = true;
+    //TODO expand to determine allowed currencies from apikey
+    protected $_supportedCurrencies = array('EUR','GBP');
 
     private $dividoHelper;
 
@@ -76,11 +78,11 @@ class Payment extends \Magento\Payment\Model\Method\AbstractMethod
             if (is_numeric($cartThreshhold) && $quote->getBaseGrandTotal() < $cartThreshhold) {
                 return false;
             }
-
+            
             if (is_numeric($maxAmount) && $quote->getBaseGrandTotal() > $maxAmount) {
                 return false;
             }
-
+            
             $plans = $this->dividoHelper->getQuotePlans($quote);
             if (! $plans) {
                 return false;
@@ -92,8 +94,11 @@ class Payment extends \Magento\Payment\Model\Method\AbstractMethod
 
     public function canUseForCurrency($currencyCode)
     {
-        
-        return $currencyCode === 'GBP';
+        if(in_array($currencyCode, $this->_supportedCurrencies))
+        {
+            return true;
+        }
+        return false;
     }
 
     public function canUseForCountry($country)

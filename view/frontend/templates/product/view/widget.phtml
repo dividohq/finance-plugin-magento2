@@ -3,14 +3,14 @@
   <div id='dividoWidget'
     data-calculator-widget
     data-plans="<?php echo $block->getProductPlans(); ?>"
-    data-amount="<?php echo $block->getAmount(); ?>"
-    <?php echo $block->getWidgetFootnote(); ?>
-    <?php echo $block->getWidgetButtonText(); ?> 
-    data-mode="<?php echo $block->getWidgetMode(); ?>"
+    data-amount="<?php echo $block->getProductAmount(); ?>"
+    data-footnote="<?php echo $block->getFootnote(); ?>"
+    data-button-text="<?php echo $block->getButtonText(); ?>"
+    data-mode="<?php echo $block->getMode(); ?>"
   ></div>
 <script>
-require(['jquery'], function($){
-  var options = $(".product-options-wrapper input, .product-options-wrapper select");
+require(['jquery'], function(jQuery){
+  var options = jQuery(".product-options-wrapper input, .product-options-wrapper select");
   for(var iteration = 0; iteration < options.length; iteration++){
     var option = options[iteration];
     option.addEventListener('change', function(){
@@ -19,8 +19,18 @@ require(['jquery'], function($){
   }
   var updatePrice = function(){
     let threshold = <?php echo $block->getThreshold(); ?>;
-    let price = $("#product-price-<?php echo($block->getProductId()); ?> .price").text().replace(/[^0-9.+]+/gi,'');
-    if(price >= threshold){
+    let priceString = jQuery("#product-price-<?php echo($block->getProductId()); ?> .price").text();
+    let endOfString = priceString.slice(-4);
+let basePrice=<?php echo $block->getProductAmount(); ?>;
+    if(endOfString.includes("€")){ console.log('in1');
+        var price1 = priceString.replace(/,/g , '.');
+        var price = price1.replace(/[^0-9.+]+/gi,'');
+      }else{
+        var price = jQuery("#product-price-<?php echo($block->getProductId()); ?> .price").text().replace(/[^0-9.+]+/gi,'');
+    }
+console.log(price);
+
+if(basePrice >= threshold){
       document.getElementById("dividoWidget").setAttribute('data-amount', price * 100);
       document.getElementById("dividoWidget").style.display = "";
       __widgetInstance.init()
@@ -28,9 +38,9 @@ require(['jquery'], function($){
       document.getElementById("dividoWidget").style.display = "none";
     }
   }
-  if ($(".product-options-wrapper")[0]){
-    // Add event listener to update the price on options change if product has options
-    var wrapper = $(".product-options-wrapper")[0];
+  if (jQuery(".product-options-wrapper")[0]){
+    // Do something if class exists
+    var wrapper = jQuery(".product-options-wrapper")[0];
     wrapper.addEventListener('click',updatePrice);
   }
     updatePrice();

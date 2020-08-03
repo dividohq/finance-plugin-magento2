@@ -40,6 +40,22 @@ define(
                     }
                 }
             },
+            getPureValue: function () {
+                var totals = quote.getTotals()();
+    
+                if (totals) {
+                    return totals['base_grand_total'];
+                }
+    
+                return quote['base_grand_total'];
+            },
+    
+            /**
+             * @return {*|String}
+             */
+            getValue: function () {
+                return this.getPureValue();
+            },
 
             getTransactionResults: function () {
                 return _.map(window.checkoutConfig.payment.divido_financing.transactionResults, function (value, key) {
