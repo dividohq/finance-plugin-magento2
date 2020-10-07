@@ -1,0 +1,14 @@
+{
+    "name": "finance-plugin-magento2",
+    "type": "api",
+    "owners": [
+        "andrew.smith@divido.com"
+    ],
+    "status": "active",
+    "dependencies": {
+        "merchant-api": "dev-master"
+    },
+    "external_dependencies": [
+        "magento2"
+    ]
+}
