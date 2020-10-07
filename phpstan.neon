@@ -1,0 +1,13 @@
+
+parameters:
+    level: 3
+    paths:
+        - Api
+        - Block
+        - Controller
+        - Helper
+        - Logger
+        - Model
+        - Observer
+        - Setup
+        - Test

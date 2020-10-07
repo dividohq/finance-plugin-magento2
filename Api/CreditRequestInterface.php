@@ -29,5 +29,4 @@ interface CreditRequestInterface
      * @return \Magento\Framework\Controller\Result\Json
      */
     public function version();
-
 }

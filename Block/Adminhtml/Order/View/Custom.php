@@ -1,9 +1,11 @@
 <?php
+
 namespace Divido\DividoFinancing\Block\Adminhtml\Order\View;
 
 class Custom extends \Magento\Backend\Block\Template
 {
     private $helper;
+
     private $coreRegistry;
 
     public function __construct(
@@ -12,7 +14,7 @@ class Custom extends \Magento\Backend\Block\Template
         \Divido\DividoFinancing\Helper\Data $helper,
         array $data = []
     ) {
-    
+
         $this->helper = $helper;
         $this->coreRegistry = $registry;
         parent::__construct($context, $data);

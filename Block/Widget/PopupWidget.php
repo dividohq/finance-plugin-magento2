@@ -1,13 +1,14 @@
 <?php
+
 namespace Divido\DividoFinancing\Block\Widget;
 
 use Magento\Framework\View\Element\Template;
 use Magento\Widget\Block\BlockInterface;
 
 class PopupWidget extends Template implements BlockInterface
-{
-    
+{    
     private $helper;
+
     protected $_template = "widget/popupwidget.phtml";
 
     public function __construct(
@@ -32,9 +33,9 @@ class PopupWidget extends Template implements BlockInterface
     {
         return $this->helper->getWidgetFootnote();
     }
+
     public function getButtonText()
     {
         return $this->helper->getWidgetButtonText();
     }
-
 }

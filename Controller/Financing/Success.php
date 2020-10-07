@@ -3,14 +3,17 @@
 namespace Divido\DividoFinancing\Controller\Financing;
 
 use Magento\Framework\App\CsrfAwareActionInterface;
-use Magento\Framework\App\RequestInterface;
 use Magento\Framework\App\Request\InvalidRequestException;
+use Magento\Framework\App\RequestInterface;
 
 class Success extends \Magento\Framework\App\Action\Action implements CsrfAwareActionInterface
 {
     private $checkoutSession;
+
     private $config;
+
     private $order;
+
     private $quoteRepository;
 
     public function __construct(
@@ -64,12 +67,13 @@ class Success extends \Magento\Framework\App\Action\Action implements CsrfAwareA
         if ($order->getId()) {
             $this->logger->info('Order Found found with quote:'.$quoteId);
         } else if(!empty($this->getTimeout())){
-            for($x = 0; $x < (int)$this->getTimeout() ; $x++ ){
+            for($x = 0; $x < (int) $this->getTimeout() ; $x++ ){
                 $this->logger->info('Order not found with quote:'.$quoteId);
                 sleep(1);
                 $order   = $this->order->loadByAttribute('quote_id', $quoteId);
                 if($order->getId()){
                     $this->logger->info('Order Found found with quote:'.$quoteId);
+
                     break;
                 }
             }

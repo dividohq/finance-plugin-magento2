@@ -3,33 +3,51 @@
 namespace Divido\DividoFinancing\Helper;
 
 use \Divido\DividoFinancing\Model\LookupFactory;
-use Magento\Framework\UrlInterface;
 use Magento\Catalog\Model\ProductFactory;
+use Magento\Framework\UrlInterface;
 
 class Data extends \Magento\Framework\App\Helper\AbstractHelper
 {
-
     const CACHE_DIVIDO_TAG   = 'divido_cache';
+
     const CACHE_PLANS_KEY    = 'divido_plans';
+
     const CACHE_PLANS_TTL    = 3600;
+
     const CACHE_PLATFORM_KEY = 'platform_env';
+
     const CACHE_PLATFORM_TTL = 3600;
+
     const CALLBACK_PATH      = 'rest/V1/divido/update/';
+
     const REDIRECT_PATH      = 'divido/financing/success/';
+
     const CHECKOUT_PATH      = 'checkout/';
+
     const VERSION            = '2.3.0';
+
     const WIDGET_LANGUAGES   = ["en", "fi" , "no", "es", "da", "fr", "de", "pe"];
 
     private $config;
+
     private $logger;
+
     private $cache;
+
     private $cart;
+
     private $storeManager;
+
     private $lookupFactory;
+
     private $productFactory;
+
     private $resource;
+
     private $connection;
+
     private $urlBuilder;
+
     private $localeResolver;
 
     public function __construct(
@@ -44,7 +62,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         ProductFactory $productFactory,
         \Magento\Framework\Locale\Resolver $localeResolver
     ) {
-    
+
         $this->config         = $scopeConfig;
         $this->logger         = $logger;
         $this->cache          = $cache;
@@ -70,6 +88,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 
         if (empty($apiKey)) {
             $this->logger->error('Empty API key');
+
             return false;
         } else {
             list($environment, $key) = explode("_", $apiKey);
@@ -82,9 +101,11 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             )) {
                 $environment
                     = constant("\Divido\MerchantSDK\Environment::$environment");
+
                 return $environment;
             } else {
                 $this->logger->error('Environment does not exist in the SDK');
+
                 return false;
             }
         }
@@ -144,6 +165,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 
         return $sdk;
     }
+
     /*
     public function getConnection()
     {
@@ -198,6 +220,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         );
         if (empty($apiKey)) {
             $this->cleanCache();
+
             return [];
         }
 
@@ -206,6 +229,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
                    $this->logger->info('Cached Plans Key:'.self::CACHE_PLANS_KEY);
                }
             $plans = unserialize($plans);
+
             return $plans;
         }
 
@@ -214,6 +238,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         if (!isset($response[0]->id)) {
             $this->logger->error('Could not get financing plans.');
             $this->cleanCache();
+
             return [];
         }
 
@@ -396,7 +421,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
                 $products[] = [
                     'type'     => 'product',
                     'name'     => $item->getName(),
-                    'quantity' => (int)$item->getQty(),
+                    'quantity' => (int) $item->getQty(),
                     'price'    => round($item->getPriceInclTax() * 100),
                 ];
             }
@@ -468,7 +493,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 
                 ]
             );
-        
+
         if (!empty($secret)) {
             $secret = $this->create_signature(json_encode($application->getPayload()), $secret);
             $this->logger->debug('Hmac Version'.$secret);
@@ -483,11 +508,11 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             $this->logger->debug('Non Hmac');
             $response = $sdk
                 ->applications()
-                ->createApplication($application,[],['Content-Type' => 'application/json']);
+                ->createApplication($application, [], ['Content-Type' => 'application/json']);
         }
-        
+
         $application_response_body = $response->getBody()->getContents();
-        
+
         $decode = json_decode($application_response_body);
         if ($this->debug()){
             $debug = $decode->data;
@@ -505,6 +530,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             $lookupModel->setData('proposal_id', $result_id);
             $lookupModel->setData('initial_cart_value', $grandTotal);
             $lookupModel->save();
+
             return $result_redirect;
         } else {
             if ($response->status === 'error') {
@@ -512,7 +538,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             }
         }
     }
-
 
     /**
      * Updates the metadata of the Application to include the Magento 2 internal Order id
@@ -539,7 +564,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
                 ->withMetadata([
                     "merchant_reference" => $orderId
                 ]);
-            $this->logger->info("updating order id ". (string)$orderId);
+            $this->logger->info("updating order id ". (string) $orderId);
             $response = $sdk->applications()->updateApplication($application, [], ['Content-Type' => 'application/json']);
 
             $applicationResponseBody = $response->getBody()->getContents();
@@ -548,7 +573,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             $this->logger->info(serialize($applicationResponseBody));
 
         } catch(\Exception $e){
-            $this->logger->info("Error updating application" ,[$e->getMessage()]);
+            $this->logger->info("Error updating application", [$e->getMessage()]);
         }
 
     }
@@ -608,6 +633,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         if ($this->debug()) {
             $this->logger->info('Url:'.$scriptUrl);
         }
+
         return (string) $scriptUrl;
     }
 
@@ -719,7 +745,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         return $addressArray;
     }
 
-
     public function getHeadlessMode()
     {
         $headless = $this->config->getValue(
@@ -727,9 +752,9 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             'payment/divido_financing/divido_financing_developer/headless_support',
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         );
+
         return $headless;
     }
-
 
     public function getCustomCheckoutUrl()
     {
@@ -740,6 +765,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             'payment/divido_financing/custom_checkout_url',
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         );
+
         return $customUrl;
     }
 
@@ -749,9 +775,9 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             'payment/divido_financing/custom_redirect_url',
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         );
+
         return $customUrl;
     }
-
 
     public function updateInvoiceStatus($order)
     {
@@ -782,6 +808,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $finances       = false;
         if (false === $finances) {
             $request_options = (new \Divido\MerchantSDK\Handlers\ApiRequestOptions());
+
             try {
                 $plans = $sdk->getAllPlans($request_options);
                 $plans = $plans->getResources();
@@ -792,6 +819,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             }
         }
     }
+
     public function setFulfilled($application_id, $order_total, $shipping_method = null, $tracking_numbers = null)
     {
         // First get the application you wish to create an activation for.
@@ -828,6 +856,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $order_total = $lookup['initial_cart_value'];
 
         $order_id = $lookup['order_id'];
+
         return $this->sendCancellation($applicationId, $order_total, $order_id);
     }
 
@@ -842,9 +871,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $lookupModel->setData('canceled', 1);
         $lookupModel->save();
 
-        return;
     }
-
 
     public function sendCancellation($application_id, $order_total, $orderId)
     {
@@ -884,7 +911,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         return $this->sendRefund($applicationId, $order_total, $order_id);
     }
 
-
     public function sendRefund($application_id, $order_total, $order_id)
     {
         $application = (new \Divido\MerchantSDK\Models\Application())
@@ -912,6 +938,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             'payment/divido_financing/debug',
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         );
+
         return $debug;
     }
 
@@ -969,6 +996,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     {
         $this->_objectManager = \Magento\Framework\App\ObjectManager::getInstance();
         $productMetadata = $this->_objectManager->get('Magento\Framework\App\ProductMetadataInterface');
+
         return $productMetadata->getVersion();
     }
 
@@ -995,6 +1023,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         if(!in_array($code, self::WIDGET_LANGUAGES)){
             return null;
         }
+
         return $code;
     }
 
@@ -1008,7 +1037,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     public function create_signature(string $payload, string $secret):string {
         $hmac = hash_hmac('sha256', $payload, $secret, true);
         $signature = base64_encode($hmac);
+
         return $signature;
     }
-
 }

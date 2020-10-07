@@ -7,7 +7,9 @@ class Payment extends \Magento\Payment\Model\Method\AbstractMethod
     const METHOD_CODE = 'divido_financing';
 
     protected $_code = self::METHOD_CODE;
+
     protected $_isOffline = true;
+
     //TODO expand to determine allowed currencies from apikey
     protected $_supportedCurrencies = array('EUR','GBP');
 
@@ -73,16 +75,14 @@ class Payment extends \Magento\Payment\Model\Method\AbstractMethod
                 \Magento\Store\Model\ScopeInterface::SCOPE_STORE
             );
 
-
-
             if (is_numeric($cartThreshhold) && $quote->getBaseGrandTotal() < $cartThreshhold) {
                 return false;
             }
-            
+
             if (is_numeric($maxAmount) && $quote->getBaseGrandTotal() > $maxAmount) {
                 return false;
             }
-            
+
             $plans = $this->dividoHelper->getQuotePlans($quote);
             if (! $plans) {
                 return false;
@@ -98,6 +98,7 @@ class Payment extends \Magento\Payment\Model\Method\AbstractMethod
         {
             return true;
         }
+
         return false;
     }
 

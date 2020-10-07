@@ -2,10 +2,10 @@
 
 namespace Divido\DividoFinancing\Setup;
 
+use Magento\Framework\Db\Ddl\Table;
 use Magento\Framework\Setup\InstallSchemaInterface;
 use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\SchemaSetupInterface;
-use Magento\Framework\Db\Ddl\Table;
 
 class InstallSchema implements InstallSchemaInterface
 {

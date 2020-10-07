@@ -15,7 +15,7 @@ class ProductPlanSelection extends \Magento\Eav\Model\Entity\Attribute\Source\Ab
         \Divido\DividoFinancing\Helper\Data $helper,
         \Psr\Log\LoggerInterface $logger
     ) {
-    
+
         $this->helper = $helper;
         $this->logger = $logger;
     }
@@ -23,6 +23,7 @@ class ProductPlanSelection extends \Magento\Eav\Model\Entity\Attribute\Source\Ab
     public function getAllOptions()
     {
         $plans = [];
+
         try {
             $plans = $this->helper->getAllPlans();
         } catch (\Exception $e) {

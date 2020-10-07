@@ -1,0 +1,72 @@
+name: Build
+on:
+  push:
+    branches:
+      - master
+      - develop
+      - '*.*.*'
+  pull_request:
+jobs:
+  vetting:
+    name: Vetting
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v2
+      - name: Project Validation
+        run: docker run --rm -v $(pwd):/app divido/devtools:project-validator
+  analyze:
+    name: Static Analysis
+    needs: vetting
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      GOPRIVATE: github.com/dividohq
+      GITHUB_TOKEN: ${{ secrets.ORG_GITHUB_TOKEN }}
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+      - name: Static Analysis
+        run: make ci-analyze
+  test:
+    name: Test
+    needs: analyze
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      GITHUB_TOKEN: ${{ secrets.ORG_GITHUB_TOKEN }}
+    steps:
+      - name: Repo Checkout
+        uses: actions/checkout@v2
+      - name: Run Tests
+        run: make ci-test
+      - name: Check Coverage
+        run: make ci-check-coverage
+  release:
+    name:  Release
+    needs: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      RELEASE_VERSION: ~
+      GITHUB_TOKEN: ${{ secrets.ORG_GITHUB_TOKEN }}
+      ECR_REGISTRY: 625359548668.dkr.ecr.eu-west-1.amazonaws.com
+      ORG_AWS_ACCESS_KEY_ID: ${{ secrets.ORG_AWS_ACCESS_KEY_ID }}
+      ORG_AWS_SECRET_ACCESS_KEY: ${{ secrets.ORG_AWS_SECRET_ACCESS_KEY }}
+    steps:
+      - name: Repo Checkout
+        uses: actions/checkout@v2
+      - name: Semantic Release
+        run: |
+          docker run --rm -e GITHUB_TOKEN=${GITHUB_TOKEN} -v "${PWD}":/app divido/devtools:semantic-release
+          if test -f .RELEASE_VERSION; then
+            release_version="$(cat .RELEASE_VERSION)"
+            echo "RELEASE_VERSION=$release_version" >> $GITHUB_ENV
+          fi
+      - name: Build
+        if: env.RELEASE_VERSION != ''
+        run: make ci-build
+      - name: Push
+        if: env.RELEASE_VERSION != ''
+        run: make ci-push

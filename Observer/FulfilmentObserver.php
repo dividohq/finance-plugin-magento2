@@ -11,13 +11,14 @@ class FulfilmentObserver implements ObserverInterface
     public function __construct(
         \Divido\DividoFinancing\Helper\Data $helper
     ) {
-    
+
         $this->helper = $helper;
     }
 
     public function execute(\Magento\Framework\Event\Observer $observer)
     {
         $order = $observer->getOrder();
+
         return $this->helper->autoFulfill($order);
     }
 }

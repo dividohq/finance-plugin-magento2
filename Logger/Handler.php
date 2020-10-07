@@ -1,4 +1,5 @@
 <?php
+
 namespace Divido\DividoFinancing\Logger;
 
 use Monolog\Logger;

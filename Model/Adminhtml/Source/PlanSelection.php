@@ -15,7 +15,7 @@ class PlanSelection implements \Magento\Framework\Option\ArrayInterface
         \Divido\DividoFinancing\Helper\Data $helper,
         \Psr\Log\LoggerInterface $logger
     ) {
-    
+
         $this->helper = $helper;
         $this->logger = $logger;
     }
@@ -23,6 +23,7 @@ class PlanSelection implements \Magento\Framework\Option\ArrayInterface
     public function toOptionArray()
     {
         $plans = [];
+
         try {
             $plans = $this->helper->getAllPlans();
         } catch (\Exception $e) {

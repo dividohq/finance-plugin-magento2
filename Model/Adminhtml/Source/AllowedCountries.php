@@ -11,7 +11,6 @@ namespace Divido\DividoFinancing\Model\Adminhtml\Source;
  */
 class AllowedCountries implements \Magento\Framework\Option\ArrayInterface
 {
-
     public function toOptionArray()
     {
         return [

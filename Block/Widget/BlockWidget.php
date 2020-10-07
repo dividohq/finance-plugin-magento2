@@ -1,12 +1,14 @@
 <?php
+
 namespace Divido\DividoFinancing\Block\Widget;
 
 use Magento\Framework\View\Element\Template;
 use Magento\Widget\Block\BlockInterface;
 
-class BlockWidget extends Template implements BlockInterface{
-
+class BlockWidget extends Template implements BlockInterface
+{
     private $helper;
+
     protected $_template = "widget/blockwidget.phtml";
 
     public function __construct(

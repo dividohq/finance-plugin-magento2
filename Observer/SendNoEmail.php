@@ -1,8 +1,9 @@
 <?php
+
 namespace Divido\DividoFinancing\Observer;
 
-use \Magento\Framework\Event\ObserverInterface;
 use \Magento\Framework\Event\Observer as EventObserver;
+use \Magento\Framework\Event\ObserverInterface;
 use Psr\Log\LoggerInterface;
 
 class SendNoEmail implements ObserverInterface
@@ -27,6 +28,7 @@ class SendNoEmail implements ObserverInterface
             $order->setCustomerNoteNotify(false);
             $order->save();
         }
+
         return true;
     }
 }

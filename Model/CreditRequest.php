@@ -36,16 +36,27 @@ class CreditRequest implements CreditRequestInterface
     ];
 
     private $req;
+
     private $quote;
+
     private $order;
+
     private $helper;
+
     private $logger;
+
     private $config;
+
     private $lookupFactory;
+
     private $quoteManagement;
+
     private $resourceInterface;
+
     private $resultJsonFactory;
+
     private $eventManager;
+
     private $orderCollection;
 
     public function __construct(
@@ -94,7 +105,6 @@ class CreditRequest implements CreditRequestInterface
         $cartValue = $this->req->getQuery('initial_cart_value', null);
         $quoteId   = $this->req->getQuery('quote_id', null);
 
-
         try {
             $creditRequestUrl = $this->helper->creditRequest($planId, $deposit, $email, $quoteId);
             $response['url']  = $creditRequestUrl;
@@ -133,6 +143,7 @@ class CreditRequest implements CreditRequestInterface
             if($debug){
                 $this->logger->error('Divido: Bad request, could not parse body: ' . $content);
             }
+
             return $this->webhookResponse(false, 'Invalid json');
         }
         if($debug){
@@ -146,6 +157,7 @@ class CreditRequest implements CreditRequestInterface
             if($debug){
                 $this->logger->error('Divido: Bad request, could not find lookup. Req: ' . $content);
             }
+
             return $this->webhookResponse(false, 'No lookup');
         }
 
@@ -163,6 +175,7 @@ class CreditRequest implements CreditRequestInterface
 
             if ($reqSign !== $sign) {
                 $this->logger->error('Divido: Bad request, invalid signature. Req: ' . $content);
+
                 return $this->webhookResponse(false, 'Invalid signature');
             }
         }
@@ -171,6 +184,7 @@ class CreditRequest implements CreditRequestInterface
         $hash = $this->helper->hashQuote($salt, $data->metadata->quote_id);
         if ($hash !== $data->metadata->quote_hash) {
                 $this->logger->error('Divido: Bad request, mismatch in hash. Req: ' . $content);
+
             return $this->webhookResponse(false, 'Invalid hash');
         }
 
@@ -206,7 +220,6 @@ class CreditRequest implements CreditRequestInterface
         } else {
             $order = NULL;
         }
-
 
         if (in_array($data->status, $this->noGo)) {
             if ($debug) {
@@ -257,6 +270,7 @@ class CreditRequest implements CreditRequestInterface
             if ($debug) {
                 $this->logger->debug('Divido: No order, not creation status: ' . $data->status);
             }
+
             return $this->webhookResponse();
         }
         $this->logger->info('Application Update ----- test' );
@@ -276,7 +290,7 @@ class CreditRequest implements CreditRequestInterface
             //If cart value is different do not place order
             $totals = $quote->getTotals();
             $grandTotal = (string) $totals['grand_total']->getValue();
-            $iv=(string ) $lookup->getData('initial_cart_value');
+            $iv=(string) $lookup->getData('initial_cart_value');
 
             if ($debug) {
                 $this->logger->debug('Current Cart Value : ' . $grandTotal);
@@ -313,6 +327,7 @@ class CreditRequest implements CreditRequestInterface
                     $lookup->setData('order_id', $order->getId());
                     $lookup->save();
                     $this->logger->info('Got away');
+
                     return $this->webhookResponse();
                 } else {
                     if ($debug) {
@@ -322,7 +337,7 @@ class CreditRequest implements CreditRequestInterface
                 }
 
                 if ($debug) {
-                    $this->logger->warning('HOLD Order - Cart value changed: '.(string)$appId);
+                    $this->logger->warning('HOLD Order - Cart value changed: '.(string) $appId);
                 }
             }
         }
@@ -383,7 +398,6 @@ class CreditRequest implements CreditRequestInterface
 
         return json_encode($response);
     }
-
 
     public function version()
     {
