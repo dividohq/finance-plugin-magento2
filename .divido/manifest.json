@@ -1,6 +1,6 @@
 {
     "name": "finance-plugin-magento2",
-    "type": "api",
+    "type": "lib",
     "owners": [
         "andrew.smith@divido.com"
     ],
