@@ -21,16 +21,15 @@ require(['jquery'], function(jQuery){
     let threshold = <?php echo $block->getThreshold(); ?>;
     let priceString = jQuery("#product-price-<?php echo($block->getProductId()); ?> .price").text();
     let endOfString = priceString.slice(-4);
-let basePrice=<?php echo $block->getProductAmount(); ?>;
-    if(endOfString.includes("€")){ console.log('in1');
-        var price1 = priceString.replace(/,/g , '.');
-        var price = price1.replace(/[^0-9.+]+/gi,'');
-      }else{
-        var price = jQuery("#product-price-<?php echo($block->getProductId()); ?> .price").text().replace(/[^0-9.+]+/gi,'');
-    }
-console.log(price);
+    let basePrice=<?php echo $block->getProductAmount(); ?>;
+    let price = priceString.replace(/[^0-9.,+]+/gi,'');
 
-if(basePrice >= threshold){
+    if(price.charAt(price.length-3) == ','){
+      price = price.substr(0, price.length-3)+'.'+price.substr(price.length-2);
+    }
+    price = price.replace(/,/g , '');
+
+    if(basePrice >= threshold){
       document.getElementById("dividoWidget").setAttribute('data-amount', price * 100);
       document.getElementById("dividoWidget").style.display = "";
       __widgetInstance.init()
@@ -38,12 +37,13 @@ if(basePrice >= threshold){
       document.getElementById("dividoWidget").style.display = "none";
     }
   }
+
   if (jQuery(".product-options-wrapper")[0]){
     // Do something if class exists
     var wrapper = jQuery(".product-options-wrapper")[0];
     wrapper.addEventListener('click',updatePrice);
   }
-    updatePrice();
+  updatePrice();
 });
 </script>
 <?php } ?>
