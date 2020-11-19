@@ -1,7 +1,10 @@
 # Changelog
 All notable changes to this project will now be documented in this file.
 
-## [2.3.1] - 2020-30-07
+## [2.4.0] - 2020-19-11
+- feat: Adds translations to integration
+
+## [2.3.1] - 2020-05-11
 - fix: Rewrites euro comma fix to remove any commas in the decimal position regardless of currency 
 
 ## [2.3.0] - 2020-30-07
