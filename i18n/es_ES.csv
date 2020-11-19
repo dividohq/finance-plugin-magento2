@@ -15,6 +15,7 @@
 "debug_description","Depuración habilitada: desactívela en producción"
 "plugin_active_label","Activo"
 "checkout_title_description","El nombre de la opción de pago al finalizar la compra"
+"checkout_description_description","La descripción de la opción de pago al finalizar la compra"
 "product_selection_label","Selección de producto"
 "refine_plans_label","Lista de planes de refinamiento"
 "show_all_plans_option","Mostrar todos los planes"
@@ -64,3 +65,5 @@
 "continue_label","Hacer continuación"
 "use_store_language_label","¿Usar el idioma de la tienda?"
 "use_store_language_description","Anule el idioma de la calculadora financiera con el idioma de la tienda"
+"signed_option","Firmado"
+"accepted_option","Aceptado"

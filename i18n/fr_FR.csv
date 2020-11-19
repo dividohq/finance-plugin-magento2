@@ -15,6 +15,7 @@
 "debug_description","Débogage Activé -  Désactivez cette option en production"
 "plugin_active_label","actif"
 "checkout_title_description","Le nom de l'option de paiement à la caisse"
+"checkout_description_description","La description de l'option de paiement à la caisse"
 "product_selection_label","Selection de produit"
 "refine_plans_label","Affiner la liste des plans"
 "show_all_plans_option","Afficher tous les plans"
@@ -64,3 +65,5 @@
 "continue_label","Continuez"
 "use_store_language_label","Utiliser la langue du magasin?"
 "use_store_language_description","Remplacer la langue de la calculatrice financière par la langue des paramètres régionaux du magasin"
+"signed_option","Signé"
+"accepted_option","Accepté"

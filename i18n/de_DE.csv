@@ -15,6 +15,7 @@
 "debug_description","Debugging aktiviert - Deaktivieren Sie dies in der Produktion"
 "plugin_active_label","Aktiv"
 "checkout_title_description","Der Name der Zahlungsoption an der Kasse"
+"checkout_description_description","Die Beschreibung der Zahlungsoption an der Kasse"
 "product_selection_label","Produktauswahl"
 "refine_plans_label","Planliste verfeinern"
 "show_all_plans_option","Zeige alle Pläne"
@@ -64,3 +65,5 @@
 "continue_label","Fortsetzen"
 "use_store_language_label","Geschäftssprache verwenden?"
 "use_store_language_description","Überschreiben Sie die Sprache des Finanzrechners mit der Sprache des Gebietsschemas"
+"signed_option","Unterzeichnet"
+"accepted_option","Akzeptiert"

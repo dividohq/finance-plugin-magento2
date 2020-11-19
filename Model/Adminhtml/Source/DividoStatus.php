@@ -20,11 +20,11 @@ class DividoStatus implements \Magento\Framework\Option\ArrayInterface
         return [
             [
                 'value' => self::STATUS_ACCEPTED,
-                'label' => 'Accepted',
+                'label' => __('accepted_option'),
             ],
             [
                 'value' => self::STATUS_SIGNED,
-                'label' => 'Signed',
+                'label' => __('signed_option'),
             ],
         ];
     }

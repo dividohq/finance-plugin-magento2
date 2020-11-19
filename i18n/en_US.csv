@@ -15,6 +15,7 @@
 "debug_description","Debugging Enabled - Turn this off in production"
 "plugin_active_label","Active"
 "checkout_title_description","The name of the payment option at checkout"
+"checkout_description_description","The description of the payment option at checkout"
 "product_selection_label","Product Selection"
 "refine_plans_label","Refine Plans list"
 "show_all_plans_option","Show all plans"
@@ -64,3 +65,5 @@
 "continue_label","Continue"
 "use_store_language_label","Use store language?"
 "use_store_language_description","Override the language of the finance calculator with store locale language"
+"signed_option","Signed"
+"accepted_option","Accepted"

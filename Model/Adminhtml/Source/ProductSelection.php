@@ -19,15 +19,15 @@ class ProductSelection implements \Magento\Framework\Option\ArrayInterface
         return [
             [
                 'value' => 'products_all',
-                'label' => __('All products'),
+                'label' => __('finance_all_products_option'),
             ],
             [
                 'value' => 'products_selected',
-                'label' => __('Only selected products'),
+                'label' => __('finance_specific_products_option'),
             ],
             [
                 'value' => 'products_price_threshold',
-                'label' => __('Only products over price threshold'),
+                'label' => __('finance_threshold_products_option'),
             ],
         ];
     }
