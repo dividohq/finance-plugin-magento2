@@ -44,7 +44,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         ProductFactory $productFactory,
         \Magento\Framework\Locale\Resolver $localeResolver
     ) {
-    
+
         $this->config         = $scopeConfig;
         $this->logger         = $logger;
         $this->cache          = $cache;
@@ -419,7 +419,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
                 'type'     => 'product',
                 'name'     => 'Discount',
                 'quantity' => (int) 1,
-                'price'    => (int) $discount * 100,
+                'price'    => (int) ($discount * 100),
             ];
         }
         $quoteId   = $quote->getId();
@@ -468,7 +468,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 
                 ]
             );
-        
+
         if (!empty($secret)) {
             $secret = $this->create_signature(json_encode($application->getPayload()), $secret);
             $this->logger->debug('Hmac Version'.$secret);
@@ -485,9 +485,9 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
                 ->applications()
                 ->createApplication($application,[],['Content-Type' => 'application/json']);
         }
-        
+
         $application_response_body = $response->getBody()->getContents();
-        
+
         $decode = json_decode($application_response_body);
         if ($this->debug()){
             $debug = $decode->data;
@@ -516,7 +516,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 
     /**
      * Updates the metadata of the Application to include the Magento 2 internal Order id
-     * 
+     *
      * @param $applicationId The Divido Application ID
      * @param $orderId The ID Magento attributes to the order
      */
@@ -999,7 +999,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     }
 
     /**
-     * Generates a signature hash, based on the API key secret 
+     * Generates a signature hash, based on the API key secret
      *
      * @param string $payload A json string of the application
      * @param string $secret The API key secret set in the merchant portal
