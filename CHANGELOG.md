@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to this project will now be documented in this file.
 
+## [2.3.2] - 2020-12-09
+- fix: Round discount to nearest cent/penny
+
 ## [2.3.1] - 2020-30-07
 - fix: Rewrites euro comma fix to remove any commas in the decimal position regardless of currency 
 
