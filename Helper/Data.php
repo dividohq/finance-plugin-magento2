@@ -788,6 +788,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 
                 return $plans;
             } catch (Exception $e) {
+                var_dump($e->getMessage());
                 return [];
             }
         }

@@ -34,7 +34,6 @@ class Translate extends \Magento\Framework\Phrase\Renderer\Translate
             $data = array_merge($fallbackData, $data);
         } catch (\Exception $e) {
             $this->logger->critical($e->getMessage());
-            echo($e->getMessage());
             throw $e;
         }
 
