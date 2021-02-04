@@ -1,9 +1,47 @@
-<?php 
-/** 
- * @var $block \Divido\DividoFinancing\Block\Head
- */
+<?php
+if (!$block->getAgreements()) {
+    return;
+}
+
+/** @var \Magento\CheckoutAgreements\Model\ResourceModel\Agreement\Collection $argeementsCollection */
+$argeementsCollection = $block->getAgreements();
+$agreementMappedArray = [];
+/** @var \Magento\CheckoutAgreements\Model\Agreement $agreement */
+foreach ($argeementsCollection as $agreement) {
+    if ($agreement->getIsActive()) {
+        $agreementMappedArray[] = [
+            'mode' => $agreement->getMode(),
+            'agreementId' => $agreement->getAgreementId(),
+            'checkboxText' => $agreement->getCheckboxText(),
+            'content' => $agreement->getContent()
+        ];
+    }
+}
+$agreementJson = json_encode($agreementMappedArray);
 ?>
-<script> 
+<div data-bind="scope: 'checkout-agreements-component-scope'" class="checkout-agreements-block">
+    <!-- ko template: getTemplate() --><!-- /ko -->
+</div>
+?>
+<script type="text/x-magento-init">
+ {
+"*": {
+    "Magento_Ui/js/core/app": {
+        "components": {
+            "checkout-agreements-component-scope": {
+                "component":
+ "Magento_CheckoutAgreements/js/view/checkout-
+  agreements",
+                "agreements": <?php /* @noEscape */ echo
+    $agreementJson; ?>,
+                "isVisible": true
+            }
+        }
+    }
+   }
+ }
+ </script>
+<script>
 __widgetConfig = {apiKey: '<?php echo $block->getDividoKey(); ?>',}
 </script>
 <script type="text/javascript" src="<?php echo $block->getScriptUrl(); ?>"></script>
@@ -23,7 +61,7 @@ function waitForElementToDisplay(selector, time) {
             'jquery',
             'domReady!'
         ], function ($) {
-            waitForElementToDisplay('#dividoWidget', 1000); 
+            waitForElementToDisplay('#dividoWidget', 1000);
         });
         // ]]>
 </script>
