@@ -155,9 +155,9 @@ class CreditRequest implements CreditRequestInterface
         );
         if (!empty($secret)) {
 
-            $reqSign = 
-                isset($_SERVER['HTTP_X_DIVIDO_HMAC_SHA256']) 
-                ? $_SERVER['HTTP_X_DIVIDO_HMAC_SHA256'] 
+            $reqSign =
+                isset($_SERVER['HTTP_X_DIVIDO_HMAC_SHA256'])
+                ? $_SERVER['HTTP_X_DIVIDO_HMAC_SHA256']
                 : '';
             $sign = $this->helper->create_signature($content, $secret);
 
@@ -237,8 +237,8 @@ class CreditRequest implements CreditRequestInterface
 
         //Divido Order already exists
         if (
-            !empty($order) 
-            && $order->getId() 
+            !empty($order)
+            && $order->getId()
             && $order->getPayment()->getMethodInstance()->getCode() == 'divido_financing'
         ) {
             $isOrderExists = true;
@@ -250,8 +250,8 @@ class CreditRequest implements CreditRequestInterface
         }
 
         if (
-            !$isOrderExists 
-            && $data->status != $creationStatus 
+            !$isOrderExists
+            && $data->status != $creationStatus
             && $data->status != self::STATUS_REFERRED
         ) {
             if ($debug) {
@@ -260,7 +260,7 @@ class CreditRequest implements CreditRequestInterface
             return $this->webhookResponse();
         }
         $this->logger->info('Application Update ----- test' );
-        if (! $isOrderExists && ($data->status == $creationStatus || $data->status == self::STATUS_REFERRED)) {
+        if (! $isOrderExists && ($data->status == $creationStatus)) {
 
             $this->logger->info('order does not exist' );
             if ($debug) {
