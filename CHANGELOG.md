@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to this project will now be documented in this file.
 
+## [2.4.1] - 2021-02-03
+- fix: Do not create order on referred status
+
 ## [2.4.0] - 2021-02-03
 - feat: Extends language override to product widget
 
