@@ -404,7 +404,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $totals = $quote->getTotals();
         $grandTotal = $totals['grand_total']->getValue();
         $deposit = round($depositAmount);
-        $shipping = $quote->getShippingInclTax() * 100;
+        $shipping = $shipAddr->getShippingInclTax() * 100;
         if (! empty($shipping)) {
             $products[] = [
                 'type'     => 'product',
