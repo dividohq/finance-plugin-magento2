@@ -17,7 +17,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     const CALLBACK_PATH      = 'rest/V1/divido/update/';
     const REDIRECT_PATH      = 'divido/financing/success/';
     const CHECKOUT_PATH      = 'checkout/';
-    const VERSION            = '2.4.1';
+    const VERSION            = '2.4.2';
     const WIDGET_LANGUAGES   = ["en", "fi" , "no", "es", "da", "fr", "de", "pe"];
 
     private $config;
@@ -404,7 +404,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $totals = $quote->getTotals();
         $grandTotal = $totals['grand_total']->getValue();
         $deposit = round($depositAmount);
-        $shipping = $shipAddr->getShippingAmount() * 100;
+        $shipping = $shipAddr->getShippingInclTax() * 100;
         if (! empty($shipping)) {
             $products[] = [
                 'type'     => 'product',
