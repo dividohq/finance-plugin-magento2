@@ -20,9 +20,9 @@
             <label class="label" data-bind="attr: {'for': getCode()}" style="display:flex; flex-grow: 1">
                 <div style="flex-grow:1">
                     <span data-bind="text: getTitle()"></span>
-                    <span class='divido-method-description' data-bind="text: window.checkoutConfig.payment.divido_financing.description"></span>
+                    <span style="display:block" class='divido-method-description' data-bind="text: window.checkoutConfig.payment.divido_financing.description"></span>
                 </div>
-                <img style="max-height:28px" data-bind="attr: getIconAttributes()" class="payment-icon" >
+                <img data-bind="attr: getIconAttributes()" class="payment-icon" >
             </label>
         </div>
     
