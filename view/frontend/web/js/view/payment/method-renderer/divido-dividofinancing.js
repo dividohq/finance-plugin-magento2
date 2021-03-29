@@ -57,6 +57,23 @@ define(
                 return this.getPureValue();
             },
 
+            getIconAttributes: function () {
+                let returnObj = {};
+                switch (env){
+                    case 'nordea':
+                        returnObj = {'src':'https://cdn.divido.com/widget/themes/nordea/logo.png', 'alt': 'Nordea Rahoitus'};
+                        break;
+                    case 'divido':
+                        returnObj = {'src':'https://s3-eu-west-1.amazonaws.com/content.divido.com/marketing/divido-logo.png', 'alt': 'Divido'};
+                        break;
+                    default:
+                        returnObj = {};
+                        break;
+                }
+                console.log(returnObj);
+                return returnObj;
+            },
+
             getTransactionResults: function () {
                 return _.map(window.checkoutConfig.payment.divido_financing.transactionResults, function (value, key) {
                     return {
