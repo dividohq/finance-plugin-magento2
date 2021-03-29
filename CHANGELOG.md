@@ -1,6 +1,16 @@
 # Changelog
 All notable changes to this project will now be documented in this file.
 
+
+## [2.4.2] - 2021-03-23
+- fix: Do not create order on referred status
+
+## [2.4.1] - 2021-02-14
+- fix: Do not create order on referred status
+
+## [2.4.0] - 2021-02-03
+- feat: Extends language override to product widget
+
 ## [2.3.2] - 2020-12-09
 - fix: Round discount to nearest cent/penny
 

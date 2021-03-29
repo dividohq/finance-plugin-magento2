@@ -47,6 +47,13 @@ class Widget extends \Magento\Catalog\Block\Product\AbstractProduct
         return $this->getProduct()->getId();
     }
 
+    public function getLanguageOverride()
+    {
+        return (is_null($this->helper->getWidgetLanguage())) 
+            ? "" 
+            : 'data-language="'.$this->helper->getWidgetLanguage().'"';
+    }
+
     public function getProductAmount()
     {
         $product = $this->getProduct();
