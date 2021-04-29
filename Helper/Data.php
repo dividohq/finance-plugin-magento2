@@ -279,7 +279,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             if ($planMinTotal < $plan->deposit->minimum_percentage) {
                 unset($plans[$key]);
             }
-            if($plan->credit_amount->minimum_amount > $grandTotal || $plan->credit_amount->maximum_amount < $grandTotal) {
+            if($plan->credit_amount->minimum_amount > ($grandTotal*100) || $plan->credit_amount->maximum_amount < ($grandTotal*100)) {
                 unset($plans[$key]);
             }
         }
