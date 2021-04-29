@@ -17,7 +17,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     const CALLBACK_PATH      = 'rest/V1/divido/update/';
     const REDIRECT_PATH      = 'divido/financing/success/';
     const CHECKOUT_PATH      = 'checkout/';
-    const VERSION            = '2.4.3';
+    const VERSION            = '2.4.4';
     const WIDGET_LANGUAGES   = ["en", "fi" , "no", "es", "da", "fr", "de", "pe"];
 
     private $config;
@@ -279,7 +279,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             if ($planMinTotal < $plan->deposit->minimum_percentage) {
                 unset($plans[$key]);
             }
-            if($plan->credit_amount->minimum_amount > $grandTotal || $plan->credit_amount->maximum_amount < $grandTotal) {
+            if($plan->credit_amount->minimum_amount > ($grandTotal*100) || $plan->credit_amount->maximum_amount < ($grandTotal*100)) {
                 unset($plans[$key]);
             }
         }
