@@ -2,6 +2,9 @@
 All notable changes to this project will now be documented in this file.
 
 
+## [2.4.4] - 2021-04-29
+- fix: makes min/max calculation in pence
+
 ## [2.4.3] - 2021-04-28
 - fix: filters out plans at checkout based on their min/max amount
 
