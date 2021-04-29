@@ -2,6 +2,9 @@
 All notable changes to this project will now be documented in this file.
 
 
+## [2.4.3] - 2021-04-28
+- fix: filters out plans at checkout based on their min/max amount
+
 ## [2.4.2] - 2021-03-23
 - fix: Do not create order on referred status
 
