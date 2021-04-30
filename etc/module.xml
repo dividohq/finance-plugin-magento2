@@ -6,7 +6,7 @@
  */
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Module/etc/module.xsd">
-	<module name="Divido_DividoFinancing" setup_version="2.4.2" active="true">
+	<module name="Divido_DividoFinancing" setup_version="2.4.4" active="true">
         <sequence>
             <module name="Magento_Sales"/>
             <module name="Magento_Payment"/>
