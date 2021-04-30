@@ -64,10 +64,6 @@ define(
                         returnObj.src = 'https://cdn.divido.com/widget/themes/nordea/logo.png';
                         returnObj.alt = 'Nordea'
                         break;
-                    case 'divido':
-                        returnObj.src = 'https://s3-eu-west-1.amazonaws.com/content.divido.com/marketing/divido-logo.png';
-                        returnObj.alt = 'Divido';
-                        break;
                     default:
                         returnObj.style = 'display: none';
                         break;
