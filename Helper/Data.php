@@ -132,11 +132,14 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         }
 
         $client = new \GuzzleHttp\Client();
-        $sdk = true;
+
+        $tenancyUrl = (empty($this->getTenancyUrl()))
+            ? \Divido\MerchantSDK\Environment::CONFIGURATION[$env]['base_uri']
+            : $this->getTenancyUrl();
 
         $httpClientWrapper = new \Divido\MerchantSDK\HttpClient\HttpClientWrapper(
             new \Divido\MerchantSDKGuzzle6\GuzzleAdapter($client),
-            \Divido\MerchantSDK\Environment::CONFIGURATION[$env]['base_uri'],
+            $tenancyUrl,
             $apiKey
         );
 
@@ -144,6 +147,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 
         return $sdk;
     }
+
     /*
     public function getConnection()
     {
@@ -573,6 +577,16 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         );
 
         return $apiKey;
+    }
+
+    public function getTenancyUrl()
+    {
+        $tenancyUrl = $this->config->getValue(
+            'payment/divido_financing/tenancy_url',
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
+
+        return $tenancyUrl;
     }
 
     public function getDividoKey()
