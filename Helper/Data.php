@@ -60,7 +60,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
        /**
      * Checks the SDK's Environment class for the given environment type
      *
-     * @param string $apiKey The config API key
+     * @param string|bool $apiKey The config API key (will default to get from settings)
      *
      * @return bool|string
      */
@@ -596,15 +596,16 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             return $environmentUrl;
         }
 
-        // Try to get environment URL from API key.
-        $apiKey = $this->getApiKey();
-        $env = $this->getEnvironment($apiKey);
+        // Get environment name.
+        $env = $this->getEnvironment();
+
         if ($this->debug()) {
-            $this->logger->info('Getting Default Base URL for DividoFinancing, Env: ' . $env);
+            $this->logger->info('Getting Default Environment URL for DividoFinancing, Env: ' . $env);
         }
 
         $environmentUrl = \Divido\MerchantSDK\Environment::CONFIGURATION[$env]['base_uri'];
 
+        // If the environment url is not valid
         if(!is_string($environmentUrl)){
             if($this->debug()){
                 $this->logger->info('Could not determine URL for DividoFinancing');
