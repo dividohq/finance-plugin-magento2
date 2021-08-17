@@ -62,7 +62,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
      *
      * @param string $apiKey The config API key
      *
-     * @return void
+     * @return bool|string
      */
     public function getEnvironment($apiKey = false)
     {
@@ -119,6 +119,9 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         }
     }
 
+    /**
+     * @return \Divido\MerchantSDK\Client
+     */
     public function getSdk()
     {
         $apiKey = $this->getApiKey();
@@ -133,13 +136,9 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 
         $client = new \GuzzleHttp\Client();
 
-        $tenancyUrl = (empty($this->getTenancyUrl()))
-            ? \Divido\MerchantSDK\Environment::CONFIGURATION[$env]['base_uri']
-            : $this->getTenancyUrl();
-
         $httpClientWrapper = new \Divido\MerchantSDK\HttpClient\HttpClientWrapper(
             new \Divido\MerchantSDKGuzzle6\GuzzleAdapter($client),
-            $tenancyUrl,
+            $this->getEnvironmentUrl(),
             $apiKey
         );
 
@@ -579,14 +578,42 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         return $apiKey;
     }
 
-    public function getTenancyUrl()
+    /**
+     * Returns Environment URL from settings
+     *
+     * If we can not find a value
+     * @return string
+     */
+    public function getEnvironmentUrl(): string
     {
-        $tenancyUrl = $this->config->getValue(
-            'payment/divido_financing/tenancy_url',
+        $environmentUrl = $this->config->getValue(
+            'payment/divido_financing/environment_url',
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         );
 
-        return $tenancyUrl;
+        // If there is an url, use that.
+        if(!empty($environmentUrl)){
+            return $environmentUrl;
+        }
+
+        // Try to get environment URL from API key.
+        $apiKey = $this->getApiKey();
+        $env = $this->getEnvironment($apiKey);
+        if ($this->debug()) {
+            $this->logger->info('Getting Default Base URL for DividoFinancing, Env: ' . $env);
+        }
+
+        $environmentUrl = \Divido\MerchantSDK\Environment::CONFIGURATION[$env]['base_uri'];
+
+        if(!is_string($environmentUrl)){
+            if($this->debug()){
+                $this->logger->info('Could not determine URL for DividoFinancing');
+            }
+
+            return '';
+        }
+
+        return $environmentUrl;
     }
 
     public function getDividoKey()

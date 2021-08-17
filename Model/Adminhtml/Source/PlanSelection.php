@@ -26,7 +26,7 @@ class PlanSelection implements \Magento\Framework\Option\ArrayInterface
         try {
             $plans = $this->helper->getAllPlans();
         } catch (\Exception $e) {
-            $this->logger->addError($e);
+            $this->logger->error($e->getMessage());
         }
 
         $options = [];

@@ -7,8 +7,9 @@
                 <field id="api_key" translate="label" type="text" sortOrder="2" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>API-key</label>
                 </field>
-                <field id="tenancy_url" translate="label" type="text" sortOrder="3" showInDefault="1" showInWebsite="1" showInStore="0">
-                    <label>Tenancy URL (if applicable)</label>
+                <field id="environment_url" translate="label" type="text" sortOrder="3" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Environment URL</label>
+                    <comment><![CDATA[URL Including "http://" to environment]]></comment>
                 </field>
                 <field id="secret" translate="label" type="text" sortOrder="4" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Shared secret</label>
