@@ -17,6 +17,8 @@
         "divido/merchant-sdk-guzzle-6": "^1.0"
         },
     "require-dev": {
-        "phpunit/phpunit": "^8.5"
+        "phpunit/phpunit": "^8.5",
+        "magento/core": "*",
+        "magento/community-edition": "*"
     }
 }
