@@ -3,6 +3,9 @@
 namespace Divido\DividoFinancing\Helper;
 
 use \Divido\DividoFinancing\Model\LookupFactory;
+use Exception;
+use Magento\Framework\Exception\RuntimeException;
+use Magento\Framework\Phrase;
 use Magento\Framework\UrlInterface;
 use Magento\Catalog\Model\ProductFactory;
 
@@ -603,6 +606,15 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             $this->logger->info('Getting Default Environment URL for DividoFinancing, Env: ' . $env);
         }
 
+        if (empty($env) || !array_key_exists($env, \Divido\MerchantSDK\Environment::CONFIGURATION[$env])){
+            if($this->debug()){
+                $this->logger->info('Could not determine environment for DividoFinancing');
+            }
+
+            throw new RuntimeException(
+                new Phrase('Could not find environment')
+            );
+        }
         $environmentUrl = \Divido\MerchantSDK\Environment::CONFIGURATION[$env]['base_uri'];
 
         // If the environment url is not valid
@@ -611,7 +623,10 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
                 $this->logger->info('Could not determine URL for DividoFinancing');
             }
 
-            return '';
+            throw new RuntimeException(
+                new Phrase('Could not determine URL for DividoFinancing')
+            );
+
         }
 
         return $environmentUrl;
