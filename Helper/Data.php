@@ -138,7 +138,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 
         $httpClientWrapper = new \Divido\MerchantSDK\HttpClient\HttpClientWrapper(
             new \Divido\MerchantSDKGuzzle6\GuzzleAdapter($client),
-            $this->getEnvironmentUrl(),
+            $this->getEnvironmentUrl($apiKey),
             $apiKey
         );
 
@@ -582,9 +582,10 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
      * Returns Environment URL from settings
      *
      * If we can not find a value
+     * @param string|false $apiKey
      * @return string
      */
-    public function getEnvironmentUrl(): string
+    public function getEnvironmentUrl($apiKey = false): string
     {
         $environmentUrl = $this->config->getValue(
             'payment/divido_financing/environment_url',
@@ -597,7 +598,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         }
 
         // Get environment name.
-        $env = $this->getEnvironment();
+        $env = $this->getEnvironment($apiKey);
 
         if ($this->debug()) {
             $this->logger->info('Getting Default Environment URL for DividoFinancing, Env: ' . $env);
