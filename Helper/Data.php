@@ -144,7 +144,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         // Get environment URL from config or calculate one from apikey
         $environmentUrl = $this->getEnvironmentUrl($apiKey);
         if ($this->debug()) {
-            $this->logger->info('Environment URL' . $environmentUrl);
+            $this->logger->info('Environment URL ' . $environmentUrl);
         }
 
         // Create what is needed to create and return a MerchantSDK Client
