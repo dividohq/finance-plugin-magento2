@@ -3,8 +3,10 @@
 namespace Divido\DividoFinancing\Helper;
 
 use \Divido\DividoFinancing\Model\LookupFactory;
-use Magento\Framework\UrlInterface;
 use Magento\Catalog\Model\ProductFactory;
+use Magento\Framework\Exception\RuntimeException;
+use Magento\Framework\Phrase;
+use Magento\Framework\UrlInterface;
 
 class Data extends \Magento\Framework\App\Helper\AbstractHelper
 {
@@ -17,7 +19,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     const CALLBACK_PATH      = 'rest/V1/divido/update/';
     const REDIRECT_PATH      = 'divido/financing/success/';
     const CHECKOUT_PATH      = 'checkout/';
-    const VERSION            = '2.4.5';
+    const VERSION            = '2.5.0';
     const WIDGET_LANGUAGES   = ["en", "fi" , "no", "es", "da", "fr", "de", "pe"];
 
     private $config;
@@ -60,9 +62,9 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
        /**
      * Checks the SDK's Environment class for the given environment type
      *
-     * @param string $apiKey The config API key
+     * @param string|bool $apiKey The config API key (will default to get from settings)
      *
-     * @return void
+     * @return bool|string
      */
     public function getEnvironment($apiKey = false)
     {
@@ -77,11 +79,14 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             if ($this->debug()) {
                 $this->logger->info('getEnv:'.$environment);
             }
-            if (!is_null(
-                constant("\Divido\MerchantSDK\Environment::$environment")
-            )) {
-                $environment
-                    = constant("\Divido\MerchantSDK\Environment::$environment");
+
+            $constantName = "\Divido\MerchantSDK\Environment::$environment";
+
+            if (
+                defined($constantName) &&
+                !empty(constant($constantName))
+            ) {
+                $environment = constant($constantName);
                 return $environment;
             } else {
                 $this->logger->error('Environment does not exist in the SDK');
@@ -119,31 +124,41 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         }
     }
 
-    public function getSdk()
+    /**
+     * @return \Divido\MerchantSDK\Client
+     * @throws RuntimeException
+     */
+    public function getSdk(): \Divido\MerchantSDK\Client
     {
         $apiKey = $this->getApiKey();
         if ($this->debug()) {
             $this->logger->info('Get SDK');
         }
 
+        // Getting environment depending on how apiKey looks
         $env = $this->getEnvironment($apiKey);
         if ($this->debug()) {
             $this->logger->info('Get SDK'.$env);
         }
 
+        // Get environment URL from config or calculate one from apikey
+        $environmentUrl = $this->getEnvironmentUrl($apiKey);
+        if ($this->debug()) {
+            $this->logger->info('Environment URL ' . $environmentUrl);
+        }
+
+        // Create what is needed to create and return a MerchantSDK Client
         $client = new \GuzzleHttp\Client();
-        $sdk = true;
 
         $httpClientWrapper = new \Divido\MerchantSDK\HttpClient\HttpClientWrapper(
             new \Divido\MerchantSDKGuzzle6\GuzzleAdapter($client),
-            \Divido\MerchantSDK\Environment::CONFIGURATION[$env]['base_uri'],
+            $environmentUrl,
             $apiKey
         );
 
-        $sdk = new \Divido\MerchantSDK\Client($httpClientWrapper, $env);
-
-        return $sdk;
+        return new \Divido\MerchantSDK\Client($httpClientWrapper, $env);
     }
+
     /*
     public function getConnection()
     {
@@ -573,6 +588,93 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         );
 
         return $apiKey;
+    }
+
+    /**
+     * @param string|false $apiKey
+     * @return array Array of configuration data from MerchantSDK, for more information look in MerchantSDK\Environment::CONFIGURATION
+     * @throws RuntimeException
+     */
+    private function getMerchantSdkEnvironmentConfiguration($apiKey = false): array
+    {
+        // Get environment name from ApiKey
+        $env = $this->getEnvironment($apiKey);
+
+        // If we could not find the current env from api key, throw an error
+        if (empty($env)) {
+            if ($this->debug()) {
+                $this->logger->info('Could not find environment');
+            }
+
+            throw new RuntimeException(
+                new Phrase('Could not find environment from api key')
+            );
+        }
+
+        // If env does not exists in the configuration, throw error
+        if (!array_key_exists($env, \Divido\MerchantSDK\Environment::CONFIGURATION)) {
+            if ($this->debug()) {
+                $this->logger->info('Could not determine configuration for DividoFinancing, environment: ' . $env);
+            }
+
+            throw new RuntimeException(
+                new Phrase('Could not find environment configuration')
+            );
+        }
+
+        // All good, return the configuration array from MerchantSDK
+        return \Divido\MerchantSDK\Environment::CONFIGURATION[$env];
+    }
+
+    /**
+     * Returns Environment URL from MerchantSDK Configuration based on environment
+     *
+     * @param string|false $apiKey Defaults to get from Magento config
+     * @return string
+     *
+     * @throws RuntimeException
+     */
+    public function getEnvironmentUrl($apiKey = false): string
+    {
+        // Try to first get from Magento config
+        $configEnvironmentUrl = $this->config->getValue(
+            'payment/divido_financing/environment_url',
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
+
+        // If there is an url in the config, use that.
+        if (!empty($configEnvironmentUrl)) {
+            return $configEnvironmentUrl;
+        }
+
+        // Get configuration from MerchantSDK
+        $merchantSdkEnvironmentConfiguration = $this->getMerchantSdkEnvironmentConfiguration($apiKey);
+        // If the environment url is not valid
+        if (!array_key_exists('base_uri', $merchantSdkEnvironmentConfiguration)) {
+            if ($this->debug()) {
+                $this->logger->info('Could not find base_uri in configuration');
+            }
+
+            throw new RuntimeException(
+                new Phrase('Could not find base_uri in configuration')
+            );
+        }
+
+        // Get URL from configuration
+        $environmentUrl = $merchantSdkEnvironmentConfiguration['base_uri'];
+
+        // If the environment url is not valid
+        if (!is_string($environmentUrl) || empty($environmentUrl)) {
+            if ($this->debug()) {
+                $this->logger->info('Error while trying to determine Environment URL for DividoFinancing');
+            }
+
+            throw new RuntimeException(
+                new Phrase('Could not determine URL for DividoFinancing')
+            );
+        }
+
+        return $environmentUrl;
     }
 
     public function getDividoKey()
