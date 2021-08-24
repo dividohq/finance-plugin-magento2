@@ -7,9 +7,11 @@ use Magento\Catalog\Model\ProductFactory;
 use Magento\Framework\Exception\RuntimeException;
 use Magento\Framework\Phrase;
 use Magento\Framework\UrlInterface;
+use Divido\DividoFinancing\Helper\EndpointHealthCheckTrait;
 
 class Data extends \Magento\Framework\App\Helper\AbstractHelper
 {
+    use EndpointHealthCheckTrait;
 
     const CACHE_DIVIDO_TAG   = 'divido_cache';
     const CACHE_PLANS_KEY    = 'divido_plans';
@@ -1115,5 +1117,4 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $signature = base64_encode($hmac);
         return $signature;
     }
-
 }

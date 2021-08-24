@@ -2,6 +2,7 @@
 namespace Divido\DividoFinancing\Observer;
 
 use Magento\Framework\Event\ObserverInterface;
+use Magento\Framework\Exception\RuntimeException;
 use Magento\Framework\Message\ManagerInterface;
 
 class ConfigChangeObserver implements ObserverInterface
@@ -37,8 +38,22 @@ class ConfigChangeObserver implements ObserverInterface
             return;
         }
 
-        $this->dataHelper->getApiKey();
+        try {
+            $sdkClient = $this->dataHelper->getSdk();
+        } catch (RuntimeException $e) {
+            $this->messageManager->addErrorMessage('Error while getting client to check health of endpoint');
+            return;
+        }
 
-        $this->messageManager->addErrorMessage('Noep, no dice.');
+        $healthCheckResult =$this->dataHelper->getEndpointHealthCheckResult(
+            $sdkClient
+        );
+
+        if($healthCheckResult !== true){
+            $this->messageManager->addErrorMessage('Noep, no dice.');
+            return;
+        }
+
+        return;
     }
 }
