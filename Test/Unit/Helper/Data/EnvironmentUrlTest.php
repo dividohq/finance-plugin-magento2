@@ -2,6 +2,8 @@
 
 namespace Divido\DividoFinancing\Test\Unit\Helper\Data;
 
+use Magento\Framework\Exception\RuntimeException;
+
 class EnvironmentUrlTest extends TestHelper
 {
     public function getEnvironmentUrlShouldReturnUrlBasedOnApiKeyDataProvider(): \Generator
@@ -75,5 +77,35 @@ class EnvironmentUrlTest extends TestHelper
             $url,
             $environmentUrlConfigValue
         );
+    }
+
+    public function test_ThrowExceptionIfAPIKeyIsWeird(): void
+    {
+        $this->expectException(RuntimeException::class);
+
+        $this->scopeConfig->expects($this->any())
+            ->method('getValue')
+            ->withConsecutive(
+                [
+                    'payment/divido_financing/environment_url',
+                ],
+                [
+                    'payment/divido_financing/api_key',
+                ],
+                [
+                    'payment/divido_financing/debug',
+                ]
+            )->willReturnOnConsecutiveCalls(
+            // Environment URL is empty.
+                '',
+
+                // The mocked (fake) API key.
+                uniqid('jibberjabbberdoesnotexistaskey_'),
+
+                // Debug set to false.
+                false
+            );
+
+        $this->dataInstance->getEnvironmentUrl();
     }
 }
