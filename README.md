@@ -27,6 +27,7 @@ That should be it to get going with your chosen Finance Provider as a checkout o
 
 | Field | Description |
 | --- | --- |
+| Environment URL | Obtained from your provider, needed to communicate with the PBD system |
 | API-key | Obtained from your provider, needed to identify your shop in communications with the PBD system |
 | Shared secret | Obtained from your provider, enables message signing. |
 | Enabled | Enables / Disables both the product page calculator and checkout option |
