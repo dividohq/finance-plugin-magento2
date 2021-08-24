@@ -591,7 +591,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     }
 
     /**
-     * @param false $apiKey
+     * @param string|false $apiKey
      * @return array Array of configuration data from MerchantSDK, for more information look in MerchantSDK\Environment::CONFIGURATION
      * @throws RuntimeException
      */
