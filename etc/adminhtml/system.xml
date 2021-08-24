@@ -9,7 +9,7 @@
                 </field>
                 <field id="environment_url" translate="label" type="text" sortOrder="3" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Environment URL</label>
-                    <comment><![CDATA[URL Including "http://" to environment]]></comment>
+                    <comment><![CDATA[URL Including "https://" to environment]]></comment>
                 </field>
                 <field id="secret" translate="label" type="text" sortOrder="4" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Shared secret</label>
