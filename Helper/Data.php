@@ -2,8 +2,7 @@
 
 namespace Divido\DividoFinancing\Helper;
 
-use Divido\DividoFinancing\Model\LookupFactory;
-use Exception;
+use \Divido\DividoFinancing\Model\LookupFactory;
 use Magento\Catalog\Model\ProductFactory;
 use Magento\Framework\Exception\RuntimeException;
 use Magento\Framework\Phrase;
