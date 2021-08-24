@@ -84,7 +84,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 
             if (
                 defined($constantName) &&
-                !is_null(constant($constantName))
+                !empty(constant($constantName))
             ) {
                 $environment = constant($constantName);
                 return $environment;
