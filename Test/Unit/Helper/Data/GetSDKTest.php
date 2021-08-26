@@ -23,9 +23,6 @@ class GetSDKTest extends TestHelper
                     'payment/divido_financing/debug',
                 ],
                 [
-                    'payment/divido_financing/debug',
-                ],
-                [
                     'payment/divido_financing/environment_url',
                 ]
             )->willReturnOnConsecutiveCalls(
