@@ -2,6 +2,8 @@
 
 namespace Divido\DividoFinancing\Block;
 
+use Exception;
+
 class Head extends \Magento\Framework\View\Element\Template
 {
     private $helper;
@@ -26,6 +28,11 @@ class Head extends \Magento\Framework\View\Element\Template
 
     public function getPlatformEnv()
     {
-        return $this->helper->getPlatformEnv();
+        try{
+            return $this->helper->getPlatformEnv();
+        }catch (Exception $e){
+            // In case the plugin is not configured properly we should fail a bit more graciously
+            return '[unknown]';
+        }
     }
 }

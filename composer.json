@@ -2,7 +2,7 @@
     "name": "divido/divido-magento2",
     "description": "Powered by Divido financing gateway",
     "type": "magento2-module",
-    "version": "2.5.0",
+    "version": "2.5.0-beta1",
     "license": [
         "OSL-3.0"
     ],
@@ -13,7 +13,7 @@
         }
     },
     "require": {
-        "divido/merchant-sdk": "^2.3",
+        "divido/merchant-sdk": "^2.3.0",
         "divido/merchant-sdk-guzzle-6": "^1.1"
         },
     "require-dev": {

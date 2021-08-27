@@ -79,10 +79,8 @@ class EnvironmentUrlTest extends TestHelper
         );
     }
 
-    public function test_ThrowExceptionIfAPIKeyIsWeird(): void
+    public function test_ReturnEmptyStringIfAPIKeyIsWeird(): void
     {
-        $this->expectException(RuntimeException::class);
-
         $this->scopeConfig->expects($this->any())
             ->method('getValue')
             ->withConsecutive(
@@ -106,6 +104,9 @@ class EnvironmentUrlTest extends TestHelper
                 false
             );
 
-        $this->dataInstance->getEnvironmentUrl();
+        self::assertSame(
+            '',
+            $this->dataInstance->getEnvironmentUrl()
+        );
     }
 }

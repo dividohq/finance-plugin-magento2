@@ -4,11 +4,14 @@ namespace Divido\DividoFinancing\Helper;
 
 use \Divido\DividoFinancing\Model\LookupFactory;
 use Divido\MerchantSDK\Environment;
+use Divido\MerchantSDK\Exceptions\InvalidApiKeyFormatException;
+use Divido\MerchantSDK\Exceptions\InvalidEnvironmentException;
 use Magento\Catalog\Model\ProductFactory;
 use Magento\Framework\Exception\RuntimeException;
 use Magento\Framework\Phrase;
 use Magento\Framework\UrlInterface;
 use Divido\DividoFinancing\Helper\EndpointHealthCheckTrait;
+use Throwable;
 
 class Data extends \Magento\Framework\App\Helper\AbstractHelper
 {
@@ -62,8 +65,8 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $this->localeResolver = $localeResolver;
     }
 
-       /**
-     * Checks the SDK's Environment class for the given environment type
+    /**
+     * Gets the SDK's Environment name for the given api key
      *
      * @param string|bool $apiKey The config API key (will default to get from settings)
      *
@@ -73,28 +76,22 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     {
         $apiKey = (false === $apiKey) ? $this->getApiKey() : $apiKey;
 
-        if (empty($apiKey)) {
-            $this->logger->error('Empty API key');
+        // Validate the API key format
+        try{
+            Environment::validateApiKeyFormat($apiKey);
+        }catch (InvalidApiKeyFormatException $e){
+            $this->logger->error($e->getMessage());
             return false;
-        } else {
-            list($environment, $key) = explode("_", $apiKey);
-            $environment = strtoupper($environment);
-            if ($this->debug()) {
-                $this->logger->info('getEnv:'.$environment);
-            }
+        }
 
-            $constantName = "\Divido\MerchantSDK\Environment::$environment";
-
-            if (
-                defined($constantName) &&
-                !empty(constant($constantName))
-            ) {
-                $environment = constant($constantName);
-                return $environment;
-            } else {
-                $this->logger->error('Environment does not exist in the SDK');
-                return false;
-            }
+        // Get the Environment Name from the API key
+        try{
+            $environment = Environment::getEnvironmentFromAPIKey($apiKey);
+            $this->logger->info('getEnv: '.$environment);
+            return $environment;
+        }catch (InvalidApiKeyFormatException | InvalidEnvironmentException $e){
+            $this->logger->error($e->getMessage());
+            return false;
         }
     }
 
@@ -663,7 +660,19 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         }
 
         // Get configuration from MerchantSDK
-        $merchantSdkEnvironmentConfiguration = $this->getMerchantSdkEnvironmentConfiguration($apiKey);
+        try{
+            $merchantSdkEnvironmentConfiguration = $this->getMerchantSdkEnvironmentConfiguration($apiKey);
+        }catch (RuntimeException $e){
+            if ($this->debug()) {
+                $this->logger->info($e->getMessage());
+            }
+
+            // We might not be able to get the configuration from the API key, if the API key is missing etc.
+            // In that case we do not want to throw and error, we just want to return an empty string that the UI can use
+            // and populate the 'environment_url' input with.
+            return '';
+        }
+
         // If the environment url is not valid
         if (!array_key_exists('base_uri', $merchantSdkEnvironmentConfiguration)) {
             if ($this->debug()) {
