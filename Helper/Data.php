@@ -2,7 +2,7 @@
 
 namespace Divido\DividoFinancing\Helper;
 
-use Divido\DividoFinancing\Model\LookupFactory;
+use \Divido\DividoFinancing\Model\LookupFactory;
 use Divido\MerchantSDK\Environment;
 use Divido\MerchantSDK\Exceptions\InvalidApiKeyFormatException;
 use Divido\MerchantSDK\Exceptions\InvalidEnvironmentException;
@@ -10,6 +10,7 @@ use Magento\Catalog\Model\ProductFactory;
 use Magento\Framework\Exception\RuntimeException;
 use Magento\Framework\Phrase;
 use Magento\Framework\UrlInterface;
+use Throwable;
 
 class Data extends \Magento\Framework\App\Helper\AbstractHelper
 {
