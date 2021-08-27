@@ -6,6 +6,15 @@ use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Exception\RuntimeException;
 use Magento\Framework\Message\ManagerInterface;
 
+/**
+ * Class that listens for changes in the configuration, checks what config values has changed and then runs different
+ * validations etc
+ *
+ * This class is registered in etc/events.xml
+ *
+ * Class ConfigChangeObserver
+ * @package Divido\DividoFinancing\Observer
+ */
 class ConfigChangeObserver implements ObserverInterface
 {
     public const CONFIG_XPATH_ENVIRONMENT_URL = 'payment/divido_financing/environment_url';
@@ -84,6 +93,7 @@ class ConfigChangeObserver implements ObserverInterface
         if(
             in_array(self::CONFIG_XPATH_API_KEY, $changedPaths)
         ){
+            // Validate the API key format
             $this->validateApiKeyFormat();
         }
     }
