@@ -13,8 +13,8 @@
         }
     },
     "require": {
-        "divido/merchant-sdk": "^2.1",
-        "divido/merchant-sdk-guzzle-6": "^1.0"
+        "divido/merchant-sdk": "^2.3",
+        "divido/merchant-sdk-guzzle-6": "^1.1"
         },
     "require-dev": {
         "phpunit/phpunit": "^8.5",

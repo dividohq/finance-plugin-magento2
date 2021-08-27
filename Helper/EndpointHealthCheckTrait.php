@@ -4,6 +4,8 @@
 namespace Divido\DividoFinancing\Helper;
 
 
+use PHPUnit\Util\Exception;
+
 trait EndpointHealthCheckTrait
 {
     /**
@@ -14,7 +16,12 @@ trait EndpointHealthCheckTrait
      */
     public function getEndpointHealthCheckResult(\Divido\MerchantSDK\Client $sdkClient): bool
     {
-        // Todo: Do actual health check with SDK
-        return true;
+        $result = $sdkClient->health()->checkHealth();
+
+        if (!array_key_exists('healthy', $result)){
+            return false;
+        }
+
+        return $result['healthy'] === true;
     }
 }

@@ -3,7 +3,7 @@
 namespace Divido\DividoFinancing\Test\Unit\Helper\Data;
 
 use Divido\MerchantSDK\Client;
-use Magento\Framework\Exception\RuntimeException;
+use Divido\MerchantSDK\Handlers\Health\Handler;
 
 class HealthCheckTest extends TestHelper
 {
@@ -13,12 +13,24 @@ class HealthCheckTest extends TestHelper
 
         $mockedSdk = $this->createMock(Client::class);
 
-        $mockedSdk->expects($this->once())
+        $handler = $this->createMock(Handler::class);
+
+        $handler->expects($this->once())
             ->method('checkHealth')
-            ->willReturn(true);
+            ->willReturn(
+                [
+                    'healthy' => true
+                ]
+            );
+
+        $mockedSdk->expects($this->once())
+            ->method('health')
+            ->willReturn(
+                $handler
+            );
 
         self::assertTrue(
-            $data->getEndpointHealthCheckResult($mockedSdk),
+            $data->getEndpointHealthCheckResult($mockedSdk)
         );
     }
 
@@ -28,12 +40,24 @@ class HealthCheckTest extends TestHelper
 
         $mockedSdk = $this->createMock(Client::class);
 
-        $mockedSdk->expects($this->once())
-            ->method('checkHealth')
-            ->willReturn(false);
+        $handler = $this->createMock(Handler::class);
 
-        self::assertTrue(
-            $data->getEndpointHealthCheckResult($mockedSdk),
+        $handler->expects($this->once())
+            ->method('checkHealth')
+            ->willReturn(
+                [
+                    'healthy' => false
+                ]
+            );
+
+        $mockedSdk->expects($this->once())
+            ->method('health')
+            ->willReturn(
+                $handler
+            );
+
+        self::assertFalse(
+            $data->getEndpointHealthCheckResult($mockedSdk)
         );
     }
 }
