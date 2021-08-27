@@ -21,23 +21,11 @@ class ConfigChangeObserver implements ObserverInterface
         $this->dataHelper = $dataHelper;
     }
 
-    public function execute(\Magento\Framework\Event\Observer $observer)
+    /**
+     * Does a health check against the merchant-api-pub endpoint
+     */
+    private function environmentHealthCheck()
     {
-        $eventData = $observer->getEvent()->getData();
-
-        if(!array_key_exists('changed_paths', $eventData)){
-            return;
-        }
-
-        $changedPaths = $eventData['changed_paths'];
-        // Check that the values we are interested in
-        if(
-            !in_array(self::CONFIG_XPATH_ENVIRONMENT_URL, $changedPaths) &&
-            !in_array(self::CONFIG_XPATH_API_KEY, $changedPaths)
-        ){
-            return;
-        }
-
         try {
             $sdkClient = $this->dataHelper->getSdk();
         } catch (RuntimeException $e) {
@@ -58,5 +46,23 @@ class ConfigChangeObserver implements ObserverInterface
 
         // Health check passed
         $this->messageManager->addSuccessMessage('Environment URL health check passed');
+    }
+
+    public function execute(\Magento\Framework\Event\Observer $observer)
+    {
+        $eventData = $observer->getEvent()->getData();
+
+        if(!array_key_exists('changed_paths', $eventData)){
+            return;
+        }
+
+        $changedPaths = $eventData['changed_paths'];
+        // Check that the values we are interested in
+        if(
+            in_array(self::CONFIG_XPATH_ENVIRONMENT_URL, $changedPaths) ||
+            in_array(self::CONFIG_XPATH_API_KEY, $changedPaths)
+        ){
+            $this->environmentHealthCheck();
+        }
     }
 }

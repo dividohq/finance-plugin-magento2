@@ -14,7 +14,7 @@ use PHPUnit\Framework\TestCase;
 
 class ConfigChangeObserverTest extends TestCase
 {
-    public function executeShouldReturnEarlyIfPropertiesNotChangedDataProvider(): \Generator
+    public function data_provider_shouldOnlyCallEndpointCheckIfURLorAPIKeyHasChanged(): \Generator
     {
         yield 'FooAndBar none of the xpaths' => [
             [
@@ -44,11 +44,11 @@ class ConfigChangeObserverTest extends TestCase
     }
 
     /**
-     * @dataProvider executeShouldReturnEarlyIfPropertiesNotChangedDataProvider
+     * @dataProvider data_provider_shouldOnlyCallEndpointCheckIfURLorAPIKeyHasChanged
      * @param array $eventData
      * @param bool $shouldCheckEndpointHealth
      */
-    public function test_executeShouldReturnEarlyIfPropertiesNotChanged(
+    public function test_shouldOnlyCallEndpointCheckIfURLorAPIKeyHasChanged(
         array $eventData,
         bool $shouldCheckEndpointHealth
     ): void {
