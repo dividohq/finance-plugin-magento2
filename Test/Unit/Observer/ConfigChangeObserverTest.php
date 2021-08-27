@@ -139,7 +139,7 @@ class ConfigChangeObserverTest extends TestCase
         yield "when true is returned" => [
             true,
             null,
-            'Environment URL health check passed',
+            null,
         ];
     }
 
@@ -191,12 +191,18 @@ class ConfigChangeObserverTest extends TestCase
             $mockedMessageManager->expects($this->once())
                 ->method('addErrorMessage')
                 ->with($expectedErrorMessage);
+        }else{
+            $mockedMessageManager->expects($this->never())
+                ->method('addErrorMessage');
         }
 
         if ($expectedSuccessMessage) {
             $mockedMessageManager->expects($this->once())
                 ->method('addSuccessMessage')
                 ->with($expectedSuccessMessage);
+        }else{
+            $mockedMessageManager->expects($this->never())
+                ->method('addSuccessMessage');
         }
 
         $configChangeObserver->execute(

@@ -55,8 +55,6 @@ class ConfigChangeObserver implements ObserverInterface
         }
 
         // Health check passed
-        $this->messageManager->addSuccessMessage('Environment URL health check passed');
-
         return true;
     }
 
