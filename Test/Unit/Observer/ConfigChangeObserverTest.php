@@ -5,6 +5,7 @@ namespace Divido\DividoFinancing\Test\Unit\Observer;
 use Divido\DividoFinancing\Helper\Data;
 use Divido\DividoFinancing\Observer\ConfigChangeObserver;
 use Divido\MerchantSDK\Client;
+use Divido\MerchantSDK\Handlers\Health\Handler;
 use Magento\Framework\Event;
 use Magento\Framework\Exception\RuntimeException;
 use Magento\Framework\Message\ManagerInterface;
@@ -127,8 +128,11 @@ class ConfigChangeObserverTest extends TestCase
     public function messageShouldReflectResponseFromGetHealthCheckResultDataProvider(): \Generator
     {
         yield "when false is returned" => [
+            // Result of health check
             false,
+            // Expected error message
             'Error, could not validate the health of endpoint, please check the "environment_url" setting',
+            // Expected success message
             null,
         ];
 
@@ -149,9 +153,9 @@ class ConfigChangeObserverTest extends TestCase
         $sdkHealthCheckResult,
         ?string $expectedErrorMessage,
         ?string $expectedSuccessMessage
-    ): void
-    {
+    ): void {
         $mockedDataInstance = $this->createMock(Data::class);
+
         $mockedSdkClient = $this->createMock(Client::class);
         $mockedMessageManager = $this->createMock(ManagerInterface::class);
 
@@ -175,24 +179,21 @@ class ConfigChangeObserverTest extends TestCase
             ->method('getEvent')
             ->willReturn($event);
 
-        $mockedDataInstance->expects($this->never())
-            ->method('getEndpointHealthCheckResult');
-
         $mockedDataInstance->expects($this->once())
             ->method('getSdk')
             ->willReturn($mockedSdkClient);
 
-        $mockedSdkClient->expects($this->once())
-            ->method('healthCheck')
+        $mockedDataInstance->expects($this->once())
+            ->method('getEndpointHealthCheckResult')
             ->willReturn($sdkHealthCheckResult);
 
-        if($expectedErrorMessage){
+        if ($expectedErrorMessage) {
             $mockedMessageManager->expects($this->once())
                 ->method('addErrorMessage')
                 ->with($expectedErrorMessage);
         }
 
-        if($expectedSuccessMessage){
+        if ($expectedSuccessMessage) {
             $mockedMessageManager->expects($this->once())
                 ->method('addSuccessMessage')
                 ->with($expectedSuccessMessage);

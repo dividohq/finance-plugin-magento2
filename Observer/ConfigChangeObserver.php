@@ -45,15 +45,18 @@ class ConfigChangeObserver implements ObserverInterface
             return;
         }
 
+        // Get result of health check
         $healthCheckResult =$this->dataHelper->getEndpointHealthCheckResult(
             $sdkClient
         );
 
+        // If not ok, show an error message
         if($healthCheckResult !== true){
-            $this->messageManager->addErrorMessage('Noep, no dice.');
+            $this->messageManager->addErrorMessage('Error, could not validate the health of endpoint, please check the "environment_url" setting');
             return;
         }
 
-        return;
+        // Health check passed
+        $this->messageManager->addSuccessMessage('Environment URL health check passed');
     }
 }

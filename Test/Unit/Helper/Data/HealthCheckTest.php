@@ -7,34 +7,29 @@ use Divido\MerchantSDK\Handlers\Health\Handler;
 
 class HealthCheckTest extends TestHelper
 {
-    public function test_shouldBeAbleToCallGetEndpointHealthCheckResult(): void
+    public function data_provider_resultOfDataReceivedInSDKShouldReflectResultOfDataHelperHealthCheckMethod(): array
     {
-        $data = $this->dataInstance;
-
-        $mockedSdk = $this->createMock(Client::class);
-
-        $handler = $this->createMock(Handler::class);
-
-        $handler->expects($this->once())
-            ->method('checkHealth')
-            ->willReturn(
-                [
-                    'healthy' => true
-                ]
-            );
-
-        $mockedSdk->expects($this->once())
-            ->method('health')
-            ->willReturn(
-                $handler
-            );
-
-        self::assertTrue(
-            $data->getEndpointHealthCheckResult($mockedSdk)
-        );
+        return [
+            'True' => [
+                true,
+                true,
+            ],
+            'False' => [
+                false,
+                false,
+            ]
+        ];
     }
 
-    public function test_shouldBeAbleToCallGetFailedEndpointHealthCheckResult(): void
+    /**
+     * @dataProvider data_provider_resultOfDataReceivedInSDKShouldReflectResultOfDataHelperHealthCheckMethod
+     * @param $merchantSdkHealthyValue
+     * @param $expectedResult
+     */
+    public function test_resultOfDataReceivedInSDKShouldReflectResultOfDataHelperHealthCheckMethod(
+        $merchantSdkHealthyValue,
+        $expectedResult
+    ): void
     {
         $data = $this->dataInstance;
 
@@ -46,7 +41,7 @@ class HealthCheckTest extends TestHelper
             ->method('checkHealth')
             ->willReturn(
                 [
-                    'healthy' => false
+                    'healthy' => $merchantSdkHealthyValue
                 ]
             );
 
@@ -56,7 +51,8 @@ class HealthCheckTest extends TestHelper
                 $handler
             );
 
-        self::assertFalse(
+        self::assertSame(
+            $expectedResult,
             $data->getEndpointHealthCheckResult($mockedSdk)
         );
     }
