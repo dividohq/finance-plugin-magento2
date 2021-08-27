@@ -5,7 +5,6 @@ namespace Divido\DividoFinancing\Test\Unit\Observer;
 use Divido\DividoFinancing\Helper\Data;
 use Divido\DividoFinancing\Observer\ConfigChangeObserver;
 use Divido\MerchantSDK\Client;
-use Divido\MerchantSDK\Handlers\Health\Handler;
 use Magento\Framework\Event;
 use Magento\Framework\Exception\RuntimeException;
 use Magento\Framework\Message\ManagerInterface;
@@ -198,6 +197,87 @@ class ConfigChangeObserverTest extends TestCase
                 ->method('addSuccessMessage')
                 ->with($expectedSuccessMessage);
         }
+
+        $configChangeObserver->execute(
+            $observer
+        );
+    }
+
+    public function data_provider_shouldCheckApiKeyValidityIfItHasChanged(): \Generator
+    {
+        yield 'FooAndBar none of the xpaths' => [
+            [
+                uniqid('foo_'),
+                uniqid('bar_'),
+            ],
+            false // Do NOT check the endpoint
+        ];
+
+        yield 'Only ApiKey changed' => [
+            [
+                ConfigChangeObserver::CONFIG_XPATH_API_KEY,
+                uniqid('foo_'),
+                uniqid('bar_'),
+            ],
+            true
+        ];
+
+        yield 'Only Environment URL changed' => [
+            [
+                ConfigChangeObserver::CONFIG_XPATH_ENVIRONMENT_URL,
+                uniqid('foo_'),
+                uniqid('bar_'),
+            ],
+            false
+        ];
+
+        yield 'Both Environment URL and api key changed' => [
+            [
+                ConfigChangeObserver::CONFIG_XPATH_ENVIRONMENT_URL,
+                ConfigChangeObserver::CONFIG_XPATH_API_KEY,
+                uniqid('foo_'),
+                uniqid('bar_'),
+            ],
+            true
+        ];
+    }
+
+    /**
+     * @dataProvider data_provider_shouldCheckApiKeyValidityIfItHasChanged
+     * @param array $eventData
+     * @param bool $shouldCheckApiKeyValidity
+     */
+    public function test_shouldCheckApiKeyValidity(
+        array $eventData,
+        bool $shouldCheckApiKeyValidity
+    ): void {
+        $mockedDataInstance = $this->createMock(Data::class);
+        $mockedMessageManager = $this->createMock(ManagerInterface::class);
+
+        $configChangeObserver = new ConfigChangeObserver(
+            $mockedDataInstance,
+            $mockedMessageManager
+        );
+
+        $observer = $this->createMock(\Magento\Framework\Event\Observer::class);
+
+        $event = new Event(
+            [
+                'changed_paths' => $eventData
+            ]
+        );
+
+        $observer->expects($this->once())
+            ->method('getEvent')
+            ->willReturn($event);
+
+        $mockedDataInstance->expects(
+            $this->exactly(
+                $shouldCheckApiKeyValidity === true ? 1 : 0
+            )
+        )
+            ->method('validateApiKeyFormat')
+            ->willReturn(true);
 
         $configChangeObserver->execute(
             $observer

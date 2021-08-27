@@ -96,6 +96,18 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     }
 
     /**
+     * @param $apiKey
+     * @return bool
+     * @throws \Divido\MerchantSDK\Exceptions\InvalidApiKeyFormatException
+     */
+    public function validateApiKeyFormat($apiKey = false): bool
+    {
+        $apiKey = (false === $apiKey) ? $this->getApiKey() : $apiKey;
+
+        return Environment::validateApiKeyFormat($apiKey);
+    }
+
+    /**
      * Get Finance Platform Environment function
      *
      *  @param [string] $api_key - The platform API key.

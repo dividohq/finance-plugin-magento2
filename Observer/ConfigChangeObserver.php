@@ -1,6 +1,7 @@
 <?php
 namespace Divido\DividoFinancing\Observer;
 
+use Divido\MerchantSDK\Exceptions\InvalidApiKeyFormatException;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Exception\RuntimeException;
 use Magento\Framework\Message\ManagerInterface;
@@ -48,6 +49,16 @@ class ConfigChangeObserver implements ObserverInterface
         $this->messageManager->addSuccessMessage('Environment URL health check passed');
     }
 
+    private function validateApiKeyFormat()
+    {
+        // Get result of health check
+        try{
+            $apiKeyIsValid = $this->dataHelper->validateApiKeyFormat();
+        }catch (InvalidApiKeyFormatException $e){
+            $this->messageManager->addErrorMessage($e->getMessage());
+        }
+    }
+
     public function execute(\Magento\Framework\Event\Observer $observer)
     {
         $eventData = $observer->getEvent()->getData();
@@ -57,12 +68,20 @@ class ConfigChangeObserver implements ObserverInterface
         }
 
         $changedPaths = $eventData['changed_paths'];
+
         // Check that the values we are interested in
         if(
             in_array(self::CONFIG_XPATH_ENVIRONMENT_URL, $changedPaths) ||
             in_array(self::CONFIG_XPATH_API_KEY, $changedPaths)
         ){
             $this->environmentHealthCheck();
+        }
+
+        // Check that the values we are interested in
+        if(
+            in_array(self::CONFIG_XPATH_API_KEY, $changedPaths)
+        ){
+            $this->validateApiKeyFormat();
         }
     }
 }
