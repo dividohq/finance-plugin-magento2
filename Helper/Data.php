@@ -3,6 +3,7 @@
 namespace Divido\DividoFinancing\Helper;
 
 use \Divido\DividoFinancing\Model\LookupFactory;
+use Divido\MerchantSDK\Environment;
 use Magento\Catalog\Model\ProductFactory;
 use Magento\Framework\Exception\RuntimeException;
 use Magento\Framework\Phrase;
@@ -95,6 +96,18 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
                 return false;
             }
         }
+    }
+
+    /**
+     * @param $apiKey
+     * @return bool
+     * @throws \Divido\MerchantSDK\Exceptions\InvalidApiKeyFormatException
+     */
+    public function validateApiKeyFormat($apiKey = false): bool
+    {
+        $apiKey = (false === $apiKey) ? $this->getApiKey() : $apiKey;
+
+        return Environment::validateApiKeyFormat($apiKey);
     }
 
     /**
