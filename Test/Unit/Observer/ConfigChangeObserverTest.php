@@ -5,6 +5,7 @@ namespace Divido\DividoFinancing\Test\Unit\Observer;
 use Divido\DividoFinancing\Helper\Data;
 use Divido\DividoFinancing\Observer\ConfigChangeObserver;
 use Divido\MerchantSDK\Client;
+use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Event;
 use Magento\Framework\Exception\RuntimeException;
 use Magento\Framework\Message\ManagerInterface;
