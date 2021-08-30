@@ -14,5 +14,8 @@
     </event>
     <event name="sales_order_payment_refund">
         <observer name="divido_dividofinancing_order_refund" instance="Divido\DividoFinancing\Observer\RefundObserver" />
-    </event>  
+    </event>
+    <event name="admin_system_config_changed_section_payment">
+        <observer name="custom_admin_system_config_changed_section_payment" instance="Divido\DividoFinancing\Observer\ConfigChangeObserver"/>
+    </event>
 </config>
