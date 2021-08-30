@@ -1,6 +1,8 @@
 # Changelog
 All notable changes to this project will now be documented in this file.
 
+## [2.5.0] - 
+
 
 ## [2.4.5] - 2021-05-19
 - feat: adds terms and conditions link to checkout page
