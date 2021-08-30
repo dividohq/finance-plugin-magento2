@@ -703,7 +703,11 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             return $jsKey;
     }
 
-    public function getScriptUrl()
+    /**
+     * Returns the url to calculator JavaScript file
+     * @return string
+     */
+    public function getScriptUrl(): string
     {
         if ($this->debug()) {
             $this->logger->info('GetScript URL HElper');
@@ -715,14 +719,39 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             return $scriptUrl;
         }
 
-        $platformEnv = $this->getPlatformEnv();
+        $tenantName = $this->getPlatformEnv();
         if ($this->debug()) {
-            $this->logger->info('platform env:'.$platformEnv);
+            $this->logger->info('platform env:'.$tenantName);
         }
-        $scriptUrl= "//cdn.divido.com/widget/v3/" . $platformEnv . ".calculator.js";
+
+        // Get environment part of script url
+        $environmentName = $this->getEnvironment($apiKey);
+        if ($this->debug()) {
+            $this->logger->info('Environment: ' . $environmentName);
+        }
+
+        // Namespace for script, each item in the array will be added with a dot (".") between them
+        $namespaceParts = [];
+
+        // Adding tenant name to namespace
+        $namespaceParts[] = $tenantName;
+
+        // If anything but production
+        if($environmentName !== Environment::PRODUCTION){
+            // Adding environment to namespace
+            $namespaceParts[] = $environmentName;
+        }
+
+        // Render script URL
+        $scriptUrl= sprintf(
+            '//cdn.divido.com/widget/v3/%s.calculator.js',
+            implode('.', $namespaceParts)
+        );
+
         if ($this->debug()) {
             $this->logger->info('Url:'.$scriptUrl);
         }
+
         return (string) $scriptUrl;
     }
 
