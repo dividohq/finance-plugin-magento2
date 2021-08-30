@@ -10,10 +10,12 @@ use Magento\Catalog\Model\ProductFactory;
 use Magento\Framework\Exception\RuntimeException;
 use Magento\Framework\Phrase;
 use Magento\Framework\UrlInterface;
+use Divido\DividoFinancing\Helper\EndpointHealthCheckTrait;
 use Throwable;
 
 class Data extends \Magento\Framework\App\Helper\AbstractHelper
 {
+    use EndpointHealthCheckTrait;
 
     const CACHE_DIVIDO_TAG   = 'divido_cache';
     const CACHE_PLANS_KEY    = 'divido_plans';
@@ -91,6 +93,18 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             $this->logger->error($e->getMessage());
             return false;
         }
+    }
+
+    /**
+     * @param $apiKey
+     * @return bool
+     * @throws \Divido\MerchantSDK\Exceptions\InvalidApiKeyFormatException
+     */
+    public function validateApiKeyFormat($apiKey = false): bool
+    {
+        $apiKey = (false === $apiKey) ? $this->getApiKey() : $apiKey;
+
+        return Environment::validateApiKeyFormat($apiKey);
     }
 
     /**
@@ -1154,5 +1168,4 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $signature = base64_encode($hmac);
         return $signature;
     }
-
 }
