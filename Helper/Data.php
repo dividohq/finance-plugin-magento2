@@ -2,7 +2,7 @@
 
 namespace Divido\DividoFinancing\Helper;
 
-use \Divido\DividoFinancing\Model\LookupFactory;
+use Divido\DividoFinancing\Model\LookupFactory;
 use Divido\MerchantSDK\Environment;
 use Divido\MerchantSDK\Exceptions\InvalidApiKeyFormatException;
 use Divido\MerchantSDK\Exceptions\InvalidEnvironmentException;
@@ -10,8 +10,6 @@ use Magento\Catalog\Model\ProductFactory;
 use Magento\Framework\Exception\RuntimeException;
 use Magento\Framework\Phrase;
 use Magento\Framework\UrlInterface;
-use Divido\DividoFinancing\Helper\EndpointHealthCheckTrait;
-use Throwable;
 
 class Data extends \Magento\Framework\App\Helper\AbstractHelper
 {
@@ -114,8 +112,16 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
      */
     public function getPlatformEnv()
     {
+        $environmentURl = $this->getEnvironmentUrl();
 
-        if ($env = $this->cache->load(self::CACHE_PLATFORM_KEY)) {
+        // Unique cache key for environment url with the hashed environment_url as key
+        $cacheKey = sprintf(
+            '%s_%s',
+            self::CACHE_PLATFORM_KEY,
+            md5($environmentURl)
+        );
+
+        if ($env = $this->cache->load($cacheKey)) {
             return $env;
         } else {
             $sdk      = $this->getSdk();
@@ -125,8 +131,11 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             if ($this->debug()) {
                 $this->logger->info('getPlatformEnv:'.serialize($decoded));
             }
+
+            $environment = $decoded->data->environment;
+
             $this->cache->save(
-                $decoded->data->environment,
+                $environment,
                 self::CACHE_PLATFORM_KEY,
                 [self::CACHE_DIVIDO_TAG],
                 self::CACHE_PLATFORM_TTL

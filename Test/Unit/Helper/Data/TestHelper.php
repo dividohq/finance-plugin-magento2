@@ -15,6 +15,7 @@ class TestHelper extends TestCase
 
     protected $scopeConfig;
     protected $logger;
+    protected $cache;
 
     protected function setUp(): void
     {
@@ -22,11 +23,12 @@ class TestHelper extends TestCase
 
         $this->scopeConfig = $this->createMock(\Magento\Framework\App\Config\ScopeConfigInterface::class);
         $this->logger = $this->createMock(\Divido\DividoFinancing\Logger\Logger::class);
+        $this->cache = $this->createMock(\Magento\Framework\App\CacheInterface::class);
 
         $this->dataInstance = new Data(
             $this->scopeConfig,
             $this->logger,
-            $this->createMock(\Magento\Framework\App\CacheInterface::class),
+            $this->cache,
             $this->createMock(\Magento\Checkout\Model\Cart::class),
             $this->createMock(\Magento\Store\Model\StoreManagerInterface::class),
             $this->createMock(\Magento\Framework\App\ResourceConnection::class),
