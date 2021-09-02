@@ -114,8 +114,16 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
      */
     public function getPlatformEnv()
     {
+        $environmentURl = $this->getEnvironmentUrl();
 
-        if ($env = $this->cache->load(self::CACHE_PLATFORM_KEY)) {
+        // Unique cache key for environment url with the hashed environment_url as key
+        $environmentNameCacheKey = sprintf(
+            '%s_%s',
+            self::CACHE_PLATFORM_KEY,
+            md5($environmentURl)
+        );
+
+        if ($env = $this->cache->load($environmentNameCacheKey)) {
             return $env;
         } else {
             $sdk      = $this->getSdk();
@@ -125,9 +133,12 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             if ($this->debug()) {
                 $this->logger->info('getPlatformEnv:'.serialize($decoded));
             }
+
+            $environment = $decoded->data->environment;
+
             $this->cache->save(
-                $decoded->data->environment,
-                self::CACHE_PLATFORM_KEY,
+                $environment,
+                $environmentNameCacheKey,
                 [self::CACHE_DIVIDO_TAG],
                 self::CACHE_PLATFORM_TTL
             );
