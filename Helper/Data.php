@@ -10,6 +10,7 @@ use Magento\Catalog\Model\ProductFactory;
 use Magento\Framework\Exception\RuntimeException;
 use Magento\Framework\Phrase;
 use Magento\Framework\UrlInterface;
+use Divido\DividoFinancing\Helper\EndpointHealthCheckTrait;
 use Throwable;
 
 class Data extends \Magento\Framework\App\Helper\AbstractHelper
