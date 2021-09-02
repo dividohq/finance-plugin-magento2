@@ -117,13 +117,13 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $environmentURl = $this->getEnvironmentUrl();
 
         // Unique cache key for environment url with the hashed environment_url as key
-        $cacheKey = sprintf(
+        $environmentNameCacheKey = sprintf(
             '%s_%s',
             self::CACHE_PLATFORM_KEY,
             md5($environmentURl)
         );
 
-        if ($env = $this->cache->load($cacheKey)) {
+        if ($env = $this->cache->load($environmentNameCacheKey)) {
             return $env;
         } else {
             $sdk      = $this->getSdk();
@@ -138,7 +138,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 
             $this->cache->save(
                 $environment,
-                self::CACHE_PLATFORM_KEY,
+                $environmentNameCacheKey,
                 [self::CACHE_DIVIDO_TAG],
                 self::CACHE_PLATFORM_TTL
             );
