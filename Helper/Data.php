@@ -264,9 +264,9 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $cacheKey = $this->getPlansCacheKey($apiKey);
 
         if ($plans = $this->cache->load($cacheKey)) {
-            if ($this->debug()){
-                   $this->logger->info('Cached Plans Key:'. $cacheKey);
-               }
+            if ($this->debug()) {
+                $this->logger->info('Cached Plans Key:' . $cacheKey);
+            }
             $plans = unserialize($plans);
             return $plans;
         }
