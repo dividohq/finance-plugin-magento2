@@ -228,21 +228,45 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         return $active;
     }
 
+    /**
+     * @param $apiKey
+     * @return string
+     */
+    private function getPlansCacheKey($apiKey)
+    {
+        // Try to get environment URL as part of the cache key
+        try {
+            $environmentUrl = $this->getEnvironmentUrl($apiKey);
+        } catch (RuntimeException $e) {
+            // If there is a problem getting the environment url, skip it.
+            $environmentUrl = '';
+        }
+
+        return sprintf(
+            '%s_%s',
+            self::CACHE_PLANS_KEY,
+            md5($apiKey . $environmentUrl)
+        );
+    }
+
     public function getAllPlans()
     {
         $apiKey = $this->config->getValue(
             'payment/divido_financing/api_key',
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         );
+
         if (empty($apiKey)) {
             $this->cleanCache();
             return [];
         }
 
-        if ($plans = $this->cache->load(self::CACHE_PLANS_KEY)) {
-            if ($this->debug()){
-                   $this->logger->info('Cached Plans Key:'.self::CACHE_PLANS_KEY);
-               }
+        $cacheKey = $this->getPlansCacheKey($apiKey);
+
+        if ($plans = $this->cache->load($cacheKey)) {
+            if ($this->debug()) {
+                $this->logger->info('Cached Plans Key:' . $cacheKey);
+            }
             $plans = unserialize($plans);
             return $plans;
         }
@@ -259,7 +283,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 
         $this->cache->save(
             serialize($plans),
-            self::CACHE_PLANS_KEY,
+            $cacheKey,
             [self::CACHE_DIVIDO_TAG],
             self::CACHE_PLANS_TTL
         );
