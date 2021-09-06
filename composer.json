@@ -13,7 +13,7 @@
         }
     },
     "require": {
-        "divido/merchant-sdk": "^2.4.0",
+        "divido/merchant-sdk": "^2.4.1",
         "divido/merchant-sdk-guzzle-6": "^1.1"
         },
     "require-dev": {
