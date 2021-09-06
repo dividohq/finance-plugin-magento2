@@ -5,7 +5,7 @@ namespace Divido\DividoFinancing\Test\Unit\Observer;
 use Divido\DividoFinancing\Helper\Data;
 use Divido\DividoFinancing\Observer\ConfigChangeObserver;
 use Divido\MerchantSDK\Client;
-use Magento\Framework\App\Config\ScopeConfigInterface;
+use Divido\MerchantSDK\Exceptions\InvalidApiKeyFormatException;
 use Magento\Framework\Event;
 use Magento\Framework\Exception\RuntimeException;
 use Magento\Framework\Message\ManagerInterface;
@@ -191,7 +191,7 @@ class ConfigChangeObserverTest extends TestCase
             $mockedMessageManager->expects($this->once())
                 ->method('addErrorMessage')
                 ->with($expectedErrorMessage);
-        }else{
+        } else {
             $mockedMessageManager->expects($this->never())
                 ->method('addErrorMessage');
         }
@@ -200,7 +200,7 @@ class ConfigChangeObserverTest extends TestCase
             $mockedMessageManager->expects($this->once())
                 ->method('addSuccessMessage')
                 ->with($expectedSuccessMessage);
-        }else{
+        } else {
             $mockedMessageManager->expects($this->never())
                 ->method('addSuccessMessage');
         }
@@ -289,5 +289,55 @@ class ConfigChangeObserverTest extends TestCase
         $configChangeObserver->execute(
             $observer
         );
+    }
+
+    public function test_errorMessageGeneratedInExceptionShouldBeAddedToMessageManager(): void
+    {
+        $mockedDataInstance = $this->createMock(Data::class);
+        $mockedMessageManager = $this->createMock(ManagerInterface::class);
+
+        $configChangeObserver = new ConfigChangeObserver(
+            $mockedDataInstance,
+            $mockedMessageManager
+        );
+
+        $errorMessage = uniqid('message_');
+
+        $mockedDataInstance->expects($this->once())
+            ->method('validateApiKeyFormat')
+            ->willThrowException(
+                new InvalidApiKeyFormatException($errorMessage)
+            );
+
+        // Health check is OK
+        $mockedDataInstance->expects($this->once())
+            ->method('getEndpointHealthCheckResult')
+            ->willReturn(true);
+
+
+        $observer = $this->createMock(\Magento\Framework\Event\Observer::class);
+
+        $event = new Event(
+            [
+                'changed_paths' => [
+                    ConfigChangeObserver::CONFIG_XPATH_API_KEY,
+                    uniqid('bar_'),
+
+                ]
+            ]
+        );
+
+        $observer->expects($this->once())
+            ->method('getEvent')
+            ->willReturn($event);
+
+
+        // Check that the correct error message is added to message manager
+        $mockedMessageManager->expects($this->once())
+            ->method('addErrorMessage')
+            ->with($errorMessage);
+
+        // Execute
+        $configChangeObserver->execute($observer);
     }
 }

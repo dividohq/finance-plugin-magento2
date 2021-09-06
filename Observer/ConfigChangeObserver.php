@@ -33,6 +33,8 @@ class ConfigChangeObserver implements ObserverInterface
 
     /**
      * Does a health check against the merchant-api-pub endpoint
+     *
+     * @return bool
      */
     private function environmentHealthCheck(): bool
     {
@@ -58,9 +60,11 @@ class ConfigChangeObserver implements ObserverInterface
         return true;
     }
 
+    /**
+     * Validates format of API Key
+     */
     private function validateApiKeyFormat()
     {
-        // Get result of health check
         try{
             $apiKeyIsValid = $this->dataHelper->validateApiKeyFormat();
         }catch (InvalidApiKeyFormatException $e){
