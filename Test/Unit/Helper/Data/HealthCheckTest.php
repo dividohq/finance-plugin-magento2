@@ -56,4 +56,32 @@ class HealthCheckTest extends TestHelper
             $data->getEndpointHealthCheckResult($mockedSdk)
         );
     }
+
+
+    public function test_shouldReturnFalseIfDataRetunedFromCheckHealthDoesNotContainHealtyProperty(): void
+    {
+        $data = $this->dataInstance;
+
+        $mockedSdk = $this->createMock(Client::class);
+
+        $handler = $this->createMock(Handler::class);
+
+        $handler->expects($this->once())
+            ->method('checkHealth')
+            ->willReturn(
+                [
+                    'foo' => uniqid()
+                ]
+            );
+
+        $mockedSdk->expects($this->once())
+            ->method('health')
+            ->willReturn(
+                $handler
+            );
+
+        self::assertFalse(
+            $data->getEndpointHealthCheckResult($mockedSdk)
+        );
+    }
 }
