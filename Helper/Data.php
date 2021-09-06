@@ -10,10 +10,12 @@ use Magento\Catalog\Model\ProductFactory;
 use Magento\Framework\Exception\RuntimeException;
 use Magento\Framework\Phrase;
 use Magento\Framework\UrlInterface;
+use Divido\DividoFinancing\Helper\EndpointHealthCheckTrait;
 use Throwable;
 
 class Data extends \Magento\Framework\App\Helper\AbstractHelper
 {
+    use EndpointHealthCheckTrait;
 
     const CACHE_DIVIDO_TAG   = 'divido_cache';
     const CACHE_PLANS_KEY    = 'divido_plans';
@@ -94,14 +96,34 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     }
 
     /**
+     * @param $apiKey
+     * @return bool
+     * @throws \Divido\MerchantSDK\Exceptions\InvalidApiKeyFormatException
+     */
+    public function validateApiKeyFormat($apiKey = false): bool
+    {
+        $apiKey = (false === $apiKey) ? $this->getApiKey() : $apiKey;
+
+        return Environment::validateApiKeyFormat($apiKey);
+    }
+
+    /**
      * Get Finance Platform Environment function
      *
      *  @param [string] $api_key - The platform API key.
      */
     public function getPlatformEnv()
     {
+        $environmentURl = $this->getEnvironmentUrl();
 
-        if ($env = $this->cache->load(self::CACHE_PLATFORM_KEY)) {
+        // Unique cache key for environment url with the hashed environment_url as key
+        $environmentNameCacheKey = sprintf(
+            '%s_%s',
+            self::CACHE_PLATFORM_KEY,
+            md5($environmentURl)
+        );
+
+        if ($env = $this->cache->load($environmentNameCacheKey)) {
             return $env;
         } else {
             $sdk      = $this->getSdk();
@@ -111,9 +133,12 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             if ($this->debug()) {
                 $this->logger->info('getPlatformEnv:'.serialize($decoded));
             }
+
+            $environment = $decoded->data->environment;
+
             $this->cache->save(
-                $decoded->data->environment,
-                self::CACHE_PLATFORM_KEY,
+                $environment,
+                $environmentNameCacheKey,
                 [self::CACHE_DIVIDO_TAG],
                 self::CACHE_PLATFORM_TTL
             );
@@ -203,21 +228,45 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         return $active;
     }
 
+    /**
+     * @param $apiKey
+     * @return string
+     */
+    private function getPlansCacheKey($apiKey)
+    {
+        // Try to get environment URL as part of the cache key
+        try {
+            $environmentUrl = $this->getEnvironmentUrl($apiKey);
+        } catch (RuntimeException $e) {
+            // If there is a problem getting the environment url, skip it.
+            $environmentUrl = '';
+        }
+
+        return sprintf(
+            '%s_%s',
+            self::CACHE_PLANS_KEY,
+            md5($apiKey . $environmentUrl)
+        );
+    }
+
     public function getAllPlans()
     {
         $apiKey = $this->config->getValue(
             'payment/divido_financing/api_key',
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         );
+
         if (empty($apiKey)) {
             $this->cleanCache();
             return [];
         }
 
-        if ($plans = $this->cache->load(self::CACHE_PLANS_KEY)) {
-            if ($this->debug()){
-                   $this->logger->info('Cached Plans Key:'.self::CACHE_PLANS_KEY);
-               }
+        $cacheKey = $this->getPlansCacheKey($apiKey);
+
+        if ($plans = $this->cache->load($cacheKey)) {
+            if ($this->debug()) {
+                $this->logger->info('Cached Plans Key:' . $cacheKey);
+            }
             $plans = unserialize($plans);
             return $plans;
         }
@@ -234,7 +283,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 
         $this->cache->save(
             serialize($plans),
-            self::CACHE_PLANS_KEY,
+            $cacheKey,
             [self::CACHE_DIVIDO_TAG],
             self::CACHE_PLANS_TTL
         );
@@ -703,7 +752,11 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             return $jsKey;
     }
 
-    public function getScriptUrl()
+    /**
+     * Returns the url to calculator JavaScript file
+     * @return string
+     */
+    public function getScriptUrl(): string
     {
         if ($this->debug()) {
             $this->logger->info('GetScript URL HElper');
@@ -715,14 +768,39 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             return $scriptUrl;
         }
 
-        $platformEnv = $this->getPlatformEnv();
+        $tenantName = $this->getPlatformEnv();
         if ($this->debug()) {
-            $this->logger->info('platform env:'.$platformEnv);
+            $this->logger->info('platform env:'.$tenantName);
         }
-        $scriptUrl= "//cdn.divido.com/widget/v3/" . $platformEnv . ".calculator.js";
+
+        // Get environment part of script url
+        $environmentName = $this->getEnvironment($apiKey);
+        if ($this->debug()) {
+            $this->logger->info('Environment: ' . $environmentName);
+        }
+
+        // Namespace for script, each item in the array will be added with a dot (".") between them
+        $namespaceParts = [];
+
+        // Adding tenant name to namespace
+        $namespaceParts[] = $tenantName;
+
+        // If anything but production
+        if($environmentName !== Environment::PRODUCTION){
+            // Adding environment to namespace
+            $namespaceParts[] = $environmentName;
+        }
+
+        // Render script URL
+        $scriptUrl= sprintf(
+            '//cdn.divido.com/widget/v3/%s.calculator.js',
+            implode('.', $namespaceParts)
+        );
+
         if ($this->debug()) {
             $this->logger->info('Url:'.$scriptUrl);
         }
+
         return (string) $scriptUrl;
     }
 
@@ -1125,5 +1203,4 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $signature = base64_encode($hmac);
         return $signature;
     }
-
 }
