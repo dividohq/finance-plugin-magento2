@@ -16,7 +16,7 @@ class LanguagesTest extends TestHelper
         $expectedLanguages = ["en", "fi" , "no", "es", "da", "fr", "de", "pe"];
 
         self::assertEquals(
-            sizeof($this->dataInstance::WIDGET_LANGUAGES),
+            sizeof(array_unique($this->dataInstance::WIDGET_LANGUAGES)),
             sizeof($expectedLanguages)
         );
 
