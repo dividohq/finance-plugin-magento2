@@ -42,19 +42,10 @@ class EnvironmentTest extends TestHelper
     ): void {
         $this->scopeConfig->expects($this->any())
             ->method('getValue')
-            ->withConsecutive(
-                [
-                    'payment/divido_financing/api_key',
-                ],
-                [
-                    'payment/divido_financing/debug',
-                ]
-            )->willReturnOnConsecutiveCalls(
+            ->with('payment/divido_financing/api_key')
+            ->willReturn(
                 // The mocked (fake) API key.
-                $apiKey,
-
-                // Debug set to false.
-                false
+                $apiKey
             );
 
         // Check that the URL is what we expect
@@ -68,19 +59,10 @@ class EnvironmentTest extends TestHelper
     {
         $this->scopeConfig->expects($this->any())
             ->method('getValue')
-            ->withConsecutive(
-                [
-                    'payment/divido_financing/api_key',
-                ],
-                [
-                    'payment/divido_financing/debug',
-                ]
-            )->willReturnOnConsecutiveCalls(
+            ->with('payment/divido_financing/api_key')
+            ->willReturn(
                 // The mocked (fake) API key.
-                uniqid('jibberjabbberdoesnotexistaskey_'),
-
-                // Debug set to false.
-                false
+                uniqid('jibberjabbberdoesnotexistaskey_')
             );
 
         self::assertFalse($this->dataInstance->getEnvironment());

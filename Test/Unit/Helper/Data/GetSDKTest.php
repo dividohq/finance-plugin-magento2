@@ -17,20 +17,11 @@ class GetSDKTest extends TestHelper
                     'payment/divido_financing/api_key',
                 ],
                 [
-                    'payment/divido_financing/debug',
-                ],
-                [
-                    'payment/divido_financing/debug',
-                ],
-                [
                     'payment/divido_financing/environment_url',
                 ]
             )->willReturnOnConsecutiveCalls(
                 // The mocked (fake) API key.
                 uniqid($environmentName . '_'),
-
-                // Debug set to false
-                false, false, false,
 
                 // Environment URL is empty.
                 ''

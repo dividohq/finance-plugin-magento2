@@ -36,19 +36,13 @@ class EnvironmentUrlTest extends TestHelper
                 ],
                 [
                     'payment/divido_financing/api_key',
-                ],
-                [
-                    'payment/divido_financing/debug',
                 ]
             )->willReturnOnConsecutiveCalls(
                 // Environment URL is empty.
                 '',
 
                 // The mocked (fake) API key.
-                $apiKey,
-
-                // Debug set to false.
-                false
+                $apiKey
             );
 
         // Check that the URL is what we expect
@@ -89,19 +83,13 @@ class EnvironmentUrlTest extends TestHelper
                 ],
                 [
                     'payment/divido_financing/api_key',
-                ],
-                [
-                    'payment/divido_financing/debug',
                 ]
             )->willReturnOnConsecutiveCalls(
             // Environment URL is empty.
                 '',
 
                 // The mocked (fake) API key.
-                uniqid('jibberjabbberdoesnotexistaskey_'),
-
-                // Debug set to false.
-                false
+                uniqid('jibberjabbberdoesnotexistaskey_')
             );
 
         self::assertSame(
