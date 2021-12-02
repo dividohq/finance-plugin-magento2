@@ -5,27 +5,31 @@ class Logger extends \Monolog\Logger
 {
     const NAMESPACE = "PoweredByDivido";
     
-    public function info(string $message){
+    public function info(string $message, array $context = []){
 
         $newMessage = self::NAMESPACE.": {$message}";
-        return parent::info($newMessage);
+        $context[] = self::NAMESPACE;
+        return parent::info($newMessage, $context);
     }
 
-    public function error(string $message){
+    public function error(string $message, array $context = []){
 
         $newMessage = self::NAMESPACE.": {$message}";
-        return parent::error($newMessage);
+        $context[] = self::NAMESPACE;
+        return parent::error($newMessage, $context);
     }
 
-    public function debug(string $message){
+    public function debug(string $message, array $context = []){
 
         $newMessage = self::NAMESPACE.": {$message}";
-        return parent::debug($newMessage);
+        $context[] = self::NAMESPACE;
+        return parent::debug($newMessage, $context);
     }
 
-    public function warning(string $message){
+    public function warning(string $message, array $context = []){
 
         $newMessage = self::NAMESPACE.": {$message}";
-        return parent::warning($newMessage);
+        $context[] = self::NAMESPACE;
+        return parent::warning($newMessage, $context);
     }
 }
