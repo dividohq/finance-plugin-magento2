@@ -141,9 +141,8 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             $response = $sdk->platformEnvironments()->getPlatformEnvironment();
             $finance_env = $response->getBody()->getContents();
             $decoded = json_decode($finance_env);
-            if ($this->debug()) {
-                $this->logger->info('getPlatformEnv:'.serialize($decoded));
-            }
+            
+            $this->logger->info('getPlatformEnv:'.serialize($decoded));
 
             $environment = $decoded->data->environment;
 
@@ -165,21 +164,15 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     public function getSdk(): \Divido\MerchantSDK\Client
     {
         $apiKey = $this->getApiKey();
-        if ($this->debug()) {
-            $this->logger->info('Get SDK');
-        }
+        $this->logger->info('Get SDK');
 
         // Getting environment depending on how apiKey looks
         $env = $this->getEnvironment($apiKey);
-        if ($this->debug()) {
-            $this->logger->info('Get SDK'.$env);
-        }
+        $this->logger->info('Get SDK'.$env);
 
         // Get environment URL from config or calculate one from apikey
         $environmentUrl = $this->getEnvironmentUrl($apiKey);
-        if ($this->debug()) {
-            $this->logger->info('Environment URL ' . $environmentUrl);
-        }
+        $this->logger->info('Environment URL ' . $environmentUrl);
 
         // Create what is needed to create and return a MerchantSDK Client
         $client = new \GuzzleHttp\Client();
@@ -275,9 +268,8 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $cacheKey = $this->getPlansCacheKey($apiKey);
 
         if ($plans = $this->cache->load($cacheKey)) {
-            if ($this->debug()) {
-                $this->logger->info('Cached Plans Key:' . $cacheKey);
-            }
+            $this->logger->info('Cached Plans Key:' . $cacheKey);
+            
             $plans = unserialize($plans);
             return $plans;
         }
@@ -565,11 +557,10 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $application_response_body = $response->getBody()->getContents();
 
         $decode = json_decode($application_response_body);
-        if ($this->debug()){
-            $debug = $decode->data;
-            unset($debug->applicants);
-            $this->logger->info("Application Payload: ".serialize($debug));
-        }
+        $debug = $decode->data;
+        unset($debug->applicants);
+        $this->logger->info("Application Payload: ".serialize($debug));
+        
         $result_id = $decode->data->id;
         $result_redirect = $decode->data->urls->application_url;
         if ($response) {
@@ -660,9 +651,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 
         // If we could not find the current env from api key, throw an error
         if (empty($env)) {
-            if ($this->debug()) {
-                $this->logger->info('Could not find environment');
-            }
+            $this->logger->info('Could not find environment');
 
             throw new RuntimeException(
                 new Phrase('Could not find environment from api key')
@@ -671,9 +660,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 
         // If env does not exists in the configuration, throw error
         if (!array_key_exists($env, \Divido\MerchantSDK\Environment::CONFIGURATION)) {
-            if ($this->debug()) {
-                $this->logger->info('Could not determine configuration for DividoFinancing, environment: ' . $env);
-            }
+            $this->logger->info('Could not determine configuration for DividoFinancing, environment: ' . $env);
 
             throw new RuntimeException(
                 new Phrase('Could not find environment configuration')
@@ -709,9 +696,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         try{
             $merchantSdkEnvironmentConfiguration = $this->getMerchantSdkEnvironmentConfiguration($apiKey);
         }catch (RuntimeException $e){
-            if ($this->debug()) {
-                $this->logger->info($e->getMessage());
-            }
+            $this->logger->info($e->getMessage());
 
             // We might not be able to get the configuration from the API key, if the API key is missing etc.
             // In that case we do not want to throw and error, we just want to return an empty string that the UI can use
@@ -721,9 +706,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 
         // If the environment url is not valid
         if (!array_key_exists('base_uri', $merchantSdkEnvironmentConfiguration)) {
-            if ($this->debug()) {
-                $this->logger->info('Could not find base_uri in configuration');
-            }
+            $this->logger->info('Could not find base_uri in configuration');
 
             throw new RuntimeException(
                 new Phrase('Could not find base_uri in configuration')
@@ -735,9 +718,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 
         // If the environment url is not valid
         if (!is_string($environmentUrl) || empty($environmentUrl)) {
-            if ($this->debug()) {
-                $this->logger->info('Error while trying to determine Environment URL for DividoFinancing');
-            }
+            $this->logger->info('Error while trying to determine Environment URL for DividoFinancing');
 
             throw new RuntimeException(
                 new Phrase('Could not determine URL for DividoFinancing')
@@ -769,9 +750,8 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
      */
     public function getScriptUrl(): string
     {
-        if ($this->debug()) {
-            $this->logger->info('GetScript URL HElper');
-        }
+        $this->logger->info('GetScript URL HElper');
+        
         $apiKey = $this->getApiKey();
         $scriptUrl= "//cdn.divido.com/widget/v3/divido.calculator.js";
 
@@ -780,15 +760,11 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         }
 
         $tenantName = $this->getPlatformEnv();
-        if ($this->debug()) {
-            $this->logger->info('platform env:'.$tenantName);
-        }
+        $this->logger->info('platform env:'.$tenantName);
 
         // Get environment part of script url
         $environmentName = $this->getEnvironment($apiKey);
-        if ($this->debug()) {
-            $this->logger->info('Environment: ' . $environmentName);
-        }
+        $this->logger->info('Environment: ' . $environmentName);
 
         // Namespace for script, each item in the array will be added with a dot (".") between them
         $namespaceParts = [];
@@ -808,9 +784,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             implode('.', $namespaceParts)
         );
 
-        if ($this->debug()) {
-            $this->logger->info('Url:'.$scriptUrl);
-        }
+        $this->logger->info('Url:'.$scriptUrl);
 
         return (string) $scriptUrl;
     }
@@ -1110,15 +1084,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $activation_response_body = $response->getBody()->getContents();
     }
 
-    public function debug()
-    {
-        $debug = $this->config->getValue(
-            'payment/divido_financing/debug',
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-        );
-        return $debug;
-    }
-
     public function getDescription()
     {
             return $this->config->getValue(
@@ -1192,9 +1157,8 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         }
 
         $locale = $this->localeResolver->getLocale();
-        if($this->debug()){
-            $this->logger->info("Locale: {$locale}");
-        }
+        $this->logger->info("Locale: {$locale}");
+        
         list($code, $_)  = explode("_", $locale);
         if(!array_key_exists($code, self::WIDGET_LANGUAGES)){
             return null;

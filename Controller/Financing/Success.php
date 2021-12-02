@@ -53,10 +53,6 @@ class Success extends \Magento\Framework\App\Action\Action implements CsrfAwareA
     public function execute()
     {
         $this->logger->info('SuccessController Start');
-        $debug = $this->config->getValue(
-            'payment/divido_financing/debug',
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-        );
 
         $quoteId = $this->getRequest()->getParam('quote_id');
         $order   = $this->order->loadByAttribute('quote_id', $quoteId);
@@ -75,12 +71,10 @@ class Success extends \Magento\Framework\App\Action\Action implements CsrfAwareA
             }
         }
 
-        if($debug){
-            $this->logger->info('SuccessController');
-            $this->logger->info('quoteId:'.$quoteId);
-            $this->logger->info('orderId:'.$order->getId());
-            $this->logger->info('Sleep Timeout:'.$this->getTimeout());
-        }
+        $this->logger->info('SuccessController');
+        $this->logger->info('quoteId:'.$quoteId);
+        $this->logger->info('orderId:'.$order->getId());
+        $this->logger->info('Sleep Timeout:'.$this->getTimeout());
 
         $this->checkoutSession->setLastQuoteId($quoteId);
         $this->checkoutSession->setLastSuccessQuoteId($quoteId);

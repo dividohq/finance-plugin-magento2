@@ -118,34 +118,24 @@ class CreditRequest implements CreditRequestInterface
     {
         $this->logger->info('Application Update - CreditRequest');
 
-        $debug = $this->config->getValue(
-            'payment/divido_financing/debug',
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-        );
-
         $content = $this->req->getContent();
-        if ($debug) {
-            $this->logger->debug('Divido: Request: ' . $content);
-        }
+        $this->logger->debug('Divido: Request: ' . $content);
+        
         $data = json_decode($content);
 
         if ($data === null) {
-            if($debug){
-                $this->logger->error('Divido: Bad request, could not parse body: ' . $content);
-            }
+            $this->logger->error('Divido: Bad request, could not parse body: ' . $content);
+            
             return $this->webhookResponse(false, 'Invalid json');
         }
-        if($debug){
-            $this->logger->debug('Application Update Status:'.$data->status);
-        }
+        $this->logger->debug('Application Update Status:'.$data->status);
 
         $quoteId = $data->metadata->quote_id;
 
         $lookup = $this->lookupFactory->create()->load($quoteId, 'quote_id');
         if (! $lookup->getId()) {
-            if($debug){
-                $this->logger->error('Divido: Bad request, could not find lookup. Req: ' . $content);
-            }
+            $this->logger->error('Divido: Bad request, could not find lookup. Req: ' . $content);
+            
             return $this->webhookResponse(false, 'No lookup');
         }
 
@@ -179,9 +169,8 @@ class CreditRequest implements CreditRequestInterface
         }
 
         if (isset($data->application)) {
-            if ($debug) {
-                    $this->logger->debug('Divido: update application id');
-            }
+            $this->logger->debug('Divido: update application id');
+            
             $lookup->setData('application_id', $data->application);
             $lookup->save();
         }
@@ -209,9 +198,7 @@ class CreditRequest implements CreditRequestInterface
 
 
         if (in_array($data->status, $this->noGo)) {
-            if ($debug) {
-                $this->logger->debug('Divido: No go: ' . $data->status);
-            }
+            $this->logger->debug('Divido: No go: ' . $data->status);
 
             if ($data->status == self::STATUS_DECLINED) {
                 $lookup->setData('declined', 1);
@@ -254,18 +241,15 @@ class CreditRequest implements CreditRequestInterface
             && $data->status != $creationStatus
             && $data->status != self::STATUS_REFERRED
         ) {
-            if ($debug) {
-                $this->logger->debug('Divido: No order, not creation status: ' . $data->status);
-            }
+            $this->logger->debug('Divido: No order, not creation status: ' . $data->status);
+            
             return $this->webhookResponse();
         }
         $this->logger->info('Application Update ----- test' );
         if (! $isOrderExists && ($data->status == $creationStatus)) {
 
             $this->logger->info('order does not exist' );
-            if ($debug) {
-                $this->logger->debug('Divido: Create order');
-            }
+            $this->logger->debug('Divido: Create order');
 
             $quote = $this->quote->loadActive($quoteId);
             if (! $quote->getCustomerId()) {
@@ -278,18 +262,15 @@ class CreditRequest implements CreditRequestInterface
             $grandTotal = (string) $totals['grand_total']->getValue();
             $iv=(string ) $lookup->getData('initial_cart_value');
 
-            if ($debug) {
-                $this->logger->debug('Current Cart Value : ' . $grandTotal);
-                $this->logger->debug('Divido Initial Value: ' . $iv);
-            }
+            $this->logger->debug('Current Cart Value : ' . $grandTotal);
+            $this->logger->debug('Divido Initial Value: ' . $iv);
 
             $orderId = $this->quoteManagement->placeOrder($quoteId);
             $order = $this->order->load($orderId);
 
             if ($grandTotal != $iv) {
-                if ($debug) {
-                    $this->logger->warning('HOLD Order - Cart value changed: ');
-                }
+                $this->logger->warning('HOLD Order - Cart value changed: ');
+                
                 // Highlight order for review
                 $lookup->setData('canceled', 1);
                 $lookup->save();
@@ -297,9 +278,8 @@ class CreditRequest implements CreditRequestInterface
                 $order->setActionFlag(\Magento\Sales\Model\Order::ACTION_FLAG_HOLD, true);
 
                 if ($order->canHold()) {
-                    if ($debug) {
-                        $this->logger->warning('HOLDING:');
-                    }
+                    $this->logger->warning('HOLDING:');
+                    
                     $order->hold();
                     $order->addStatusHistoryComment(__('Value of cart changed before completion - order on hold'));
                     $state = \Magento\Sales\Model\Order::STATE_HOLDED;
@@ -315,15 +295,12 @@ class CreditRequest implements CreditRequestInterface
                     $this->logger->info('Got away');
                     return $this->webhookResponse();
                 } else {
-                    if ($debug) {
-                        $this->logger->debug('Divido: Cannot Hold Order');
-                    };
+                    $this->logger->debug('Divido: Cannot Hold Order');
+                    
                     $order->addStatusHistoryComment(__('Value of cart changed before completion - cannot hold order'));
                 }
 
-                if ($debug) {
-                    $this->logger->warning('HOLD Order - Cart value changed: '.(string)$appId);
-                }
+                $this->logger->warning('HOLD Order - Cart value changed: '.(string)$appId);
             }
         }
         $this->logger->info('new order id'. $order->getId());
@@ -336,10 +313,6 @@ class CreditRequest implements CreditRequestInterface
 
         if ($data->status == self::STATUS_SIGNED) {
             $this->logger->info('Divido: Escalate order');
-
-            if ($debug) {
-                $this->logger->debug('Divido: Escalate order');
-            }
 
             $status = self::NEW_ORDER_STATUS;
             $status_override = $this->config->getValue(

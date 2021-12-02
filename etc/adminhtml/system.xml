@@ -115,10 +115,6 @@
                     </depends>
                 </field>
    
-                <field id="debug" translate="label" type="select" sortOrder="27" showInDefault="1" showInWebsite="1" showInStore="0">
-                    <label>Debug</label>
-                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                </field>
                <field id="timeout_delay" translate="label" type="text" sortOrder="28" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Wait for Order Delay</label>
                     <comment><![CDATA[For stores running on slower servers increase this delay to allow the order to be created]]></comment>
