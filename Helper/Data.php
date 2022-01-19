@@ -463,9 +463,11 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
                     'name'     => $item->getName(),
                     'quantity' => (int)$item->getQty(),
                     'price'    => round($item->getPriceInclTax() * 100),
+                    'sku'      => $item->getSku(),
                 ];
             }
         }
+        echo '<pre>';print_r($products);exit;
         $totals = $quote->getTotals();
         $grandTotal = $totals['grand_total']->getValue();
         $deposit = round($depositAmount);
@@ -476,6 +478,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
                 'name'     => 'Shipping & Handling',
                 'quantity' => (int) 1,
                 'price'    => (int) $shipping,
+                'sku'      => 'SHPNG',
             ];
         }
         $discount = $shipAddr->getDiscountAmount();
@@ -485,6 +488,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
                 'name'     => 'Discount',
                 'quantity' => (int) 1,
                 'price'    => (int) ($discount * 100),
+                'sku'      => 'DSCNT',
             ];
         }
         $quoteId   = $quote->getId();
