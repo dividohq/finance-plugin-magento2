@@ -27,6 +27,8 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     const CHECKOUT_PATH      = 'checkout/';
     const VERSION            = '2.5.0';
     const WIDGET_LANGUAGES   = ["en", "fi" , "no", "es", "da", "fr", "de", "pe"];
+    const SHIPPING           = 'SHPNG';
+    const DISCOUNT           = 'DSCNT';
 
     private $config;
     private $logger;
@@ -463,6 +465,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
                     'name'     => $item->getName(),
                     'quantity' => (int)$item->getQty(),
                     'price'    => round($item->getPriceInclTax() * 100),
+                    'sku'      => $item->getSku(),
                 ];
             }
         }
@@ -476,6 +479,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
                 'name'     => 'Shipping & Handling',
                 'quantity' => (int) 1,
                 'price'    => (int) $shipping,
+                'sku'      => self::SHIPPING,
             ];
         }
         $discount = $shipAddr->getDiscountAmount();
@@ -485,6 +489,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
                 'name'     => 'Discount',
                 'quantity' => (int) 1,
                 'price'    => (int) ($discount * 100),
+                'sku'      => self::DISCOUNT,
             ];
         }
         $quoteId   = $quote->getId();
