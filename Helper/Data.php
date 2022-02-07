@@ -467,7 +467,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
                 ];
             }
         }
-        echo '<pre>';print_r($products);exit;
         $totals = $quote->getTotals();
         $grandTotal = $totals['grand_total']->getValue();
         $deposit = round($depositAmount);
