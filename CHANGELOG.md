@@ -1,11 +1,14 @@
 # Changelog
 All notable changes to this project will now be documented in this file.
 
-## [2.5.1] - 2022-02-08
+## [2.5.2] - 2022-02-08
 - fix: the calculator is now being rendered correctly
 
-## [2.5.0] -
+## [2.5.1] - 2022-02-07
+- chore: added SKUs for the application
 
+## [2.5.0] - 2021-08-26
+- feat: get environment with sdk
 
 ## [2.4.5] - 2021-05-19
 - feat: adds terms and conditions link to checkout page
