@@ -16,7 +16,6 @@ class Widget extends \Magento\Catalog\Block\Product\AbstractProduct
         \Magento\Catalog\Block\Product\Context $context,
         array $data = []
     ) {
-
         $this->helper    = $helper;
         $this->catHelper = $context->getCatalogHelper();
 
