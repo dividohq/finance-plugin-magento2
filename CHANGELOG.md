@@ -1,12 +1,15 @@
 # Changelog
 All notable changes to this project will now be documented in this file.
 
-## [2.5.0] - 
+## [2.5.1] - 2022-02-08
+- fix: the calculator is now being rendered correctly
+
+## [2.5.0] -
 
 
 ## [2.4.5] - 2021-05-19
 - feat: adds terms and conditions link to checkout page
-- feat: shows payment method logo on checkout page
+- feat: shows payment method logo on checkout pageO
 
 ## [2.4.4] - 2021-04-29
 - fix: makes min/max calculation in pence
@@ -27,10 +30,10 @@ All notable changes to this project will now be documented in this file.
 - fix: Round discount to nearest cent/penny
 
 ## [2.3.1] - 2020-30-07
-- fix: Rewrites euro comma fix to remove any commas in the decimal position regardless of currency 
+- fix: Rewrites euro comma fix to remove any commas in the decimal position regardless of currency
 
 ## [2.3.0] - 2020-30-07
-- fix: Adds shared secret compatibility 
+- fix: Adds shared secret compatibility
 - change: Updates the Application with a merchant reference
 
 ## [2.2.0] - 2020-23-07
@@ -51,7 +54,7 @@ All notable changes to this project will now be documented in this file.
 - Tested against Magento 2.3.5-p1
 
 ## [2.0.7] - 2019-12-12
-- Removed unused variables from config 
+- Removed unused variables from config
 - Pass Address Postcode as sanity value
 - Widget Button Text
 - Widget Footer
@@ -83,7 +86,7 @@ Tested against magento 2.3.2 and 2.3.3
 
 ### Changed
 - Bugfix for configurable products widget updating on change
-- Bugfix for international 
+- Bugfix for international
 
 
 ## [2.0.1] - 2019-08-19
