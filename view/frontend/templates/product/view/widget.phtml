@@ -1,5 +1,5 @@
 <?php /* @var $block \Divido\DividoFinancing\Block\Product\View\Extra */?>
-<?php if($block->loadWidget()){ ?>
+<?php if($block->loadWidget() && $block->showWidget()){ ?>
   <div id='dividoWidget'
     data-calculator-widget
     data-plans="<?php echo $block->getProductPlans(); ?>"
