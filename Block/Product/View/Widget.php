@@ -16,6 +16,7 @@ class Widget extends \Magento\Catalog\Block\Product\AbstractProduct
         \Magento\Catalog\Block\Product\Context $context,
         array $data = []
     ) {
+
         $this->helper    = $helper;
         $this->catHelper = $context->getCatalogHelper();
 
@@ -50,7 +51,7 @@ class Widget extends \Magento\Catalog\Block\Product\AbstractProduct
     {
         return (is_null($this->helper->getWidgetLanguage()))
             ? ""
-            : 'data-language="'.$this->helper->getWidgetLanguage().'"';
+            : 'data-language="' . $this->helper->getWidgetLanguage() . '"';
     }
 
     public function getProductAmount()
@@ -88,14 +89,14 @@ class Widget extends \Magento\Catalog\Block\Product\AbstractProduct
             case self::SELECTED_PRODUCTS:
                 $product = $this->getProduct();
                 $plans = $this->helper->getLocalPlans($product->getId());
-                $threshold = (count($plans)>0) ? true : false;
+                $threshold = (count($plans) > 0) ? true : false;
                 break;
             case self::THRESHOLD_PRODUCTS:
                 $threshold = (empty($this->helper->getPriceThreshold())) ? 0 : (int)($this->helper->getPriceThreshold() * 100);
                 break;
         }
-        return $threshold;
 
+        return $threshold;
     }
 
     public function getButtonText()
