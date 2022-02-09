@@ -214,8 +214,11 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             'payment/divido_financing/price_threshold',
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         );
+        $options = [
+            'flags' => FILTER_FLAG_ALLOW_FRACTION
+        ];
 
-        return $threshold;
+        return filter_var($threshold, FILTER_SANITIZE_NUMBER_FLOAT, $options);
     }
 
     public function getActive()
