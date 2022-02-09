@@ -51,9 +51,8 @@ class Widget extends \Magento\Catalog\Block\Product\AbstractProduct
     {
         return (is_null($this->helper->getWidgetLanguage()))
             ? ""
-            : 'data-language="' . $this->helper->getWidgetLanguage() . '"';
+            : 'data-language="'.$this->helper->getWidgetLanguage().'"';
     }
-
     public function getProductAmount()
     {
         $product = $this->getProduct();
@@ -67,10 +66,14 @@ class Widget extends \Magento\Catalog\Block\Product\AbstractProduct
     {
         return $this->helper->getActive();
     }
-
+    /**
+     * Determine whether the widget should be shown, or not
+     * @return bool;
+     */
     public function showWidget()
     {
         $threshold = $this->getThreshold();
+        // Check if there is a threshold set and the cost of the current product is below that threshold
         if ($threshold === false || $this->getProductAmount() < $threshold) {
             return false;
         } else {
@@ -89,7 +92,7 @@ class Widget extends \Magento\Catalog\Block\Product\AbstractProduct
             case self::SELECTED_PRODUCTS:
                 $product = $this->getProduct();
                 $plans = $this->helper->getLocalPlans($product->getId());
-                $threshold = (count($plans) > 0) ? true : false;
+                $threshold = (count($plans)>0) ? true : false;
                 break;
             case self::THRESHOLD_PRODUCTS:
                 $threshold = (empty($this->helper->getPriceThreshold())) ? 0 : (int)($this->helper->getPriceThreshold() * 100);
