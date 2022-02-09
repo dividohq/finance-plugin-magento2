@@ -96,7 +96,6 @@ class Widget extends \Magento\Catalog\Block\Product\AbstractProduct
                 break;
             case self::THRESHOLD_PRODUCTS:
                 $threshold = (empty($this->helper->getPriceThreshold())) ? 0 : (int)($this->helper->getPriceThreshold() * 100);
-                var_dump($threshold);
                 break;
         }
 
