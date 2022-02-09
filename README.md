@@ -68,4 +68,4 @@ Please note that the Widgets will stretch to 100% of the width of its container,
 
 ## Dev Tips
 It might be a good idea to disable caching in the system configuration for development.
-1. In the admin left panel go to `SYSTEM -> Cache Management` and then click on the dropdown menu in the upper-left corner and pick `Disable`, then select everything and click `Submit`
+1. In the admin left panel go to `SYSTEM -> Cache Management` and then click on the dropdown menu in the upper-left corner and pick `Disable`, then select `Page Cache` and click `Submit`
