@@ -218,7 +218,11 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             'flags' => FILTER_FLAG_ALLOW_FRACTION
         ];
 
-        return filter_var($threshold, FILTER_SANITIZE_NUMBER_FLOAT, $options);
+        return filter_var(
+            str_replace(',', '.', strval($threshold)),
+            FILTER_SANITIZE_NUMBER_FLOAT,
+            $options
+        );
     }
 
     public function getActive()
