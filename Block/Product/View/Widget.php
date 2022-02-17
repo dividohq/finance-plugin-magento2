@@ -16,7 +16,7 @@ class Widget extends \Magento\Catalog\Block\Product\AbstractProduct
         \Magento\Catalog\Block\Product\Context $context,
         array $data = []
     ) {
-    
+
         $this->helper    = $helper;
         $this->catHelper = $context->getCatalogHelper();
 
@@ -49,11 +49,10 @@ class Widget extends \Magento\Catalog\Block\Product\AbstractProduct
 
     public function getLanguageOverride()
     {
-        return (is_null($this->helper->getWidgetLanguage())) 
-            ? "" 
+        return (is_null($this->helper->getWidgetLanguage()))
+            ? ""
             : 'data-language="'.$this->helper->getWidgetLanguage().'"';
     }
-
     public function getProductAmount()
     {
         $product = $this->getProduct();
@@ -67,21 +66,25 @@ class Widget extends \Magento\Catalog\Block\Product\AbstractProduct
     {
         return $this->helper->getActive();
     }
-    
+    /**
+     * Determine whether the widget should be shown, or not
+     * @return bool;
+     */
     public function showWidget()
     {
         $threshold = $this->getThreshold();
-        if ($threshold === false || $this->getAmount() < $threshold) {
+        // Check if there is a threshold set and the cost of the current product is below that threshold
+        if ($threshold === false || $this->getProductAmount() < $threshold) {
             return false;
         } else {
             return true;
         }
     }
-    
+
     public function getThreshold()
     {
         $selection = $this->helper->getProductSelection();
-        
+
         switch ($selection) {
             case self::ALL_PRODUCTS:
                 $threshold = 0;
@@ -92,13 +95,13 @@ class Widget extends \Magento\Catalog\Block\Product\AbstractProduct
                 $threshold = (count($plans)>0) ? true : false;
                 break;
             case self::THRESHOLD_PRODUCTS:
-                $threshold = (empty($this->helper->getPriceThreshold())) ? 0 : $this->helper->getPriceThreshold();
+                $threshold = (empty($this->helper->getPriceThreshold())) ? 0 : (int)($this->helper->getPriceThreshold() * 100);
                 break;
         }
-        
+
         return $threshold;
     }
-    
+
     public function getButtonText()
     {
         return $this->helper->getWidgetButtonText();

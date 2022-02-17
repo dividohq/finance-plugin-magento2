@@ -17,8 +17,8 @@ $ php bin/magento setup:upgrade
 ## Setup
 To be able to checkout with Finance.
 In `Stores > Configuration > Sales > Payment Methods` you will find the **Powered by Divido Financing** option.
-  
-Enter the API-key from your Finance Provider account in the field **API-key**  
+
+Enter the API-key from your Finance Provider account in the field **API-key**
 Set the field **Enabled** to **Yes**
 
 That should be it to get going with your chosen Finance Provider as a checkout option.
@@ -52,7 +52,7 @@ The steps to implement this feature are explained below:
 1. Click on `Content` and then `Pages` in the submenu in your administration panel.
 2. Click on `Select` and then `Edit` in the submenu in the row corresponding to the page you wish to add the widget, or alternatively
 click the `Add New Page` button if you'd like the widget to feature on a new page.
-3. Click on the down arrow adjacent to the `Content` header to expand that section, then place the cursor where you would like the 
+3. Click on the down arrow adjacent to the `Content` header to expand that section, then place the cursor where you would like the
 widget to appear in the text editor and select the `Insert Widget` icon at the top left area of the editor.
 4. Select either *Divido Block Widget* or *Divido Popup Widget* from the `Widget Type` selection list
 5. Enter a default amount that the widget will calculate within the `Default Amount` widget option
@@ -65,3 +65,7 @@ Providing you have an API key inserted in your Setup (see above) the widget shou
 
 Please note that the Widgets will stretch to 100% of the width of its container, so you may wish to enclose the widget within a
 `table column` or `div` if you would like to inhibit the width.
+
+## Dev Tips
+It might be a good idea to disable caching in the system configuration for development.
+1. In the admin left panel go to `SYSTEM -> Cache Management` and then click on the dropdown menu in the upper-left corner and pick `Disable`, then select `Page Cache` and click `Submit`
