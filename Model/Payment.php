@@ -9,7 +9,11 @@ class Payment extends \Magento\Payment\Model\Method\AbstractMethod
     protected $_code = self::METHOD_CODE;
     protected $_isOffline = true;
     //TODO expand to determine allowed currencies from apikey
-    protected $_supportedCurrencies = array('EUR','GBP');
+    protected $_supportedCurrencies = array(
+        'DKK', # Danish Kronor
+        'EUR', # Euro
+        'GBP'  # British pound sterling
+    );
 
     private $dividoHelper;
 
