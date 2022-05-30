@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this project will now be documented in this file.
 
+## [2.6.0] - 2022-05-30
+- feat: Support for Danish Kronor currency (DKK)
+
+
 ## [2.5.2] - 2022-02-08
 - fix: the calculator is now being rendered correctly
 
