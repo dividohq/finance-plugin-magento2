@@ -172,11 +172,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             $this->logger->info('Environment URL ' . $environmentUrl);
         }
 
-        // Create what is needed to create and return a MerchantSDK Client
-        $client = new \GuzzleHttp\Client();
-
-        $httpClientWrapper = new \Divido\MerchantSDK\HttpClient\HttpClientWrapper(
-            new \Divido\MerchantSDKGuzzle6\GuzzleAdapter($client),
+        $httpClientWrapper = new \Divido\MerchantSDK\Wrappers\HttpWrapper(
             $environmentUrl,
             $apiKey
         );
