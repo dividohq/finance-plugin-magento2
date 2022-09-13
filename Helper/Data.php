@@ -11,7 +11,6 @@ use Magento\Framework\Exception\RuntimeException;
 use Magento\Framework\Phrase;
 use Magento\Framework\UrlInterface;
 use Divido\DividoFinancing\Helper\EndpointHealthCheckTrait;
-use Throwable;
 
 class Data extends \Magento\Framework\App\Helper\AbstractHelper
 {
@@ -25,7 +24,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     const CALLBACK_PATH      = 'rest/V1/divido/update/';
     const REDIRECT_PATH      = 'divido/financing/success/';
     const CHECKOUT_PATH      = 'checkout/';
-    const VERSION            = '2.6.0';
+    const VERSION            = '2.7.0';
     const WIDGET_LANGUAGES   = ["en", "fi" , "no", "es", "da", "fr", "de", "pe"];
     const SHIPPING           = 'SHPNG';
     const DISCOUNT           = 'DSCNT';
@@ -172,11 +171,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             $this->logger->info('Environment URL ' . $environmentUrl);
         }
 
-        // Create what is needed to create and return a MerchantSDK Client
-        $client = new \GuzzleHttp\Client();
-
-        $httpClientWrapper = new \Divido\MerchantSDK\HttpClient\HttpClientWrapper(
-            new \Divido\MerchantSDKGuzzle6\GuzzleAdapter($client),
+        $httpClientWrapper = new \Divido\MerchantSDK\Wrappers\HttpWrapper(
             $environmentUrl,
             $apiKey
         );
