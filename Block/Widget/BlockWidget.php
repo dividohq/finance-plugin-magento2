@@ -26,4 +26,10 @@ class BlockWidget extends Template implements BlockInterface{
             return false;
         }
     }
+
+    public function getDividoKey()
+    {
+        return $this->helper->getDividoKey();
+    }
+    
 }
