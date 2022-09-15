@@ -28,6 +28,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     const WIDGET_LANGUAGES   = ["en", "fi" , "no", "es", "da", "fr", "de", "pe"];
     const SHIPPING           = 'SHPNG';
     const DISCOUNT           = 'DSCNT';
+    const V4_CALCULATOR_URL  = 'https://cdn.divido.com/widget/v4/divido.calculator.js';
 
     private $config;
     private $logger;
@@ -770,12 +771,8 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             return '';
         }
 
-            $keyParts = explode('.', $apiKey);
-            $relevantPart = array_shift($keyParts);
-
-            $jsKey = strtolower($relevantPart);
-
-            return $jsKey;
+        $shortKey = explode('.', $apiKey)[0];
+        return strtolower($shortKey);
     }
 
     /**
@@ -786,6 +783,10 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     {
         if ($this->debug()) {
             $this->logger->info('GetScript URL HElper');
+        }
+
+        if($this->getCalcConfApiUrl()){
+            return self::V4_CALCULATOR_URL;
         }
         $apiKey = $this->getApiKey();
         $scriptUrl= "//cdn.divido.com/widget/v3/divido.calculator.js";
