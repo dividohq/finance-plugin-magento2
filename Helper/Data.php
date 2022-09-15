@@ -653,6 +653,16 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         return $apiKey;
     }
 
+    public function getCalcConfApiUrl()
+    {
+        $calcConfApiUrl = $this->config->getValue(
+            'payment/divido_financing/calc_conf_api_url',
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
+
+        return $calcConfApiUrl;
+    }
+
     /**
      * @param string|false $apiKey
      * @return array Array of configuration data from MerchantSDK, for more information look in MerchantSDK\Environment::CONFIGURATION
