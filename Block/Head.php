@@ -16,16 +16,6 @@ class Head extends \Magento\Framework\View\Element\Template
         parent::__construct($context);
     }
 
-    public function getScriptUrl()
-    {
-        return $this->helper->getScriptUrl();
-    }
-
-    public function getDividoKey()
-    {
-        return $this->helper->getDividoKey();
-    }
-
     public function getPlatformEnv()
     {
         try{
@@ -39,5 +29,10 @@ class Head extends \Magento\Framework\View\Element\Template
     public function getBrandingJson()
     {
         return $this->helper->getBranding();
+    }
+    
+    public function getCalcConfApiUrl()
+    {
+        return $this->helper->getCalcConfApiUrl();
     }
 }

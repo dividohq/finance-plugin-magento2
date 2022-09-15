@@ -1,0 +1,13 @@
+<?php 
+/** 
+* @var $block \Divido\DividoFinancing\Block\Footer
+**/
+ ?>
+ <?php if(!empty($block->getCalcConfApiUrl())){ ?>
+ <script type='text/javascript'>
+       window.__calculatorConfig = {
+           calculatorApiPubUrl: '<?= $block->getCalcConfApiUrl(); ?>'
+       };
+</script>
+<?php } ?>
+<script type="text/javascript" src="<?php echo $block->getScriptUrl(); ?>"></script>

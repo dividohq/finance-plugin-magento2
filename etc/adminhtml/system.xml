@@ -9,95 +9,99 @@
                 </field>
                 <field id="environment_url" translate="label" type="text" sortOrder="3" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Environment URL</label>
-                    <comment><![CDATA[URL Including "https://" to environment]]></comment>
+                    <comment><![CDATA[Environment URL Including "https://". Only input if required]]></comment>
                 </field>
-                <field id="secret" translate="label" type="text" sortOrder="4" showInDefault="1" showInWebsite="1" showInStore="0">
+                <field id="calc_conf_api_url" translate="label" type="text" sortOrder="4" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Calculator Configuration API URL</label>
+                    <comment><![CDATA[Calculator URL Including "https://". Only input if required]]></comment>
+                </field>
+                <field id="secret" translate="label" type="text" sortOrder="5" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Shared secret</label>
                 </field>
-                <field id="active" translate="label" type="select" sortOrder="5" showInDefault="1" showInWebsite="1" showInStore="0">
+                <field id="active" translate="label" type="select" sortOrder="6" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Enabled</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
-                <field id="title" translate="label" type="text" sortOrder="6" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="title" translate="label" type="text" sortOrder="7" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Checkout Title</label>
                 </field>
-                <field id="description" translate="label" type="text" sortOrder="7" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="description" translate="label" type="text" sortOrder="8" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Checkout Description</label>
                 </field>
-                <field id="sort_order" translate="label" type="text" sortOrder="8" showInDefault="1" showInWebsite="1"
+                <field id="sort_order" translate="label" type="text" sortOrder="9" showInDefault="1" showInWebsite="1"
                        showInStore="0">
                     <label>Sort Order</label>
                     <frontend_class>validate-number</frontend_class>
                 </field>
-                <field id="allowspecific" translate="label" type="allowspecific" sortOrder="9" showInDefault="1" showInWebsite="1" showInStore="0" canRestore="1">
+                <field id="allowspecific" translate="label" type="allowspecific" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0" canRestore="1">
                     <label>Payment from Applicable Countries</label>
                     <source_model>Magento\Payment\Model\Config\Source\Allspecificcountries</source_model>
                 </field>
-                <field id="specificcountry" translate="label" type="multiselect" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
+                <field id="specificcountry" translate="label" type="multiselect" sortOrder="11" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Payment from Specific Countries</label>
                     <source_model>Divido\DividoFinancing\Model\Adminhtml\Source\AllowedCountries</source_model>
                     <can_be_empty>1</can_be_empty>
                 </field>
-                <field id="language_override" translate="label" type="select" sortOrder="11" showInDefault="1" showInWebsite="1" showInStore="0">
+                <field id="language_override" translate="label" type="select" sortOrder="12" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Use Store Language</label>
                     <comment><![CDATA[Override the language of the finance calculator with store locale language]]></comment>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
-                <field id="plans_displayed" translate="label" type="select" sortOrder="12" showInDefault="1" showInWebsite="1" showInStore="0">
+                <field id="plans_displayed" translate="label" type="select" sortOrder="13" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Displayed plans</label>
                     <source_model>Divido\DividoFinancing\Model\Adminhtml\Source\PlansDisplayed</source_model>
                 </field>
-                <field id="plan_selection" translate="label" type="multiselect" sortOrder="13" showInDefault="1" showInWebsite="1" showInStore="0">
+                <field id="plan_selection" translate="label" type="multiselect" sortOrder="14" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Plan selection</label>
                     <source_model>Divido\DividoFinancing\Model\Adminhtml\Source\PlanSelection</source_model>
                     <depends>
                         <field id="plans_displayed">plans_selected</field>
                     </depends>
                 </field>
-                <field id="product_selection" translate="label" type="select" sortOrder="14" showInDefault="1" showInWebsite="1" showInStore="0">
+                <field id="product_selection" translate="label" type="select" sortOrder="15" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Product selection</label>
                     <source_model>Divido\DividoFinancing\Model\Adminhtml\Source\ProductSelection</source_model>
                 </field>
-                <field id="price_threshold" translate="label" type="text" sortOrder="15" showInDefault="1" showInWebsite="1" showInStore="0">
+                <field id="price_threshold" translate="label" type="text" sortOrder="16" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Price threshold</label>
                     <depends>
                         <field id="product_selection">products_price_threshold</field>
                     </depends>
                 </field>
-                <field id="cart_threshold" translate="label" type="text" sortOrder="16" showInDefault="1" showInWebsite="1" showInStore="0">
+                <field id="cart_threshold" translate="label" type="text" sortOrder="17" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Cart Threshold</label>
                 </field>
-                <field id="max_loan_amount" translate="label" type="text" sortOrder="17" showInDefault="1" showInWebsite="1" showInStore="0">
+                <field id="max_loan_amount" translate="label" type="text" sortOrder="18" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Max Loan Amount</label>
                 </field>
-                <field id="product_page_display" translate="label" type="select" sortOrder="18" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="product_page_display" translate="label" type="select" sortOrder="19" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Show product page widget</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
-                <field id="widget_footer" translate="label" type="text" sortOrder="19" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="widget_footer" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Widget Footer</label>
                     <comment><![CDATA[Allows a smaller footer text to be appended to the calculator widget]]></comment>
                 </field>
     
-                <field id="widget_button_text" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="widget_button_text" translate="label" type="text" sortOrder="21" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Widget Button Text</label>
                     <comment><![CDATA[Allows a custom button text for the popup widget to place the product price use  $p ]]></comment>
                 </field>
-                <field id="widget_mode" translate="label" type="select" sortOrder="21" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="widget_mode" translate="label" type="select" sortOrder="22" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Widget Mode</label>
                     <source_model>Divido\DividoFinancing\Model\Adminhtml\Source\WidgetMode</source_model>
                     <comment><![CDATA[Allows users to swap between lightbox popup and large calculator view ]]></comment>
                 </field>
-                <field id="order_status" translate="label" type="select" sortOrder="22" showInDefault="1" showInWebsite="1" showInStore="0">
+                <field id="order_status" translate="label" type="select" sortOrder="23" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>New order status on Completion</label>
 				    <source_model>Magento\Sales\Model\Config\Source\Order\Status</source_model>
                 </field>
-                <field id="auto_fulfilment" translate="label" type="select" sortOrder="23" showInDefault="1" showInWebsite="1" showInStore="0">
+                <field id="auto_fulfilment" translate="label" type="select" sortOrder="24" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Automatic fulfilment</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                     <comment><![CDATA[Automatically notify the lender that the order is complete whenever you change it to a specified status ]]></comment>
                 </field>
-                <field id="fulfilment_status" translate="label" type="select" sortOrder="24" showInDefault="1" showInWebsite="1" showInStore="0">
+                <field id="fulfilment_status" translate="label" type="select" sortOrder="25" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Fulfilment status</label>
 				    <source_model>Magento\Sales\Model\Config\Source\Order\Status</source_model>
                     <depends>

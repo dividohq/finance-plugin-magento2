@@ -10,9 +10,10 @@ const dividoBranding = <?php echo $block->getBrandingJson(); ?>;
 </script>
 <script type="text/javascript" src="<?php echo $block->getScriptUrl(); ?>"></script>
 <script>// <![CDATA[
-function waitForElementToDisplay(selector, time) {
+    let dividoEnv = '<?= $block->getPlatformEnv(); ?>';
+    function waitForElementToDisplay(selector, time) {
         if(document.querySelector(selector)!=null) {
-            __widgetInstance.init();
+            <?= (empty($block->getCalcConfApiUrl())) ? 'widgetInstance' : '__calculator'; ?>.init();
             return;
         }
         else {
@@ -21,11 +22,12 @@ function waitForElementToDisplay(selector, time) {
             }, time);
         }
     }
-        require([
-            'jquery',
-            'domReady!'
-        ], function ($) {
-            waitForElementToDisplay('#dividoWidget', 1000); 
-        });
-        // ]]>
+    
+    require([
+        'jquery',
+        'domReady!'
+    ], function ($) {
+        waitForElementToDisplay('#dividoWidget', 1000); 
+    });
+// ]]>
 </script>

@@ -23,6 +23,11 @@ class Widget extends \Magento\Catalog\Block\Product\AbstractProduct
         parent::__construct($context, $data);
     }
 
+    public function getCalculatorConfigApiUrl()
+    {
+        return $this->helper->getCalcConfApiUrl();
+    }
+
     public function getFinancePlatform()
     {
         $env = $this->helper->getPlatformEnv();
@@ -79,6 +84,11 @@ class Widget extends \Magento\Catalog\Block\Product\AbstractProduct
         } else {
             return true;
         }
+    }
+    
+    public function getDividoKey()
+    {
+        return $this->helper->getDividoKey();
     }
 
     public function getThreshold()

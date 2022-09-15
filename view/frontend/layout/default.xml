@@ -5,4 +5,9 @@
             class="Divido\DividoFinancing\Block\Head"
             name="divido_dividofinancing_block_head" />
     </referenceBlock>
+    <referenceBlock name="footer">
+        <block template="footer.phtml"
+            class="Divido\DividoFinancing\Block\Footer"
+            name="divido_dividofinancing_block_footer" />
+    </referenceBlock>
 </body>

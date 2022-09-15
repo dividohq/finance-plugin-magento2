@@ -35,19 +35,19 @@
                 <!-- ko template: getTemplate() --><!-- /ko -->
                 <!--/ko-->
             </div>
-            
             <div class="field required">
                 <div class="control">
                     <div id="dividoWidget" data-calculator-widget 
                         data-mode='calculator'
                         data-bind="
-                        attr: {
-                            'data-amount': getValue()  * 100,
-                            'data-plans': window.checkoutConfig.payment.divido_financing.cart_plans,
-                            'data-language': window.checkoutConfig.payment.divido_financing.language_override,
-                            'data-footnote': window.checkoutConfig.payment.divido_financing.widget_footnote
-                        }
-                     " 
+                            attr: {
+                                'data-api-key': window.checkoutConfig.payment.divido_financing.short_api_key,
+                                'data-amount': getValue() * 100,
+                                'data-plans': window.checkoutConfig.payment.divido_financing.cart_plans,
+                                'data-language': window.checkoutConfig.payment.divido_financing.language_override,
+                                'data-footnote': window.checkoutConfig.payment.divido_financing.widget_footnote
+                            }
+                        " 
                         >
                     </div>
                 </div>
