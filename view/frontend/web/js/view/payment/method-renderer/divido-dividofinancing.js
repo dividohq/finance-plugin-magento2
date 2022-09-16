@@ -95,7 +95,9 @@ define(
 
                 var email   = $('#customer-email').val();
                 var planId  = $('input[name=divido_plan]').val();
-                var deposit = $('input[name=divido_deposit]').val();
+                var deposit = ($('input[name=divido_deposit]').length > 0) 
+                    ? $('input[name=divido_deposit]').val()
+                    : 0;
 
                 var setPayment = setPaymentMethodAction(this.messageContainer)
                     .done(function () {
