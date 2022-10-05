@@ -933,7 +933,11 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             ', ', 
             array_merge(
                 explode("\n",$addressObject['street']), 
+<<<<<<< HEAD
                 [$addressObject['city']]
+=======
+                [$addressObject['city'], $addressObject['postcode']]
+>>>>>>> 3e3deaa (chore: better formatting of address text)
             )
         );
         $addressArray = [
