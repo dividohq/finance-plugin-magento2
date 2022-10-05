@@ -386,7 +386,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         if ($listAttr) {
             $listAttrCode = $listAttr->getAttributeCode();
             $productPlans = $product->getData($listAttrCode);
-            $productPlans = explode(',', $productPlans);
+            $productPlans = $productPlans ? explode(',', $productPlans) : [];
         }
 
         $globalProdSelection = $this->config->getValue(
