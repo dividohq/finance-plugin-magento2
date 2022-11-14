@@ -16,7 +16,8 @@ class CreditRequest implements CreditRequestInterface
         STATUS_DEPOSIT_PAID  = 'DEPOSIT-PAID',
         STATUS_FULFILLED     = 'FULFILLED',
         STATUS_REFERRED      = 'REFERRED',
-        STATUS_SIGNED        = 'SIGNED';
+        STATUS_SIGNED        = 'SIGNED',
+        CREATION_STATUS      = self::STATUS_SIGNED;
 
     private $historyMessages = [
         self::STATUS_ACCEPTED      => 'Credit request accepted',
@@ -229,8 +230,6 @@ class CreditRequest implements CreditRequestInterface
             $this->eventManager->dispatch('divido_financing_quote_referred', ['quote_id' => $quoteId]);
         }
 
-        $creationStatus = self::STATUS_SIGNED;
-
         //Check if Divido order already exists (as with same quoteID, other orders with different payment method may be present with status as cancelled)
         //Divido order not exists
         $isOrderExists = false;
@@ -251,7 +250,7 @@ class CreditRequest implements CreditRequestInterface
 
         if (
             !$isOrderExists
-            && $data->status != $creationStatus
+            && $data->status != self::CREATION_STATUS
             && $data->status != self::STATUS_REFERRED
         ) {
             if ($debug) {
@@ -260,7 +259,7 @@ class CreditRequest implements CreditRequestInterface
             return $this->webhookResponse();
         }
         $this->logger->info('Application Update ----- test' );
-        if (! $isOrderExists && ($data->status == $creationStatus)) {
+        if (! $isOrderExists && ($data->status == self::CREATION_STATUS)) {
 
             $this->logger->info('order does not exist' );
             if ($debug) {
