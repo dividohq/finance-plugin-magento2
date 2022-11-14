@@ -17,7 +17,8 @@ class CreditRequest implements CreditRequestInterface
         STATUS_FULFILLED     = 'FULFILLED',
         STATUS_REFERRED      = 'REFERRED',
         STATUS_SIGNED        = 'SIGNED',
-        CREATION_STATUS      = self::STATUS_SIGNED;
+        STATUS_READY        = 'READY',
+        CREATION_STATUS      = self::STATUS_READY;
 
     private $historyMessages = [
         self::STATUS_ACCEPTED      => 'Credit request accepted',
@@ -29,6 +30,7 @@ class CreditRequest implements CreditRequestInterface
         self::STATUS_FULFILLED     => 'Credit request fulfilled',
         self::STATUS_REFERRED      => 'Credit request referred by Underwriter, waiting for new status',
         self::STATUS_SIGNED        => 'Customer have signed all contracts',
+        self::STATUS_READY         => 'Application ready',
     ];
 
     private $noGo = [
