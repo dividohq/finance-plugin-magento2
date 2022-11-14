@@ -17,7 +17,7 @@ class CreditRequest implements CreditRequestInterface
         STATUS_FULFILLED     = 'FULFILLED',
         STATUS_REFERRED      = 'REFERRED',
         STATUS_SIGNED        = 'SIGNED',
-        STATUS_READY        = 'READY',
+        STATUS_READY         = 'READY',
         CREATION_STATUS      = self::STATUS_READY;
 
     private $historyMessages = [
@@ -268,11 +268,12 @@ class CreditRequest implements CreditRequestInterface
                 $this->logger->debug('Divido: Create order');
             }
 
-            $quote = $this->quote->loadActive($quoteId);
+            $quote = $this->quote->load($quoteId);
             if (! $quote->getCustomerId()) {
                 $quote->setCheckoutMethod(\Magento\Quote\Model\QuoteManagement::METHOD_GUEST);
-                $quote->save();
             }
+            $quote->setIsActive(true);
+            $quote->save();
 
             //If cart value is different do not place order
             $totals = $quote->getTotals();
@@ -335,7 +336,7 @@ class CreditRequest implements CreditRequestInterface
 
         $lookup->save();
 
-        if ($data->status == self::STATUS_SIGNED) {
+        if ($data->status == self::CREATION_STATUS) {
             $this->logger->info('Divido: Escalate order');
 
             if ($debug) {
@@ -353,7 +354,7 @@ class CreditRequest implements CreditRequestInterface
             $order->setState(\Magento\Sales\Model\Order::STATE_PROCESSING, true);
             $order->setStatus($status);
 
-            //Send Email only when order is signed by customer.
+            //Send Email only when order has achieved creation status.
             $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
             $objectManager->create('Magento\Sales\Model\OrderNotifier')->notify($order);
         }
