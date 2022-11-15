@@ -24,7 +24,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     const CALLBACK_PATH      = 'rest/V1/divido/update/';
     const REDIRECT_PATH      = 'divido/financing/success/';
     const CHECKOUT_PATH      = 'checkout/';
-    const VERSION            = '2.9.1';
+    const VERSION            = '2.10.0';
     const WIDGET_LANGUAGES   = ["en", "fi" , "no", "es", "da", "fr", "de", "pe"];
     const SHIPPING           = 'SHPNG';
     const DISCOUNT           = 'DSCNT';
@@ -933,11 +933,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             ', ', 
             array_merge(
                 explode("\n",$addressObject['street']), 
-<<<<<<< HEAD
                 [$addressObject['city']]
-=======
-                [$addressObject['city'], $addressObject['postcode']]
->>>>>>> 3e3deaa (chore: better formatting of address text)
             )
         );
         $addressArray = [
