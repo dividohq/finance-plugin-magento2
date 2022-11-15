@@ -44,14 +44,15 @@ class Success extends \Magento\Framework\App\Action\Action implements CsrfAwareA
 
     public function getTimeout()
     {
-        $timeout = $this->config->getValue(
+        $timeout = (int) $this->config->getValue(
             'payment/divido_financing/timeout_delay',
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         );
-        if($timeout < self::MIN_TIMEOUT){
-            self::MIN_TIMEOUT;
-        }
-        return $timeout;
+        
+        return ($timeout < self::MIN_TIMEOUT)
+            ? self::MIN_TIMEOUT
+            : $timeout;
+
     }
 
     public function execute()
