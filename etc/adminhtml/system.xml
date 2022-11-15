@@ -89,7 +89,7 @@
                     <comment><![CDATA[Allows users to swap between lightbox popup and large calculator view ]]></comment>
                 </field>
                 <field id="order_status" translate="label" type="select" sortOrder="22" showInDefault="1" showInWebsite="1" showInStore="0">
-                    <label>New order status when Signed</label>
+                    <label>New order status on Completion</label>
 				    <source_model>Magento\Sales\Model\Config\Source\Order\Status</source_model>
                 </field>
                 <field id="auto_fulfilment" translate="label" type="select" sortOrder="23" showInDefault="1" showInWebsite="1" showInStore="0">

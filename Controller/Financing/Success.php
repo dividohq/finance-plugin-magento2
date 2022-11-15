@@ -13,6 +13,8 @@ class Success extends \Magento\Framework\App\Action\Action implements CsrfAwareA
     private $order;
     private $quoteRepository;
 
+    const MIN_TIMEOUT = 30;
+
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
         \Magento\Checkout\Model\Session $checkoutSession,
@@ -42,12 +44,15 @@ class Success extends \Magento\Framework\App\Action\Action implements CsrfAwareA
 
     public function getTimeout()
     {
-        $timeout = $this->config->getValue(
+        $timeout = (int) $this->config->getValue(
             'payment/divido_financing/timeout_delay',
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         );
+        
+        return ($timeout < self::MIN_TIMEOUT)
+            ? self::MIN_TIMEOUT
+            : $timeout;
 
-        return $timeout;
     }
 
     public function execute()

@@ -16,7 +16,9 @@ class CreditRequest implements CreditRequestInterface
         STATUS_DEPOSIT_PAID  = 'DEPOSIT-PAID',
         STATUS_FULFILLED     = 'FULFILLED',
         STATUS_REFERRED      = 'REFERRED',
-        STATUS_SIGNED        = 'SIGNED';
+        STATUS_SIGNED        = 'SIGNED',
+        STATUS_READY         = 'READY',
+        CREATION_STATUS      = self::STATUS_READY;
 
     private $historyMessages = [
         self::STATUS_ACCEPTED      => 'Credit request accepted',
@@ -28,6 +30,7 @@ class CreditRequest implements CreditRequestInterface
         self::STATUS_FULFILLED     => 'Credit request fulfilled',
         self::STATUS_REFERRED      => 'Credit request referred by Underwriter, waiting for new status',
         self::STATUS_SIGNED        => 'Customer have signed all contracts',
+        self::STATUS_READY         => 'Application ready',
     ];
 
     private $noGo = [
@@ -229,8 +232,6 @@ class CreditRequest implements CreditRequestInterface
             $this->eventManager->dispatch('divido_financing_quote_referred', ['quote_id' => $quoteId]);
         }
 
-        $creationStatus = self::STATUS_SIGNED;
-
         //Check if Divido order already exists (as with same quoteID, other orders with different payment method may be present with status as cancelled)
         //Divido order not exists
         $isOrderExists = false;
@@ -251,7 +252,7 @@ class CreditRequest implements CreditRequestInterface
 
         if (
             !$isOrderExists
-            && $data->status != $creationStatus
+            && $data->status != self::CREATION_STATUS
             && $data->status != self::STATUS_REFERRED
         ) {
             if ($debug) {
@@ -260,18 +261,19 @@ class CreditRequest implements CreditRequestInterface
             return $this->webhookResponse();
         }
         $this->logger->info('Application Update ----- test' );
-        if (! $isOrderExists && ($data->status == $creationStatus)) {
+        if (! $isOrderExists && ($data->status == self::CREATION_STATUS)) {
 
             $this->logger->info('order does not exist' );
             if ($debug) {
                 $this->logger->debug('Divido: Create order');
             }
 
-            $quote = $this->quote->loadActive($quoteId);
+            $quote = $this->quote->load($quoteId);
             if (! $quote->getCustomerId()) {
                 $quote->setCheckoutMethod(\Magento\Quote\Model\QuoteManagement::METHOD_GUEST);
-                $quote->save();
             }
+            $quote->setIsActive(true);
+            $quote->save();
 
             //If cart value is different do not place order
             $totals = $quote->getTotals();
@@ -334,7 +336,7 @@ class CreditRequest implements CreditRequestInterface
 
         $lookup->save();
 
-        if ($data->status == self::STATUS_SIGNED) {
+        if ($data->status == self::CREATION_STATUS) {
             $this->logger->info('Divido: Escalate order');
 
             if ($debug) {
@@ -352,7 +354,7 @@ class CreditRequest implements CreditRequestInterface
             $order->setState(\Magento\Sales\Model\Order::STATE_PROCESSING, true);
             $order->setStatus($status);
 
-            //Send Email only when order is signed by customer.
+            //Send Email only when order has achieved creation status.
             $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
             $objectManager->create('Magento\Sales\Model\OrderNotifier')->notify($order);
         }
