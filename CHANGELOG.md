@@ -1,6 +1,13 @@
 # Changelog
 All notable changes to this project will now be documented in this file.
 
+## [2.7.2] - 2022-11-16
+- chore: Updates PR template
+
+## [2.7.1] - 2022-11-15
+- Creates order when a READY status webhook is received from Divido, rather than SIGNED
+- Creates an order even if the quote is inactive
+
 ## [2.6.0] - 2022-05-30
 - feat: Support for Danish Kronor currency (DKK)
 
