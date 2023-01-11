@@ -64,6 +64,9 @@ define(
                         returnObj.src = 'https://cdn.divido.com/widget/themes/nordea/logo.png';
                         returnObj.alt = 'Nordea'
                         break;
+                    case 'ing':
+                        returnObj.src = 'https://lender-branding-prod.s3.eu-west-1.amazonaws.com/ing.png';
+                        returnObj.alt = 'ING PayCtrl';
                     default:
                         returnObj.style = 'display: none';
                         break;
