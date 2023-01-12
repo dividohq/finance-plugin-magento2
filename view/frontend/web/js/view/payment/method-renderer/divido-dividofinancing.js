@@ -67,6 +67,7 @@ define(
                     case 'ing':
                         returnObj.src = 'https://lender-branding-prod.s3.eu-west-1.amazonaws.com/ing.png';
                         returnObj.alt = 'ING PayCtrl';
+                        break;
                     default:
                         returnObj.style = 'display: none';
                         break;

@@ -158,6 +158,10 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         if ($this->debug()) {
             $this->logger->info('Get SDK');
         }
+        if(empty($apiKey)){
+            $this->logger->warning("Can not create SDK without API Key");
+            throw new \Exception("Can not create SDK without API Key");
+        }
 
         // Getting environment depending on how apiKey looks
         $env = $this->getEnvironment($apiKey);
@@ -386,7 +390,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         if ($listAttr) {
             $listAttrCode = $listAttr->getAttributeCode();
             $productPlans = $product->getData($listAttrCode);
-            $productPlans = explode(',', $productPlans);
+            $productPlans = ($productPlans == null) ? [] : explode(',', $productPlans);
         }
 
         $globalProdSelection = $this->config->getValue(
