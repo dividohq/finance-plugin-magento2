@@ -24,7 +24,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     const CALLBACK_PATH      = 'rest/V1/divido/update/';
     const REDIRECT_PATH      = 'divido/financing/success/';
     const CHECKOUT_PATH      = 'checkout/';
-    const VERSION            = '2.7.2';
+    const VERSION            = '2.7.3';
     const WIDGET_LANGUAGES   = ["en", "fi" , "no", "es", "da", "fr", "de", "pe"];
     const SHIPPING           = 'SHPNG';
     const DISCOUNT           = 'DSCNT';
@@ -157,6 +157,10 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $apiKey = $this->getApiKey();
         if ($this->debug()) {
             $this->logger->info('Get SDK');
+        }
+        if(empty($apiKey)){
+            $this->logger->warning("Can not create SDK without API Key");
+            throw new \Exception("Can not create SDK without API Key");
         }
 
         // Getting environment depending on how apiKey looks
@@ -386,7 +390,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         if ($listAttr) {
             $listAttrCode = $listAttr->getAttributeCode();
             $productPlans = $product->getData($listAttrCode);
-            $productPlans = explode(',', $productPlans);
+            $productPlans = ($productPlans == null) ? [] : explode(',', $productPlans);
         }
 
         $globalProdSelection = $this->config->getValue(
