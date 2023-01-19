@@ -60,7 +60,7 @@ define(
             getIconAttributes: function () {
                 let returnObj = {'style':'max-height:28px'};
 
-                if(typeof dividoBranding.logo_url !== 'undefined'){
+                if(typeof dividoBranding !== 'undefined' && dividoBranding.logo_url){
                     returnObj.src = dividoBranding.logo_url;
                     returnObj.alt = dividoBranding.lender;
                     return returnObj;
