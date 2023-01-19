@@ -183,6 +183,17 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         return new \Divido\MerchantSDK\Client($httpClientWrapper, $env);
     }
 
+    public function getBranding()
+    {
+        $plans = $this->getGlobalSelectedPlans();
+        if(!$plans){
+            return 'null';
+        }
+        $branding = $plans[0]->lender->branding;
+        $branding->lender = $plans[0]->lender->name;
+        return json_encode($branding);
+    }
+
     /*
     public function getConnection()
     {
