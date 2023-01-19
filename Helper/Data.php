@@ -186,8 +186,8 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     public function getBranding()
     {
         $plans = $this->getGlobalSelectedPlans();
-        if(!$plans){
-            return 'null';
+        if(!$plans || !isset($plans[0]->lender->branding)){
+            return '{}';
         }
         $branding = $plans[0]->lender->branding;
         $branding->lender = $plans[0]->lender->name;
