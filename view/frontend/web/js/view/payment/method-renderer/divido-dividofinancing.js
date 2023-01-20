@@ -63,7 +63,6 @@ define(
                 if(typeof dividoBranding !== 'undefined' && dividoBranding.logo_url){
                     returnObj.src = dividoBranding.logo_url;
                     returnObj.alt = dividoBranding.lender;
-                    return returnObj;
                 }else{
                     switch (dividoEnv){
                         case 'nordea':
@@ -78,8 +77,8 @@ define(
                             returnObj.style = 'display: none';
                             break;
                     }
-                    return returnObj;
                 }
+                return returnObj;
             },
 
             getTransactionResults: function () {
