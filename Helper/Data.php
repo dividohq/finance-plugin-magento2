@@ -24,7 +24,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     const CALLBACK_PATH      = 'rest/V1/divido/update/';
     const REDIRECT_PATH      = 'divido/financing/success/';
     const CHECKOUT_PATH      = 'checkout/';
-    const VERSION            = '2.7.3';
+    const VERSION            = '2.8.0';
     const WIDGET_LANGUAGES   = ["en", "fi" , "no", "es", "da", "fr", "de", "pe"];
     const SHIPPING           = 'SHPNG';
     const DISCOUNT           = 'DSCNT';
@@ -181,6 +181,17 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         );
 
         return new \Divido\MerchantSDK\Client($httpClientWrapper, $env);
+    }
+
+    public function getBranding()
+    {
+        $plans = $this->getGlobalSelectedPlans();
+        if(!$plans || !isset($plans[0]->lender->branding)){
+            return '{}';
+        }
+        $branding = $plans[0]->lender->branding;
+        $branding->lender = $plans[0]->lender->name;
+        return json_encode($branding);
     }
 
     /*

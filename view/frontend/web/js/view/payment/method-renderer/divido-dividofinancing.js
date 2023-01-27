@@ -59,18 +59,24 @@ define(
 
             getIconAttributes: function () {
                 let returnObj = {'style':'max-height:28px'};
-                switch (dividoEnv){
-                    case 'nordea':
-                        returnObj.src = 'https://cdn.divido.com/widget/themes/nordea/logo.png';
-                        returnObj.alt = 'Nordea'
-                        break;
-                    case 'ing':
-                        returnObj.src = 'https://lender-branding-prod.s3.eu-west-1.amazonaws.com/ing.png';
-                        returnObj.alt = 'ING PayCtrl';
-                        break;
-                    default:
-                        returnObj.style = 'display: none';
-                        break;
+
+                if(typeof dividoBranding !== 'undefined' && dividoBranding.logo_url){
+                    returnObj.src = dividoBranding.logo_url;
+                    returnObj.alt = dividoBranding.lender;
+                }else{
+                    switch (dividoEnv){
+                        case 'nordea':
+                            returnObj.src = 'https://cdn.divido.com/widget/themes/nordea/logo.png';
+                            returnObj.alt = 'Nordea'
+                            break;
+                        case 'ing':
+                            returnObj.src = 'https://lender-branding-prod.s3.eu-west-1.amazonaws.com/ing.png';
+                            returnObj.alt = 'ING PayCtrl';
+                            break;
+                        default:
+                            returnObj.style = 'display: none';
+                            break;
+                    }
                 }
                 return returnObj;
             },

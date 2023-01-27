@@ -35,4 +35,9 @@ class Head extends \Magento\Framework\View\Element\Template
             return '[unknown]';
         }
     }
+
+    public function getBrandingJson()
+    {
+        return $this->helper->getBranding();
+    }
 }
