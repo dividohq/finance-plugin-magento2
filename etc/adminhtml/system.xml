@@ -103,6 +103,14 @@
                         <field id="auto_fulfilment">1</field>
                     </depends>
                 </field>
+                <field id="auto_cancellation" translate="label" type="select" sortOrder="23" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Automatic Cancellation</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="auto_refund" translate="label" type="select" sortOrder="23" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Automatic Refund</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
                 <field id="change_invoice_status" translate="label" type="select" sortOrder="25" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Change Invoice Status</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
