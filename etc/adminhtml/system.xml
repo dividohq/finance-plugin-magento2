@@ -103,19 +103,19 @@
                         <field id="auto_fulfilment">1</field>
                     </depends>
                 </field>
-                <field id="auto_cancellation" translate="label" type="select" sortOrder="23" showInDefault="1" showInWebsite="1" showInStore="0">
+                <field id="auto_cancellation" translate="label" type="select" sortOrder="25" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Automatic Cancellation</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
-                <field id="auto_refund" translate="label" type="select" sortOrder="23" showInDefault="1" showInWebsite="1" showInStore="0">
+                <field id="auto_refund" translate="label" type="select" sortOrder="26" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Automatic Refund</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
-                <field id="change_invoice_status" translate="label" type="select" sortOrder="25" showInDefault="1" showInWebsite="1" showInStore="0">
+                <field id="change_invoice_status" translate="label" type="select" sortOrder="27" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Change Invoice Status</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
-                <field id="invoice_status" translate="label" type="select" sortOrder="26" showInDefault="1" showInWebsite="1" showInStore="0">
+                <field id="invoice_status" translate="label" type="select" sortOrder="28" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Invoice status</label>
 				    <source_model>Magento\Sales\Model\Config\Source\Order\Status</source_model>
                     <depends>
@@ -123,28 +123,28 @@
                     </depends>
                 </field>
    
-                <field id="debug" translate="label" type="select" sortOrder="27" showInDefault="1" showInWebsite="1" showInStore="0">
+                <field id="debug" translate="label" type="select" sortOrder="29" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Debug</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
-               <field id="timeout_delay" translate="label" type="text" sortOrder="28" showInDefault="1" showInWebsite="1" showInStore="0">
+               <field id="timeout_delay" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Wait for Order Delay</label>
                     <comment><![CDATA[For stores running on slower servers increase this delay to allow the order to be created]]></comment>
                 </field>
 
-                <field id="headless_support" translate="label" type="select" sortOrder="29" showInDefault="1" showInWebsite="1" showInStore="0">
+                <field id="headless_support" translate="label" type="select" sortOrder="31" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Headless Support - Experimental</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                     <comment><![CDATA[Headless store options]]></comment>
                 </field>
-                 <field id="custom_checkout_url" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="0">
+                 <field id="custom_checkout_url" translate="label" type="text" sortOrder="32" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Custom Checkout Url</label>
                     <depends>
                         <field id="headless_support">1</field>
                     </depends>
                     <comment><![CDATA[Headless store checkout url]]></comment>
                 </field>
-                <field id="custom_redirect_url" translate="label" type="text" sortOrder="31" showInDefault="1" showInWebsite="1" showInStore="0">
+                <field id="custom_redirect_url" translate="label" type="text" sortOrder="33" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Custom Redirect Url</label>
                     <depends>
                         <field id="headless_support">1</field>
