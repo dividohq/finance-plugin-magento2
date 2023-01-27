@@ -15,6 +15,8 @@
                 <allowspecific>1</allowspecific>
                 <specificcountry>GB,FI</specificcountry>
                 <language_override>0</language_override>
+                <auto_cancellation>1</auto_cancellation>
+                <auto_refund>1</auto_refund>
                 <widget_footer></widget_footer>
                 <widget_button_text></widget_button_text>
             </divido_financing>
