@@ -1043,6 +1043,15 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $order_total = $lookup['initial_cart_value'];
 
         $order_id = $lookup['order_id'];
+
+        $autoCancellation = $this->config->getValue(
+            'payment/divido_financing/auto_cancellation',
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
+
+        if (! $autoCancellation) {
+            return $this->cancelLookup($order_id);
+        }
         return $this->sendCancellation($applicationId, $order_total, $order_id);
     }
 
@@ -1096,7 +1105,15 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $order_total = $lookup['initial_cart_value'];
         $order_id = $lookup['order_id'];
 
-        return $this->sendRefund($applicationId, $order_total, $order_id);
+        $autoRefund = $this->config->getValue(
+            'payment/divido_financing/auto_refund',
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
+
+        if (! $autoRefund) {
+            $this->sendRefund($applicationId, $order_total, $order_id);
+        }
+
     }
 
 
