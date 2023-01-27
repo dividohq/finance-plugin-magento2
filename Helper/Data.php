@@ -1110,7 +1110,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         );
 
-        if (! $autoRefund) {
+        if ($autoRefund) {
             $this->sendRefund($applicationId, $order_total, $order_id);
         }
 
