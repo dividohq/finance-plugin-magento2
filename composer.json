@@ -3,10 +3,14 @@
     "description": "Powered by Divido financing gateway",
     "type": "magento2-module",
 <<<<<<< HEAD
+<<<<<<< HEAD
     "version": "2.9.1",
 =======
     "version": "2.8.0",
 >>>>>>> 48914f9 (feat: retrieves branding from first lender plan (#121))
+=======
+    "version": "2.8.1",
+>>>>>>> 06faa57 (feat/lm2 1654 new toggles (#122))
     "license": [
         "OSL-3.0"
     ],
