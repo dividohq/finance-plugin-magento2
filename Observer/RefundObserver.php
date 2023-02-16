@@ -17,8 +17,21 @@ class RefundObserver implements ObserverInterface
         $order = $observer->getEvent()->getCreditmemo()->getOrder();
         
         $code  = $order->getPayment()->getMethodInstance()->getCode();
+
+        $layout  = $observer->getData('layout');
+        
+        throw new \Exception("Nope");
+        return false;
+        /*
         if ($code == 'divido_financing') {
-            return $this->helper->autoRefund($order);
-        }
+            // check refund amount falls within the bounds
+            // if not, update the layout to show a warning
+            try{
+                $this->helper->autoRefund($order);
+            } catch (\Exception $e) {
+
+                return false;
+            }
+        }*/
     }
 }

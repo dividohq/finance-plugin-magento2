@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceContainer name="content">
+            <block class="Magento\Sales\Block\Adminhtml\Order\Creditmemo\Create" name="sales_creditmemo_create">
+                <block class="Magento\Sales\Block\Adminhtml\Order\Creditmemo\Create\Form" name="form" template="Magento_Sales::order/creditmemo/create/form.phtml">
+                    <block class="Magento\Sales\Block\Adminhtml\Order\Creditmemo\Create\Items" name="order_items" template="Magento_Sales::order/creditmemo/create/items.phtml">
+                        <container name="submit_before" label="Submit Before">
+                            <block class="Divido\DividoFinancing\Block\Adminhtml\Order\View\Creditmemo" name="creditmemo_extension" template="Divido_DividoFinancing::order/view/creditmemo.phtml" />
+                        </container>
+                    </block>
+                </block>
+            </block>
+        </referenceContainer>
+    </body>
+</page>

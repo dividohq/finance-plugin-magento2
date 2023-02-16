@@ -1,0 +1,33 @@
+<?php $bounds = $block->getBounds(); ?>
+
+<?php if ($bounds): 
+    $message = "Please ensure you are attempting to refund a viable amount";
+    if($bounds['lower'] && $bounds['upper']){
+        $message = sprintf(
+            "Please note, you may only refund between &pound;%s and &pound;%s", 
+            $bounds['lower'],
+            $bounds['upper']
+        );
+    } elseif($bounds['upper']) {
+        $message = sprintf(
+            "Please note, you may only refund below &pound;%s", 
+            $bounds['upper']
+        );
+    } elseif ($bounds['lower']) {
+        $message = sprintf(
+            "Please note, you may only refund between &pound;%s and &pound;%s", 
+            $bounds['lower'],
+            $bounds['upper']
+        );
+    }
+    $warning = "{$message}. This may be due to a customer's deposit, or the lender's minimum finance amount.";
+?>
+<div id="pbdBounds" style="text-align:right; width:100%; background-color:red; margin: 10px">
+    <?= $warning ?>
+</div>
+<?php endif; ?>
+<script>
+    require(['jquery'], function($){
+        $('.submit-button').addClass('disabled').prop('disabled', true);
+    });
+</script>

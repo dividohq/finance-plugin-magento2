@@ -620,9 +620,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 
             $application    = (new \Divido\MerchantSDK\Models\Application())
                 ->withId($applicationId)
-                ->withFinancePlanId($financePlanId)
-                ->withApplicants($applicants)
-                ->withOrderItems($orderItems)
+                ->withMerchantReference($orderId)
                 ->withMetadata([
                     "merchant_reference" => $orderId
                 ]);
@@ -1241,5 +1239,22 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $hmac = hash_hmac('sha256', $payload, $secret, true);
         $signature = base64_encode($hmac);
         return $signature;
+    }
+
+    public function getBounds(int $applicationId){
+        try{
+            $sdk = $this->getSdk();
+            $response = $sdk->applications->getSingleApplication($applicationId);
+            $application = json_decode($response->getBody(), true);
+
+            $upper_bound = $application['data']['finance_plan']['refundable_amount'];
+            $lower_bound = $application['data']['']
+            return [
+                'upper' => 100,
+                'lower' => 10
+            ];
+        } catch (\Exception $e){
+            return null;
+        }
     }
 }
