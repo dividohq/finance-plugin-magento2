@@ -80,18 +80,17 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         // Validate the API key format
         try{
             Environment::validateApiKeyFormat($apiKey);
-        }catch (InvalidApiKeyFormatException $e){
-            $this->logger->error($e->getMessage());
+        }catch (\Exception $e){
+            $this->logger->error("API Key Validation Error: ".$e->getMessage());
             return false;
         }
 
         // Get the Environment Name from the API key
         try{
             $environment = Environment::getEnvironmentFromAPIKey($apiKey);
-            $this->logger->info('getEnv: '.$environment);
             return $environment;
-        }catch (InvalidApiKeyFormatException | InvalidEnvironmentException $e){
-            $this->logger->error($e->getMessage());
+        }catch (\Exception $e){
+            $this->logger->error("Environment Retrieval Error: ".$e->getMessage());
             return false;
         }
     }
