@@ -611,18 +611,12 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     {
         try{
             $sdk  = $this->getSdk();
-            $application = $sdk->applications()->getSingleApplication($applicationId);
-            $application = json_decode($application->getBody()->getContents());
-
-            $financePlanId =  $application->data->finance_plan->id;
-            $orderItems = $application->data->order_items;
-            $applicants = $application->data->applicants;
 
             $application    = (new \Divido\MerchantSDK\Models\Application())
                 ->withId($applicationId)
-                ->withFinancePlanId($financePlanId)
-                ->withApplicants($applicants)
-                ->withOrderItems($orderItems)
+                ->withApplicants(null)
+                ->withOrderItems(null)
+                ->withMerchantReference($orderId)
                 ->withMetadata([
                     "merchant_reference" => $orderId
                 ]);
