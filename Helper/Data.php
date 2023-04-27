@@ -24,7 +24,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     const CALLBACK_PATH      = 'rest/V1/divido/update/';
     const REDIRECT_PATH      = 'divido/financing/success/';
     const CHECKOUT_PATH      = 'checkout/';
-    const VERSION            = '2.8.1';
+    const VERSION            = '2.9.0';
     const WIDGET_LANGUAGES   = ["en", "fi" , "no", "es", "da", "fr", "de", "pe"];
     const SHIPPING           = 'SHPNG';
     const DISCOUNT           = 'DSCNT';
@@ -611,18 +611,12 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     {
         try{
             $sdk  = $this->getSdk();
-            $application = $sdk->applications()->getSingleApplication($applicationId);
-            $application = json_decode($application->getBody()->getContents());
-
-            $financePlanId =  $application->data->finance_plan->id;
-            $orderItems = $application->data->order_items;
-            $applicants = $application->data->applicants;
 
             $application    = (new \Divido\MerchantSDK\Models\Application())
                 ->withId($applicationId)
-                ->withFinancePlanId($financePlanId)
-                ->withApplicants($applicants)
-                ->withOrderItems($orderItems)
+                ->withApplicants(null)
+                ->withOrderItems(null)
+                ->withMerchantReference($orderId)
                 ->withMetadata([
                     "merchant_reference" => $orderId
                 ]);
