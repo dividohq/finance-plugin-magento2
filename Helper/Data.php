@@ -24,7 +24,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     const CALLBACK_PATH      = 'rest/V1/divido/update/';
     const REDIRECT_PATH      = 'divido/financing/success/';
     const CHECKOUT_PATH      = 'checkout/';
-    const VERSION            = '2.9.0';
+    const VERSION            = '2.9.1';
     const WIDGET_LANGUAGES   = ["en", "fi" , "no", "es", "da", "fr", "de", "pe"];
     const SHIPPING           = 'SHPNG';
     const DISCOUNT           = 'DSCNT';
@@ -918,11 +918,18 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
      */
     public function getAddressDetail($addressObject)
     {
-        $street = str_replace("\n", " ", $addressObject['street']);
-        $addressText     = implode(' ', [$street, $addressObject['city'],$addressObject['postcode']]);
+        $addressText     = implode(
+            ', ', 
+            array_merge(
+                explode("\n",$addressObject['street']), 
+                [$addressObject['city']]
+            )
+        );
         $addressArray = [
             'postcode' => $addressObject['postcode'],
-            'text'     => $addressText,
+            'text' => $addressText,
+            'street' => explode("\n",$addressObject['street'])[0],
+            'town' => $addressObject['city'] 
         ];
 
         return $addressArray;
