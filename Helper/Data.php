@@ -929,7 +929,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
      */
     public function getAddressDetail($addressObject)
     {
-        $addressText     = implode(
+        $addressText = implode(
             ', ', 
             array_merge(
                 explode("\n",$addressObject['street']), 

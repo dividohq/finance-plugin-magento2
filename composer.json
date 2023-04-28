@@ -4,6 +4,7 @@
     "type": "magento2-module",
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     "version": "2.9.1",
 =======
     "version": "2.8.0",
@@ -11,6 +12,9 @@
 =======
     "version": "2.8.1",
 >>>>>>> 06faa57 (feat/lm2 1654 new toggles (#122))
+=======
+    "version": "2.9.1",
+>>>>>>> 4ae8420 (fix: LM2-1855 address fields (#124))
     "license": [
         "OSL-3.0"
     ],
