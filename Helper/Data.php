@@ -918,11 +918,18 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
      */
     public function getAddressDetail($addressObject)
     {
-        $street = str_replace("\n", " ", $addressObject['street']);
-        $addressText     = implode(' ', [$street, $addressObject['city'],$addressObject['postcode']]);
+        $addressText     = implode(
+            ', ', 
+            array_merge(
+                explode("\n",$addressObject['street']), 
+                [$addressObject['city']]
+            )
+        );
         $addressArray = [
             'postcode' => $addressObject['postcode'],
-            'text'     => $addressText,
+            'text' => $addressText,
+            'street' => explode("\n",$addressObject['street'])[0],
+            'town' => $addressObject['city'] 
         ];
 
         return $addressArray;
