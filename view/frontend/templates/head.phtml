@@ -28,5 +28,10 @@
     ], function ($) {
         waitForElementToDisplay('#dividoWidget', 1000); 
     });
+    <?php if(!empty($block->getCalcConfApiUrl())){ ?>
+    window.__calculatorConfig = {
+        calculatorApiPubUrl: '<?= $block->getCalcConfApiUrl(); ?>'
+    };
+    <?php } ?>
 // ]]>
 </script>
