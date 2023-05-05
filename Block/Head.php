@@ -40,9 +40,4 @@ class Head extends \Magento\Framework\View\Element\Template
     {
         return $this->helper->getBranding();
     }
-
-    public function getCalcConfApiUrl()
-    {
-        return $this->helper->getCalcConfApiUrl();
-    }
 }

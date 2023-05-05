@@ -10,7 +10,6 @@
 </script>
 <script type="text/javascript" src="<?php echo $block->getScriptUrl(); ?>"></script>
 <script>// <![CDATA[
-    let dividoEnv = '<?= $block->getPlatformEnv(); ?>';
     function waitForElementToDisplay(selector, time) {
         if(document.querySelector(selector)!=null) {
             <?= (empty($block->getCalcConfApiUrl())) ? '__widgetInstance' : '__calculator'; ?>.init();
