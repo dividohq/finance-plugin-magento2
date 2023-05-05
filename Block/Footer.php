@@ -14,11 +14,6 @@ class Footer extends \Magento\Framework\View\Element\Template
         parent::__construct($context);
     }
 
-    public function getScriptUrl()
-    {
-        return $this->helper->getScriptUrl();
-    }
-
     public function getCalcConfApiUrl()
     {
         return $this->helper->getCalcConfApiUrl();
