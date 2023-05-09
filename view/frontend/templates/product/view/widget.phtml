@@ -34,7 +34,7 @@ require(['jquery'], function(jQuery){
     if(basePrice >= threshold){
       document.getElementById("dividoWidget").setAttribute('data-amount', price * 100);
       document.getElementById("dividoWidget").style.display = "";
-      __widgetInstance.init()
+      <?= (empty($block->getCalculatorConfigApiUrl())) ? '__widgetInstance' : '__calculator'; ?>.init()
 
     }else{
       document.getElementById("dividoWidget").style.display = "none";
