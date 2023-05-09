@@ -35,11 +35,6 @@ class Head extends \Magento\Framework\View\Element\Template
     {
         return $this->helper->getCalcConfApiUrl();
     }
-    
-    public function getBrandingJson()
-    {
-        return $this->helper->getBranding();
-    }
 
     public function getDividoKey()
     {
