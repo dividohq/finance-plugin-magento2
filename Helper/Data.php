@@ -1254,4 +1254,14 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $signature = base64_encode($hmac);
         return $signature;
     }
+
+    public function getApplication($applicationId) {
+        $client = $this->getSdk();
+        $response = $client->applications->getSingleApplication($applicationId);
+        if($response->getStatus() === 200){
+            throw new \Exception("Could not retrieve application");
+        }
+        $applicationArr = json_decode($response->getBody(), true);
+        return $applicationArr;
+    }
 }
