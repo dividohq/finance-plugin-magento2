@@ -2,6 +2,7 @@
 
 namespace Divido\DividoFinancing\Helper;
 
+use Divido\DividoFinancing\Exceptions\RefundException;
 use \Divido\DividoFinancing\Model\LookupFactory;
 use Divido\MerchantSDK\Environment;
 use Divido\MerchantSDK\Exceptions\InvalidApiKeyFormatException;
@@ -11,6 +12,7 @@ use Magento\Framework\Exception\RuntimeException;
 use Magento\Framework\Phrase;
 use Magento\Framework\UrlInterface;
 use Divido\DividoFinancing\Helper\EndpointHealthCheckTrait;
+use Psr\Http\Message\ResponseInterface;
 
 class Data extends \Magento\Framework\App\Helper\AbstractHelper
 {
@@ -28,7 +30,11 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     const WIDGET_LANGUAGES   = ["en", "fi" , "no", "es", "da", "fr", "de", "pe"];
     const SHIPPING           = 'SHPNG';
     const DISCOUNT           = 'DSCNT';
+<<<<<<< HEAD
     const V4_CALCULATOR_URL  = 'https://cdn.divido.com/widget/v4/divido.calculator.js';
+=======
+    const SUCCESSFUL_REFUND_STATUS = 201;
+>>>>>>> f81de5a (feat: check refundable amount before refund)
 
     private $config;
     private $logger;
@@ -1114,7 +1120,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         }
 
         $applicationId = $lookup['application_id'];
-        $order_total = $lookup['initial_cart_value'];
         $order_id = $lookup['order_id'];
 
         $autoRefund = $this->config->getValue(
@@ -1123,13 +1128,29 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         );
 
         if ($autoRefund) {
-            $this->sendRefund($applicationId, $order_total, $order_id);
+            $application = $this->getApplication($applicationId);
+            $refund_amount = $application['amounts']['refundable_amount'];
+            if($refund_amount <= 0){
+                throw new RefundException("Can not refund order: No refundable amount");
+            }
+            
+            $response = $this->sendRefund($applicationId, $refund_amount);
+            if($response->getStatusCode() !== self::SUCCESSFUL_REFUND_STATUS){
+                $this->logger->warning('Could not refund order', [
+                    'order ID' => $order_id,
+                    'application ID' => $applicationId,
+                    'response' => $response->getBody()->getContents() 
+                ]);
+                throw new RefundException("Can not refund order: Refund attempt unsuccessful");
+            }
+            $activation_response_body = $response->getBody()->getContents();
+            // check what we receive, and feedback
         }
 
     }
 
 
-    public function sendRefund($application_id, $order_total, $order_id)
+    public function sendRefund($application_id, int $refund_amount_pence):ResponseInterface
     {
         $application = (new \Divido\MerchantSDK\Models\Application())
             ->withId($application_id);
@@ -1137,17 +1158,17 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             [
                 'name'     => "Magento 2 Refund",
                 'quantity' => 1,
-                'price'    => $order_total * 100,
+                'price'    => $refund_amount_pence,
             ],
         ];
         $application_refund = (new \Divido\MerchantSDK\Models\ApplicationRefund())
             ->withOrderItems($items)
             ->withComment('As per customer request.')
-            ->withAmount($order_total * 100);
+            ->withAmount($refund_amount_pence);
         // Create a new activation for the application.
         $sdk                      = $this->getSdk();
         $response                 = $sdk->applicationRefunds()->createApplicationRefund($application, $application_refund);
-        $activation_response_body = $response->getBody()->getContents();
+        return $response;
     }
 
     public function debug()
