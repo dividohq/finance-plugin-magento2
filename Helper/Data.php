@@ -1111,12 +1111,12 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $this->cancelLookup($orderId);
     }
 
-    public function autoRefund($order)
+    public function autoRefund($order, int $amount, ?string $reason=null)
     {
         // Check if it's a finance order
         $lookup = $this->getLookupForOrder($order);
         if ($lookup === null) {
-            return false;
+            throw new RefundException("Could not retrieve order locally");
         }
 
         $applicationId = $lookup['application_id'];
@@ -1128,13 +1128,8 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         );
 
         if ($autoRefund) {
-            $application = $this->getApplication($applicationId);
-            $refund_amount = $application['amounts']['refundable_amount'];
-            if($refund_amount <= 0){
-                throw new RefundException("Can not refund order: No refundable amount");
-            }
             
-            $response = $this->sendRefund($applicationId, $refund_amount);
+            $response = $this->sendRefund($applicationId, $amount, $reason);
             if($response->getStatusCode() !== self::SUCCESSFUL_REFUND_STATUS){
                 $this->logger->warning('Could not refund order', [
                     'order ID' => $order_id,
@@ -1150,7 +1145,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     }
 
 
-    public function sendRefund($application_id, int $refund_amount_pence):ResponseInterface
+    public function sendRefund(string $application_id, int $refund_amount, ?string $reason=null):ResponseInterface
     {
         $application = (new \Divido\MerchantSDK\Models\Application())
             ->withId($application_id);
@@ -1158,16 +1153,21 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             [
                 'name'     => "Magento 2 Refund",
                 'quantity' => 1,
-                'price'    => $refund_amount_pence,
+                'price'    => $refund_amount,
             ],
         ];
         $application_refund = (new \Divido\MerchantSDK\Models\ApplicationRefund())
             ->withOrderItems($items)
             ->withComment('As per customer request.')
-            ->withAmount($refund_amount_pence);
+            ->withAmount($refund_amount);
+        
+        if($reason !== null){
+          $application_refund = $application_refund->withReason($reason);
+        }
+
         // Create a new activation for the application.
-        $sdk                      = $this->getSdk();
-        $response                 = $sdk->applicationRefunds()->createApplicationRefund($application, $application_refund);
+        $sdk = $this->getSdk();
+        $response = $sdk->applicationRefunds()->createApplicationRefund($application, $application_refund);
         return $response;
     }
 
@@ -1284,5 +1284,18 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         }
         $applicationArr = json_decode($response->getBody(), true);
         return $applicationArr;
+    } 
+
+    public function getRefundableAmount($orderId) {
+        $lookup = $this->getLookupForOrder($orderId);
+        if ($lookup === null) {
+            throw new RefundException("Could not find Refund locally");
+        }
+
+        $applicationId = $lookup['application_id'];
+        $applicationArr = $this->getApplication($applicationId);
+        $refundAmount = $applicationArr['data']['amounts']['refundable_amount'];
+
+        return $refundAmount;
     }
 }
