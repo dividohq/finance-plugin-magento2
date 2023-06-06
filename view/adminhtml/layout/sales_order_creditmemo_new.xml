@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceContainer name="content">
+            <referenceBlock name="submit_before">
+                <block class="Divido\DividoFinancing\Block\Adminhtml\Order\Creditmemo\Create\Custom" name="creditmemo_create_items_custom" template="order/creditmemo/create/custom.phtml" />
+            </referenceBlock>
+        </referenceContainer>
+    </body>
+</page>
