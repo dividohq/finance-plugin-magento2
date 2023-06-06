@@ -1,0 +1,28 @@
+
+#pbdNotification {
+    background-color: #296b70;
+    color: white;
+    margin: 15px 0;
+    padding: 10px;
+    border: 1px solid #ce5590;
+    border-width: 15px 1px 1px 1px;
+    border-radius: 0 20px;
+}
+
+#pbdReason{
+    padding-top: 10px;
+} 
+
+#pbdReason label{
+    padding-right: 25px;
+    font-weight: bold;
+}
+
+#pbdReason select{
+    color: black;
+}
+
+#pbdReason .form{
+    padding-top: 5px;
+    text-align: right;
+}
