@@ -1278,8 +1278,8 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 
     public function getApplication($applicationId) {
         $client = $this->getSdk();
-        $response = $client->applications->getSingleApplication($applicationId);
-        if($response->getStatus() === 200){
+        $response = $client->applications()->getSingleApplication($applicationId);
+        if($response->getStatusCode() !== 200){
             throw new \Exception("Could not retrieve application");
         }
         $applicationArr = json_decode($response->getBody(), true);
