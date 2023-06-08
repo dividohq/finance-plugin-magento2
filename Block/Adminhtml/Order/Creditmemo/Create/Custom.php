@@ -7,13 +7,15 @@ class Custom extends \Magento\Backend\Block\Template
     private $_coreRegistry;
 
     const REFUND_REASONS = [
-        "ALTERNATIVE_PAYMENT_METHOD_USED" => "Alternative Payment Method Used",
-        "GOODS_FAULTY" => "Goods Faulty",
-        "GOODS_NOT_RECEIVED" => "Goods Not Received",
-        "GOODS_RETURNED" => "Goods Returned",
-        "LOAN_AMENDED" => "Loan Amended",
-        "NOT_GOING_AHEAD" => "Not Going Ahead",
-        "NO_CUSTOMER_INFORMATION" => "No Customer Information"
+        "Novuna" => [
+            "ALTERNATIVE_PAYMENT_METHOD_USED" => "Alternative Payment Method Used",
+            "GOODS_FAULTY" => "Goods Faulty",
+            "GOODS_NOT_RECEIVED" => "Goods Not Received",
+            "GOODS_RETURNED" => "Goods Returned",
+            "LOAN_AMENDED" => "Loan Amended",
+            "NOT_GOING_AHEAD" => "Not Going Ahead",
+            "NO_CUSTOMER_INFORMATION" => "No Customer Information"
+        ]
     ];
 
     public function __construct(
@@ -37,28 +39,29 @@ class Custom extends \Magento\Backend\Block\Template
         $order = $creditMemo->getOrder();
         
         $code  = $order->getPayment()->getMethodInstance()->getCode();
-        $application = [];
+        $returnApp = [];
         $autoRefund = $this->helper->getAutoRefund();
 
         if ($code == 'divido_financing' && !empty($this->helper->getApiKey()) && $autoRefund) {
             try{
-                $application['refundable']['int'] = $this->helper->getRefundableAmount($order);
-                $application['refundable']['float'] = ($application['refundable']['int']/100);
-                $application['notification'] = sprintf(
+                $application = $this->helper->getApplicationFromOrder($order);
+                $returnApp['refundable']['int'] = $application['amounts']['refundable_amount'];
+                $returnApp['refundable']['float'] = ($returnApp['refundable']['int']/100);
+                $returnApp['notification'] = sprintf(
                     "Please note you can only be refunded &pound;%s currently. You must contact your lender in order to obtain a refund for any deposit, etc.", 
-                    $application['refundable']['float']
+                    $returnApp['refundable']['float']
                 );
 
-                if($this->helper->getPlatformEnv() === 'novuna'){
-                    $application['reasons'] = self::REFUND_REASONS;
+                if(array_key_exists($application['lender']['app_name'], self::REFUND_REASONS)){
+                    $returnApp['reasons'] = self::REFUND_REASONS[$application['lender']['app_name']];
                 }
             } catch (\Divido\MerchantSDK\Exceptions\MerchantApiBadResponseException $_){
-                $application['notification'] = "It appears you are using a different API Key to the one used to create this application.&nbsp;
+                $returnApp['notification'] = "It appears you are using a different API Key to the one used to create this application.&nbsp;
                 Please revert to that API key if you wish to automatically request this amount is refunded.";
             }
         }
         
-        return $application;
+        return $returnApp;
     }
 
 

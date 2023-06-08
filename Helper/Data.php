@@ -1299,16 +1299,15 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         return $applicationArr;
     } 
 
-    public function getRefundableAmount($orderId) {
-        $lookup = $this->getLookupForOrder($orderId);
+    public function getApplicationFromOrder($order) {
+        $lookup = $this->getLookupForOrder($order);
         if ($lookup === null) {
             throw new RefundException("Could not find Refund locally");
         }
 
         $applicationId = $lookup['application_id'];
         $applicationArr = $this->getApplication($applicationId);
-        $refundAmount = $applicationArr['data']['amounts']['refundable_amount'];
 
-        return $refundAmount;
+        return $applicationArr['data'];
     }
 }
