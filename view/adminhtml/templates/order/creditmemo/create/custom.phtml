@@ -2,10 +2,7 @@
 
 <?php if($application !== null){ ?>
 <div id="pbdNotification">
-    <div class="notification">
-        Please note you can only be refunded &pound;<?= $application['refundable']['float'] ?> currently.
-        You must contact your lender in order to obtain a refund for any deposit, etc.
-    </div>
+    <div class="notification"><?= $application['notification'] ?></div>
     <?php if (isset($application['reasons']) && is_iterable($application['reasons'])){ ?>
     <div id="pbdReason">
         <div>You must specify one of the following reasons for the refund to be successfully processed:</div>
