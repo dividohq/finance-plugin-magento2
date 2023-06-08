@@ -38,11 +38,9 @@ class Custom extends \Magento\Backend\Block\Template
         
         $code  = $order->getPayment()->getMethodInstance()->getCode();
         $application = [];
-        $autoRefund = $this->config->getValue(
-            'payment/divido_financing/auto_refund',
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-        );
-        if ($code == 'divido_financing' && !empty($this->helper->getApiKey() && $autoRefund) {
+        $autoRefund = $this->helper->getAutoRefund();
+        
+        if ($code == 'divido_financing' && !empty($this->helper->getApiKey()) && $autoRefund) {
             $application['refundable']['int'] = $this->helper->getRefundableAmount($order);
             $application['refundable']['float'] = ($application['refundable']['int']/100);
             if($this->helper->getPlatformEnv() === 'novuna'){

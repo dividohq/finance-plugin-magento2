@@ -985,6 +985,14 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         return $customUrl;
     }
 
+    public function getAutoRefund(){
+        $autoRefund = $this->config->getValue(
+            'payment/divido_financing/auto_refund',
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
+        return $autoRefund;
+    }
+
 
     public function updateInvoiceStatus($order)
     {
@@ -1122,10 +1130,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $applicationId = $lookup['application_id'];
         $order_id = $lookup['order_id'];
 
-        $autoRefund = $this->config->getValue(
-            'payment/divido_financing/auto_refund',
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-        );
+        $autoRefund = $this->getAutoRefund();
 
         if ($autoRefund) {
             
