@@ -7,7 +7,7 @@ class Custom extends \Magento\Backend\Block\Template
     private $_coreRegistry;
 
     const REFUND_REASONS = [
-        "Novuna" => [
+        "novuna" => [
             "ALTERNATIVE_PAYMENT_METHOD_USED" => "Alternative Payment Method Used",
             "GOODS_FAULTY" => "Goods Faulty",
             "GOODS_NOT_RECEIVED" => "Goods Not Received",
