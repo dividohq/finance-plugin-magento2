@@ -1144,8 +1144,16 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 
     }
 
-
-    public function sendRefund(string $application_id, int $refund_amount, ?string $reason=null):ResponseInterface
+    /**
+     * Creates a refund request and sends it via the SDK.
+     * Returns the returned ResponseInterface object.
+     *
+     * @param string $application_id
+     * @param integer $refund_amount
+     * @param string|null $reason
+     * @return ResponseInterface
+     */
+    public function sendRefund(string $application_id, int $refund_amount, ?string $reason=null)
     {
         $application = (new \Divido\MerchantSDK\Models\Application())
             ->withId($application_id);
