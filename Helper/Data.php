@@ -12,6 +12,7 @@ use Magento\Framework\Exception\RuntimeException;
 use Magento\Framework\Phrase;
 use Magento\Framework\UrlInterface;
 use Divido\DividoFinancing\Helper\EndpointHealthCheckTrait;
+use Divido\DividoFinancing\Model\RefundItems;
 use Psr\Http\Message\ResponseInterface;
 
 class Data extends \Magento\Framework\App\Helper\AbstractHelper
@@ -1119,7 +1120,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $this->cancelLookup($orderId);
     }
 
-    public function autoRefund($order, int $amount, ?string $reason=null)
+    public function autoRefund($order, RefundItems $refundItems, ?string $reason=null)
     {
         // Check if it's a finance order
         $lookup = $this->getLookupForOrder($order);
@@ -1133,6 +1134,8 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $autoRefund = $this->getAutoRefund();
 
         if ($autoRefund) {
+
+            $amount = $this->getRefundAmount($refundItems);
             
             $response = $this->sendRefund($applicationId, $amount, $reason);
             if($response->getStatusCode() !== self::SUCCESSFUL_REFUND_STATUS){
@@ -1309,5 +1312,14 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $applicationArr = $this->getApplication($applicationId);
 
         return $applicationArr['data'];
+    }
+
+    public function getRefundAmount(RefundItems $refundItems){
+        $refundAmount = 0;
+        /** @var \Divido\DividoFinancing\Model\RefundItem $ri */
+        foreach($refundItems as $ri){
+            $refundAmount = $ri->getAmount() * $ri->getQuantity();
+        }
+        return $refundAmount;
     }
 }

@@ -1,6 +1,9 @@
 <?php
 namespace Divido\DividoFinancing\Observer;
 
+use Divido\DividoFinancing\Exceptions\RefundException;
+use Divido\DividoFinancing\Model\RefundItem;
+use Divido\DividoFinancing\Model\RefundItems;
 use Magento\Framework\Event\ObserverInterface;
 
 class RefundObserver implements ObserverInterface
@@ -26,11 +29,82 @@ class RefundObserver implements ObserverInterface
         $code  = $order->getPayment()->getMethodInstance()->getCode();
         $params = $this->_request->getParams();
             
-        if ($code == 'divido_financing' && isset($params['pbd_refund']) && $params['pbd_refund'] > 0) {
+        if ($code == 'divido_financing') {
+            $refundItems = $this->generateRefundItems($params['creditmemo'], $order->getItems());
+
+            if(isset($params['pbd_refund_limit']) && $this->helper->getRefundAmount($refundItems) > $params['pbd_refund_limit']){
+                $refundItems = new RefundItems(
+                    [
+                        new RefundItem(
+                            'Full Refund',
+                            $params['pbd_refund_limit'],
+                            1
+                        )
+                    ]
+                );
+            }
+
             $this->logger->info('PBD Refund Triggered', ['Quote' => $order->getQuoteId(), 'request' => $params]);
 
-            $reason = $params['refund_reason'] ?? null;
-            $this->helper->autoRefund($order, $params['pbd_refund'], $reason);
+            $reason = $params['pbd_refund_reason'] ?? null;
+            $this->helper->autoRefund($order, $refundItems, $reason);
         }
+    }
+
+    private function generateRefundItems($creditmemo, $orderItems){
+        $strippedItemsArr = [];
+        $refundItems = new RefundItems();
+        foreach($orderItems as $orderItem){
+            $strippedItemsArr[$orderItem->getItemId()] = [
+                'name' => $orderItem->getName(),
+                'price' => $orderItem->getPriceInclTax()
+            ];
+        }
+        foreach($creditmemo['items'] as $id=>$creditItem){
+            if($creditItem['qty'] > 0){
+                if(!$strippedItemsArr[$id]){
+                    throw new RefundException("Could not retrieve refund item information");
+                }
+                $refundItems->addRefundItem(
+                    new RefundItem(
+                        $strippedItemsArr[$id]['name'],
+                        ($strippedItemsArr[$id]['price']*100),
+                        $creditItem['qty']
+                    )
+                );
+            }
+        }
+
+        if(isset($creditmemo['shipping_amount']) && $creditmemo['shipping_amount'] > 0){
+            $refundItems->addRefundItem(
+                new RefundItem(
+                    'Shipping',
+                    ($creditmemo['shipping_amount']*100),
+                    1
+                )
+            );
+        }
+
+        if(isset($creditmemo['adjustment_positive']) && $creditmemo['adjustment_positive'] > 0){
+            $refundItems->addRefundItem(
+                new RefundItem(
+                    'Positive Adjustment',
+                    ($creditmemo['adjustment_positive']*100),
+                    1
+                )
+            );
+        }
+
+        if(isset($creditmemo['adjustment_negative']) && $creditmemo['adjustment_negative'] > 0){
+            $refundItems->addRefundItem(
+                new RefundItem(
+                    'Negative Adjustment',
+                    0-($creditmemo['adjustment_negative']*100),
+                    1
+                )
+            );
+        }
+        
+        return $refundItems;
     }
 }
