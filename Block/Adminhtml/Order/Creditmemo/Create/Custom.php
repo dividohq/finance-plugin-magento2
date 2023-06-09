@@ -45,11 +45,10 @@ class Custom extends \Magento\Backend\Block\Template
         if ($code == 'divido_financing' && !empty($this->helper->getApiKey()) && $autoRefund) {
             try{
                 $application = $this->helper->getApplicationFromOrder($order);
-                $returnApp['refundable']['int'] = $application['amounts']['refundable_amount'];
-                $returnApp['refundable']['float'] = ($returnApp['refundable']['int']/100);
+                $returnApp['refundable'] = $application['amounts']['refundable_amount'];
                 $returnApp['notification'] = sprintf(
                     "Please note you can only be refunded &pound;%s currently. You must contact your lender in order to obtain a refund for any deposit, etc.", 
-                    $returnApp['refundable']['float']
+                    ($returnApp['refundable']/100)
                 );
 
                 if(array_key_exists($application['lender']['app_name'], self::REFUND_REASONS)){

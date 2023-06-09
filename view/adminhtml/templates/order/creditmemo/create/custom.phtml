@@ -3,12 +3,15 @@
 <?php if($application !== null){ ?>
 <div id="pbdNotification">
     <div class="notification"><?= $application['notification'] ?></div>
+    <?php if($application['refundable']){ ?>
+    <input type="hidden" name="pbd_refund_limit" value="<?= $application['refundable'] ?>" />
+    <?php } ?>
     <?php if (isset($application['reasons']) && is_iterable($application['reasons'])){ ?>
     <div id="pbdReason">
         <div>You must specify one of the following reasons for the refund to be successfully processed:</div>
         <div class='form'>
-            <label for="refund_reasons">Refund Reason:</label>
-            <select name='refund_reason' name='refund_reasons' id='refundReason'>
+            <label for="pbd_refund_reasons">Refund Reason:</label>
+            <select name='pbd_refund_reason' id='refundReason'>
                 <?php foreach ($application['reasons'] as $key => $value) { ?>
                     <option value='<?= $key ?>'><?= $value ?></option>
                 <?php } ?>
