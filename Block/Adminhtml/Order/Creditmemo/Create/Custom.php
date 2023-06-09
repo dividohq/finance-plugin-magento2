@@ -48,7 +48,7 @@ class Custom extends \Magento\Backend\Block\Template
                 $returnApp['refundable'] = $application['amounts']['refundable_amount'];
                 $returnApp['notification'] = sprintf(
                     "Please note you can only be refunded &pound;%s currently. You must contact your lender in order to obtain a refund for any deposit, etc.", 
-                    ($returnApp['refundable']/100)
+                    number_format($returnApp['refundable']/100, 2, '.', '')
                 );
 
                 if(array_key_exists($application['lender']['app_name'], self::REFUND_REASONS)){
