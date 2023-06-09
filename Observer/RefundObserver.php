@@ -32,22 +32,15 @@ class RefundObserver implements ObserverInterface
         if ($code == 'divido_financing') {
             $refundItems = $this->generateRefundItems($params['creditmemo'], $order->getItems());
 
-            if(isset($params['pbd_refund_limit']) && $this->helper->getRefundAmount($refundItems) > $params['pbd_refund_limit']){
-                $refundItems = new RefundItems(
-                    [
-                        new RefundItem(
-                            'Full Refund',
-                            $params['pbd_refund_limit'],
-                            1
-                        )
-                    ]
-                );
+            $amount = $this->helper->getRefundAmount($refundItems);
+            if(isset($params['pbd_refund_limit']) && $amount > $params['pbd_refund_limit']){
+                $amount = $params['pbd_refund_limit'];
             }
 
             $this->logger->info('PBD Refund Triggered', ['Quote' => $order->getQuoteId(), 'request' => $params]);
 
             $reason = $params['pbd_refund_reason'] ?? null;
-            $this->helper->autoRefund($order, $refundItems, $reason);
+            $this->helper->autoRefund($order, $amount, $refundItems, $reason);
         }
     }
 

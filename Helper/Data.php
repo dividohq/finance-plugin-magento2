@@ -1120,7 +1120,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $this->cancelLookup($orderId);
     }
 
-    public function autoRefund($order, RefundItems $refundItems, ?string $reason=null)
+    public function autoRefund($order, int $amount, RefundItems $refundItems, ?string $reason=null)
     {
         // Check if it's a finance order
         $lookup = $this->getLookupForOrder($order);
@@ -1135,7 +1135,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 
         if ($autoRefund) {
             
-            $response = $this->sendRefund($applicationId, $refundItems, $reason);
+            $response = $this->sendRefund($applicationId, $amount, $refundItems, $reason);
             if($response->getStatusCode() !== self::SUCCESSFUL_REFUND_STATUS){
                 $this->logger->warning('Could not refund order', [
                     'order ID' => $order_id,
@@ -1155,11 +1155,12 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
      * Returns the returned ResponseInterface object.
      *
      * @param string $application_id
-     * @param integer $refund_amount
+     * @param integer $amount
+     * @param RefundItems $refundItems
      * @param string|null $reason
      * @return ResponseInterface
      */
-    public function sendRefund(string $application_id, RefundItems $refundItems, ?string $reason=null)
+    public function sendRefund(string $application_id, int $amount, RefundItems $refundItems, ?string $reason=null)
     {
         $application = (new \Divido\MerchantSDK\Models\Application())
             ->withId($application_id);
@@ -1177,7 +1178,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $application_refund = (new \Divido\MerchantSDK\Models\ApplicationRefund())
             ->withOrderItems($items)
             ->withComment('As per customer request.')
-            ->withAmount($this->getRefundAmount($refundItems));
+            ->withAmount($amount);
         
         if($reason !== null){
           $application_refund = $application_refund->withReason($reason);
