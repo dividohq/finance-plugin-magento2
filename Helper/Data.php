@@ -1161,21 +1161,25 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
      * @param string|null $reason
      * @return ResponseInterface
      */
-    public function sendRefund(string $application_id, int $refund_amount, ?string $reason=null)
+    public function sendRefund(string $application_id, RefundItems $refundItems, ?string $reason=null)
     {
         $application = (new \Divido\MerchantSDK\Models\Application())
             ->withId($application_id);
-        $items       = [
-            [
-                'name'     => "Magento 2 Refund",
-                'quantity' => 1,
-                'price'    => $refund_amount,
-            ],
-        ];
+        
+        $items = [];
+        /** @var \Divido\DividoFinancing\Model\RefundItem $item  */
+        foreach($refundItems as $item){
+            $items[] = [
+                'name'     => $item->getName(),
+                'quantity' => $item->getQuantity(),
+                'price'    => $item->getAmount(),
+            ];
+        }
+
         $application_refund = (new \Divido\MerchantSDK\Models\ApplicationRefund())
             ->withOrderItems($items)
             ->withComment('As per customer request.')
-            ->withAmount($refund_amount);
+            ->withAmount($this->getRefundAmount($refundItems));
         
         if($reason !== null){
           $application_refund = $application_refund->withReason($reason);
