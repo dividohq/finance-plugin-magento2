@@ -1134,10 +1134,8 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $autoRefund = $this->getAutoRefund();
 
         if ($autoRefund) {
-
-            $amount = $this->getRefundAmount($refundItems);
             
-            $response = $this->sendRefund($applicationId, $amount, $reason);
+            $response = $this->sendRefund($applicationId, $refundItems, $reason);
             if($response->getStatusCode() !== self::SUCCESSFUL_REFUND_STATUS){
                 $this->logger->warning('Could not refund order', [
                     'order ID' => $order_id,
