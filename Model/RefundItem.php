@@ -14,7 +14,7 @@ class RefundItem
     public function __construct(
         string $name,
         int $amount,
-        string $quantity
+        int $quantity
     ){
         $this->name = $name;
         $this->amount = $amount;
@@ -40,7 +40,7 @@ class RefundItem
     /**
      * Get the value of quantity
      */
-    public function getQuantity(): string
+    public function getQuantity(): int
     {
         return $this->quantity;
     }
