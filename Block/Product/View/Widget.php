@@ -86,9 +86,9 @@ class Widget extends \Magento\Catalog\Block\Product\AbstractProduct
         }
     }
     
-    public function getDividoKey()
+    public function getShortApiKey()
     {
-        return $this->helper->getDividoKey();
+        return $this->helper->getShortApiKey();
     }
 
     public function getThreshold()

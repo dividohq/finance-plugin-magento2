@@ -36,9 +36,9 @@ class Head extends \Magento\Framework\View\Element\Template
         return $this->helper->getCalcConfApiUrl();
     }
 
-    public function getDividoKey()
+    public function getShortApiKey()
     {
-        return $this->helper->getDividoKey();
+        return $this->helper->getShortApiKey();
     }
 
     public function getScriptUrl()

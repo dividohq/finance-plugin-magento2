@@ -763,7 +763,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         return $environmentUrl;
     }
 
-    public function getDividoKey()
+    public function getShortApiKey()
     {
         $apiKey = $this->getApiKey();
 

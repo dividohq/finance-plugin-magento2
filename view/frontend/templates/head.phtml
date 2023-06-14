@@ -6,7 +6,7 @@
 $calcJsDom = (empty($block->getCalcConfApiUrl())) ? '__widgetInstance' : '__calculator';
 ?>
 <script> 
-    __widgetConfig = {apiKey: '<?php echo $block->getDividoKey(); ?>'}
+    __widgetConfig = {apiKey: '<?php echo $block->getShortApiKey(); ?>'}
     const dividoEnv = '<?php echo $block->getPlatformEnv(); ?>';
     const dividoBranding = <?php echo $block->getBrandingJson(); ?>;
 </script>
@@ -33,7 +33,7 @@ $calcJsDom = (empty($block->getCalcConfApiUrl())) ? '__widgetInstance' : '__calc
     <?php if(!empty($block->getCalcConfApiUrl())){ ?>
     window.__calculatorConfig = {
         calculatorApiPubUrl: '<?= $block->getCalcConfApiUrl(); ?>',
-        apiKey: '<?= $block->getDividoKey(); ?>',
+        apiKey: '<?= $block->getShortApiKey(); ?>',
         overrides: {
             theme: {
                 modes: {

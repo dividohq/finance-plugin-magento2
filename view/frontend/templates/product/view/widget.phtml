@@ -2,7 +2,7 @@
 <?php if($block->loadWidget() && $block->showWidget()){ ?>
   <div id='dividoWidget'
     data-calculator-widget
-    data-api-key="<?= $block->getDividoKey(); ?>"
+    data-api-key="<?= $block->getShortApiKey(); ?>"
     data-plans="<?php echo $block->getProductPlans(); ?>"
     data-amount="<?php echo $block->getProductAmount(); ?>"
     data-footnote="<?php echo $block->getFootnote(); ?>"

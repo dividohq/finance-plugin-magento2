@@ -38,9 +38,9 @@ class PopupWidget extends Template implements BlockInterface
         return $this->helper->getWidgetButtonText();
     }
 
-    public function getDividoKey()
+    public function getShortApiKey()
     {
-        return $this->helper->getDividoKey();
+        return $this->helper->getShortApiKey();
     }
 
 }

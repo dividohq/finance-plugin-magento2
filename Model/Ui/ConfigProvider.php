@@ -35,7 +35,7 @@ final class ConfigProvider implements ConfigProviderInterface
         $description = $this->helper->getDescription();
         $footnote    = $this->helper->getWidgetFootnote();
         $language    = $this->helper->getWidgetLanguage();
-        $shortApiKey = $this->helper->getDividoKey();
+        $shortApiKey = $this->helper->getShortApiKey();
         $calcConfApi = $this->helper->getCalcConfApiUrl();
 
         return [

@@ -12,7 +12,7 @@ if($block->showable()):
 />
 <div id="dividoCalcWidget"
     data-calculator-widget
-    data-api-key='<?= $block->getDividoKey(); ?>'
+    data-api-key='<?= $block->getShortApiKey(); ?>'
     data-amount="<?php echo ($block->getData("defaultAmount")) ? $block->getData("defaultAmount") : 2000; ?>"
     data-plans
     data-button-text="<?php echo $block->getButtonText(); ?>" 
