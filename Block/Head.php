@@ -45,4 +45,9 @@ class Head extends \Magento\Framework\View\Element\Template
     {
         return $this->helper->getScriptUrl();
     }
+
+    public function getCalcLinkText()
+    {
+        return $this->helper->getWidgetButtonText();
+    }
 }

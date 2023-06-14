@@ -30,7 +30,17 @@
     });
     <?php if(!empty($block->getCalcConfApiUrl())){ ?>
     window.__calculatorConfig = {
-        calculatorApiPubUrl: '<?= $block->getCalcConfApiUrl(); ?>'
+        calculatorApiPubUrl: '<?= $block->getCalcConfApiUrl(); ?>',
+        apiKey: '<?= $block->getDividoKey(); ?>',
+        overrides: {
+            theme: {
+                modes: {
+                    Lightbox: {
+                        linkText: '<?= $block->getCalcLinkText(); ?>'
+                    }
+                }
+            }
+        }
     };
     <?php } ?>
 // ]]>
