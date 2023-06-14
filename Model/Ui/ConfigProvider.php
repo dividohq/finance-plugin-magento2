@@ -35,6 +35,8 @@ final class ConfigProvider implements ConfigProviderInterface
         $description = $this->helper->getDescription();
         $footnote    = $this->helper->getWidgetFootnote();
         $language    = $this->helper->getWidgetLanguage();
+        $shortApiKey = $this->helper->getShortApiKey();
+        $calcConfApi = $this->helper->getCalcConfApiUrl();
 
         return [
             'payment' => [
@@ -43,6 +45,8 @@ final class ConfigProvider implements ConfigProviderInterface
                     'description'       => $description,
                     'widget_footnote'   => $footnote,
                     'language_override' => $language,
+                    'short_api_key'     => $shortApiKey,
+                    'calc_conf_api_url' => $calcConfApi
                 ]
             ]
         ];

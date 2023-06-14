@@ -24,10 +24,11 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     const CALLBACK_PATH      = 'rest/V1/divido/update/';
     const REDIRECT_PATH      = 'divido/financing/success/';
     const CHECKOUT_PATH      = 'checkout/';
-    const VERSION            = '2.9.1';
+    const VERSION            = '2.10.0';
     const WIDGET_LANGUAGES   = ["en", "fi" , "no", "es", "da", "fr", "de", "pe"];
     const SHIPPING           = 'SHPNG';
     const DISCOUNT           = 'DSCNT';
+    const V4_CALCULATOR_URL  = 'https://cdn.divido.com/widget/v4/divido.calculator.js';
 
     private $config;
     private $logger;
@@ -653,6 +654,16 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         return $apiKey;
     }
 
+    public function getCalcConfApiUrl()
+    {
+        $calcConfApiUrl = $this->config->getValue(
+            'payment/divido_financing/calc_conf_api_url',
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
+
+        return $calcConfApiUrl;
+    }
+
     /**
      * @param string|false $apiKey
      * @return array Array of configuration data from MerchantSDK, for more information look in MerchantSDK\Environment::CONFIGURATION
@@ -752,7 +763,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         return $environmentUrl;
     }
 
-    public function getDividoKey()
+    public function getShortApiKey()
     {
         $apiKey = $this->getApiKey();
 
@@ -760,12 +771,8 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             return '';
         }
 
-            $keyParts = explode('.', $apiKey);
-            $relevantPart = array_shift($keyParts);
-
-            $jsKey = strtolower($relevantPart);
-
-            return $jsKey;
+        $shortKey = explode('.', $apiKey)[0];
+        return strtolower($shortKey);
     }
 
     /**
@@ -776,6 +783,10 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     {
         if ($this->debug()) {
             $this->logger->info('GetScript URL HElper');
+        }
+
+        if($this->getCalcConfApiUrl()){
+            return self::V4_CALCULATOR_URL;
         }
         $apiKey = $this->getApiKey();
         $scriptUrl= "//cdn.divido.com/widget/v3/divido.calculator.js";
@@ -918,7 +929,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
      */
     public function getAddressDetail($addressObject)
     {
-        $addressText     = implode(
+        $addressText = implode(
             ', ', 
             array_merge(
                 explode("\n",$addressObject['street']), 
