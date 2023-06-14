@@ -2,6 +2,8 @@
 /** 
  * @var $block \Divido\DividoFinancing\Block\Head
  */
+
+$calcJsDom = (empty($block->getCalcConfApiUrl())) ? '__widgetInstance' : '__calculator';
 ?>
 <script> 
     __widgetConfig = {apiKey: '<?php echo $block->getDividoKey(); ?>'}
@@ -12,7 +14,7 @@
 <script>// <![CDATA[
     function waitForElementToDisplay(selector, time) {
         if(document.querySelector(selector)!=null) {
-            <?= (empty($block->getCalcConfApiUrl())) ? '__widgetInstance' : '__calculator'; ?>.init();
+            <?= $calcJsDom ?>.init();
             return;
         }
         else {
