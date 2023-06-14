@@ -37,6 +37,18 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     const SUCCESSFUL_REFUND_STATUS = 201;
 >>>>>>> f81de5a (feat: check refundable amount before refund)
 
+    const REFUND_CANCEL_REASONS = [
+        "novuna" => [
+            "ALTERNATIVE_PAYMENT_METHOD_USED" => "Alternative Payment Method Used",
+            "GOODS_FAULTY" => "Goods Faulty",
+            "GOODS_NOT_RECEIVED" => "Goods Not Received",
+            "GOODS_RETURNED" => "Goods Returned",
+            "LOAN_AMENDED" => "Loan Amended",
+            "NOT_GOING_AHEAD" => "Not Going Ahead",
+            "NO_CUSTOMER_INFORMATION" => "No Customer Information"
+        ]
+    ];
+
     private $config;
     private $logger;
     private $cache;

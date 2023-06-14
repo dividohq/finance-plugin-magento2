@@ -1,22 +1,12 @@
 <?php
 namespace Divido\DividoFinancing\Block\Adminhtml\Order\Creditmemo\Create;
 
+use Divido\DividoFinancing\Helper\Data;
+
 class Custom extends \Magento\Backend\Block\Template
 {
     private $helper;
     private $_coreRegistry;
-
-    const REFUND_REASONS = [
-        "novuna" => [
-            "ALTERNATIVE_PAYMENT_METHOD_USED" => "Alternative Payment Method Used",
-            "GOODS_FAULTY" => "Goods Faulty",
-            "GOODS_NOT_RECEIVED" => "Goods Not Received",
-            "GOODS_RETURNED" => "Goods Returned",
-            "LOAN_AMENDED" => "Loan Amended",
-            "NOT_GOING_AHEAD" => "Not Going Ahead",
-            "NO_CUSTOMER_INFORMATION" => "No Customer Information"
-        ]
-    ];
 
     public function __construct(
         \Magento\Backend\Block\Template\Context $context,
@@ -51,8 +41,8 @@ class Custom extends \Magento\Backend\Block\Template
                     $order->formatPrice($returnApp['refundable']/100)
                 );
 
-                if(array_key_exists($application['lender']['app_name'], self::REFUND_REASONS)){
-                    $returnApp['reasons'] = self::REFUND_REASONS[$application['lender']['app_name']];
+                if(array_key_exists($application['lender']['app_name'], Data::REFUND_CANCEL_REASONS)){
+                    $returnApp['reasons'] = Data::REFUND_CANCEL_REASONS[$application['lender']['app_name']];
                 }
             } catch (\Divido\MerchantSDK\Exceptions\MerchantApiBadResponseException $_){
                 $returnApp['notification'] = "It appears you are using a different API Key to the one used to create this application.&nbsp;
