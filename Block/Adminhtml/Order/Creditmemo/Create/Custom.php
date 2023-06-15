@@ -36,12 +36,26 @@ class Custom extends \Magento\Backend\Block\Template
             try{
                 $application = $this->helper->getApplicationFromOrder($order);
                 $returnApp['refundable'] = $application['amounts']['refundable_amount'];
-                $returnApp['notification'] = sprintf(
-                    "Please note you can only be refunded %s currently. You must contact your lender in order to obtain a refund for any deposit, etc.", 
+                $returnApp['notification'][] = sprintf(
+                    "Please note that the maximum refund available for this application is %s.", 
                     $order->formatPrice($returnApp['refundable']/100)
                 );
+                if(array_key_exists($application['lender']['app_name'], DATA::NON_PARTIAL_LENDERS)){
+                    $returnApp['partial_refundable'] = false;
+                    $returnApp['notification'][] = "We are unable to request partial refunds from your lender";
+                }else{
+                    if($application['finance_plan']['credit_amount']['minimum_amount'] > 0){
+                        $returnApp['partial_refundable'] = $application['amounts']['refundable_amount'] - $application['finance_plan']['credit_amount']['minimum_amount'];
+                        $returnApp['notification'][] = sprintf(
+                            "If you are making a partial refund, the maximum that can be refunded (before reaching this finance plan's minimum credit limit) is %s", 
+                            $order->formatPrice($returnApp['partial_refundable']/100)
+                        );
+                    }
+                }
 
                 if(array_key_exists($application['lender']['app_name'], Data::REFUND_CANCEL_REASONS)){
+                    $returnApp['reason_notification'] = "You must specify one of the following reasons for the refund to be successfully processed";
+                    $returnApp['reason_title'] = "Refund Reason";
                     $returnApp['reasons'] = Data::REFUND_CANCEL_REASONS[$application['lender']['app_name']];
                 }
             } catch (\Divido\MerchantSDK\Exceptions\MerchantApiBadResponseException $_){

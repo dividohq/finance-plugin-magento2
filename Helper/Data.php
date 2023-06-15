@@ -46,6 +46,10 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         ]
     ];
 
+    const NON_PARTIAL_LENDERS = [
+        "novuna"
+    ];
+
     private $config;
     private $logger;
     private $cache;
