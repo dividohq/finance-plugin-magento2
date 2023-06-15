@@ -29,24 +29,26 @@ class Custom extends \Magento\Backend\Block\Template
         $order = $creditMemo->getOrder();
         
         $code  = $order->getPayment()->getMethodInstance()->getCode();
-        $returnApp = [];
+        $returnApp = [
+            'refundable' => false
+        ];
         $autoRefund = $this->helper->getAutoRefund();
 
         if ($code == 'divido_financing' && !empty($this->helper->getApiKey()) && $autoRefund) {
             try{
                 $application = $this->helper->getApplicationFromOrder($order);
                 $returnApp['refundable'] = $application['amounts']['refundable_amount'];
-                $returnApp['notification'][] = sprintf(
-                    "Please note that the maximum refund available for this application is %s.", 
+                $returnApp['notifications'][] = sprintf(
+                    "Please note that the maximum refund available for this application is %s", 
                     $order->formatPrice($returnApp['refundable']/100)
                 );
-                if(array_key_exists($application['lender']['app_name'], DATA::NON_PARTIAL_LENDERS)){
+                if(in_array($application['lender']['app_name'], DATA::NON_PARTIAL_LENDERS)){
                     $returnApp['partial_refundable'] = false;
-                    $returnApp['notification'][] = "We are unable to request partial refunds from your lender";
+                    $returnApp['notifications'][] = "We are unable to request partial refunds from your lender";
                 }else{
                     if($application['finance_plan']['credit_amount']['minimum_amount'] > 0){
                         $returnApp['partial_refundable'] = $application['amounts']['refundable_amount'] - $application['finance_plan']['credit_amount']['minimum_amount'];
-                        $returnApp['notification'][] = sprintf(
+                        $returnApp['notifications'][] = sprintf(
                             "If you are making a partial refund, the maximum that can be refunded (before reaching this finance plan's minimum credit limit) is %s", 
                             $order->formatPrice($returnApp['partial_refundable']/100)
                         );
@@ -59,8 +61,8 @@ class Custom extends \Magento\Backend\Block\Template
                     $returnApp['reasons'] = Data::REFUND_CANCEL_REASONS[$application['lender']['app_name']];
                 }
             } catch (\Divido\MerchantSDK\Exceptions\MerchantApiBadResponseException $_){
-                $returnApp['notification'] = "It appears you are using a different API Key to the one used to create this application.&nbsp;
-                Please revert to that API key if you wish to automatically request this amount is refunded.";
+                $returnApp['notifications'] = ["It appears you are using a different API Key to the one used to create this application.&nbsp;
+                Please revert to that API key if you wish to automatically request this amount is refunded"];
             }
         }
         

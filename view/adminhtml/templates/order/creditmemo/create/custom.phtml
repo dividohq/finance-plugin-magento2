@@ -3,13 +3,13 @@
 <?php if($application !== null){ ?>
 <div id="pbdNotification">
     <div class="notification">
-        <?php foreach($application['notifications'] as $notification) echo(sprintf("<p>%s</p>", $notification)); ?></div>
+        <?php foreach($application['notifications'] as $notification) echo(sprintf("<p>%s.</p>", $notification)); ?></div>
     <?php if($application['refundable']){ ?>
     <input type="hidden" name="pbd_refund_limit" value="<?= $application['refundable'] ?>" />
     <?php } ?>
     <?php if (isset($application['reasons']) && is_iterable($application['reasons'])){ ?>
     <div id="pbdReason">
-        <div><?= $application['reason_notification']; ?>:</div>
+        <div><?= $application['reason_notification']; ?>.</div>
         <div class='form'>
             <label for="pbd_refund_reasons"><?= $application['reason_title'] ?>:</label>
             <select name='pbd_refund_reason' id='refundReason'>
