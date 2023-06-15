@@ -31,11 +31,8 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     const WIDGET_LANGUAGES   = ["en", "fi" , "no", "es", "da", "fr", "de", "pe"];
     const SHIPPING           = 'SHPNG';
     const DISCOUNT           = 'DSCNT';
-<<<<<<< HEAD
     const V4_CALCULATOR_URL  = 'https://cdn.divido.com/widget/v4/divido.calculator.js';
-=======
     const SUCCESSFUL_REFUND_STATUS = 201;
->>>>>>> f81de5a (feat: check refundable amount before refund)
 
     const REFUND_CANCEL_REASONS = [
         "novuna" => [
