@@ -30,7 +30,10 @@ class Custom extends \Magento\Backend\Block\Template
         
         $code  = $order->getPayment()->getMethodInstance()->getCode();
         $returnApp = [
-            'refundable' => false
+            'title' => 'Please Note',
+            'refundable' => false,
+            'partial_refundable' => false,
+            'notifications' => []
         ];
         $autoRefund = $this->helper->getAutoRefund();
 
@@ -38,12 +41,8 @@ class Custom extends \Magento\Backend\Block\Template
             try{
                 $application = $this->helper->getApplicationFromOrder($order);
                 $returnApp['refundable'] = $application['amounts']['refundable_amount'];
-                $returnApp['notifications'][] = sprintf(
-                    "Please note that the maximum refund available for this application is %s", 
-                    $order->formatPrice($returnApp['refundable']/100)
-                );
+                $returnApp['notifications'][] = sprintf("The maximum refund available for this application is %s",  $order->formatPrice($returnApp['refundable']/100));
                 if(in_array($application['lender']['app_name'], DATA::NON_PARTIAL_LENDERS)){
-                    $returnApp['partial_refundable'] = false;
                     $returnApp['notifications'][] = "We are unable to request partial refunds from your lender";
                 }else{
                     if($application['finance_plan']['credit_amount']['minimum_amount'] > 0){

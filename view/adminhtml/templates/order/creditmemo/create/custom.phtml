@@ -1,24 +1,31 @@
 <?php $application = $block->getApplication(); ?>
 
-<?php if($application !== null){ ?>
+<?php if($application['refundable'] || $application['partial_refundable']){ ?>
 <div id="pbdNotification">
-    <div class="notification">
-        <?php foreach($application['notifications'] as $notification) echo(sprintf("<p>%s.</p>", $notification)); ?></div>
-    <?php if($application['refundable']){ ?>
-    <input type="hidden" name="pbd_refund_limit" value="<?= $application['refundable'] ?>" />
-    <?php } ?>
-    <?php if (isset($application['reasons']) && is_iterable($application['reasons'])){ ?>
-    <div id="pbdReason">
-        <div><?= $application['reason_notification']; ?>.</div>
-        <div class='form'>
-            <label for="pbd_refund_reasons"><?= $application['reason_title'] ?>:</label>
-            <select name='pbd_refund_reason' id='refundReason'>
-                <?php foreach ($application['reasons'] as $key => $value) { ?>
-                    <option value='<?= $key ?>'><?= $value ?></option>
-                <?php } ?>
-            </select>
+    <div class='title'><?= $application['title'] ?></div>
+    <div class='content'>
+        <div class="notification">
+            <?php foreach($application['notifications'] as $notification) echo(sprintf("<p>%s.</p>", $notification)); ?>
         </div>
+        <?php if($application['refundable']){ ?>
+        <input type="hidden" name="pbd_refund_limit" value="<?= $application['refundable'] ?>" />
+        <?php } ?>
+        <?php if($application['partial_refundable']){ ?>
+        <input type="hidden" name="pbd_partial_refund_limit" value="<?= $application['partial_refundable'] ?>" />
+        <?php } ?>
+        <?php if (isset($application['reasons']) && is_iterable($application['reasons'])){ ?>
+        <div id="pbdReason">
+            <div><?= $application['reason_notification']; ?>.</div>
+            <div class='form'>
+                <label for="pbd_refund_reasons"><?= $application['reason_title'] ?>:</label>
+                <select name='pbd_refund_reason' id='refundReason'>
+                    <?php foreach ($application['reasons'] as $key => $value) { ?>
+                        <option value='<?= $key ?>'><?= $value ?></option>
+                    <?php } ?>
+                </select>
+            </div>
+        </div>
+        <?php } ?>
     </div>
-    <?php } ?>
 </div>
 <?php } ?>
