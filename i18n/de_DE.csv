@@ -71,3 +71,5 @@
 "use_store_language_description","Überschreiben Sie die Sprache des Finanzrechners mit der Sprache des Gebietsschemas"
 "signed_option","Unterzeichnet"
 "accepted_option","Akzeptiert"
+"calc_conf_api_url_label","Rechner-Konfigurations-API-URL"
+"calc_conf_api_url_description","Geben Sie diese URL ein, wenn sie Ihnen zur Verfügung gestellt wurde"

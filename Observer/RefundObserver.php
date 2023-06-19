@@ -41,7 +41,7 @@ class RefundObserver implements ObserverInterface
 
             $partialRefund = ($amount < $total);
             if($partialRefund && $amount < $params['pbd_partial_refund_limit']){
-                throw new RefundException("Refund amount exceeds partial refund limit");
+                throw new RefundException(__("Refund amount exceeds partial refund limit"));
             }
 
             $this->logger->info('PBD Refund Triggered', ['Quote' => $order->getQuoteId(), 'request' => $params]);

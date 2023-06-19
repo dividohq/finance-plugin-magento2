@@ -71,3 +71,5 @@
 "use_store_language_description","Remplacer la langue de la calculatrice financière par la langue des paramètres régionaux du magasin"
 "signed_option","Signé"
 "accepted_option","Accepté"
+"calc_conf_api_url_label","URL de l'API de configuration de la calculatrice"
+"calc_conf_api_url_description","Entrez cette URL si elle vous a été fournie"

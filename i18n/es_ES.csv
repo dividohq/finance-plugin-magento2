@@ -71,3 +71,5 @@
 "use_store_language_description","Anule el idioma de la calculadora financiera con el idioma de la tienda"
 "signed_option","Firmado"
 "accepted_option","Aceptado"
+"calc_conf_api_url_label","URL de la API de configuración de la calculadora"
+"calc_conf_api_url_description","Ingrese esta URL si se le ha proporcionado"
