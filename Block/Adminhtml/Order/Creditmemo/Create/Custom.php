@@ -47,7 +47,7 @@ class Custom extends \Magento\Backend\Block\Template
                     $order->formatPrice($returnApp['refundable']/100)
                 );
 
-                if(in_array($application['lender']['app_name'], DATA::NON_PARTIAL_LENDERS)){
+                if(in_array($application['lender']['app_name'], Data::NON_PARTIAL_LENDERS)){
                     $returnApp['notifications'][] = __("We are unable to request partial refunds from your lender");
                     $returnApp['partial_refundable'] = 0;
                 }elseif($application['finance_plan']['credit_amount']['minimum_amount'] > 0){
