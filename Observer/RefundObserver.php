@@ -37,20 +37,19 @@ class RefundObserver implements ObserverInterface
             $refundable = $application['amounts']['refundable_amount'];
 
             $refundItems = $this->generateRefundItems($params['creditmemo'], $order->getItems());
-            
-            $total = $order->getBaseGrandTotal();
 
             $amount = $this->helper->getRefundAmount($refundItems);
-            if($amount > $refundable){
-                $amount = $refundable;
-            }
 
-            $partialRefund = ($amount < $total);
+            $partialRefund = ($amount < $order->getBaseGrandTotal());
             $partiallyRefundable = (in_array($application['lender']['app_name'], Data::NON_PARTIAL_LENDERS))
                 ? 0
                 : $application['amounts']['refundable_amount'] - $application['finance_plan']['credit_amount']['minimum_amount'];
             if($partialRefund && $amount > $partiallyRefundable){
                 throw new RefundException(__("Refund amount exceeds partial refund limit"));
+            }
+            
+            if($amount > $refundable){
+                $amount = $refundable;
             }
 
             $this->logger->info('PBD Refund Triggered', ['Quote' => $order->getQuoteId(), 'request' => $params]);
