@@ -28,8 +28,10 @@ class RefundObserver implements ObserverInterface
         $order = $observer->getEvent()->getCreditmemo()->getOrder();
         $code  = $order->getPayment()->getMethodInstance()->getCode();
         $params = $this->_request->getParams();
+
+        $autoRefund = $this->helper->getAutoRefund();
             
-        if ($code == 'divido_financing') {
+        if ($code == 'divido_financing' && $autoRefund) {
             $refundItems = $this->generateRefundItems($params['creditmemo'], $order->getItems());
             
             $total = $order->getBaseGrandTotal();
@@ -40,7 +42,7 @@ class RefundObserver implements ObserverInterface
             }
 
             $partialRefund = ($amount < $total);
-            if($partialRefund && $amount < $params['pbd_partial_refund_limit']){
+            if($partialRefund && $amount > $params['pbd_partial_refund_limit']){
                 throw new RefundException(__("Refund amount exceeds partial refund limit"));
             }
 

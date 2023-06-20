@@ -44,6 +44,7 @@ class Custom extends \Magento\Backend\Block\Template
                 $returnApp['notifications'][] = sprintf(__("The maximum refund available for this application is %s"),  $order->formatPrice($returnApp['refundable']/100));
                 if(in_array($application['lender']['app_name'], DATA::NON_PARTIAL_LENDERS)){
                     $returnApp['notifications'][] = __("We are unable to request partial refunds from your lender");
+                    $returnApp['partial_refundable'] = 0;
                 }else{
                     if($application['finance_plan']['credit_amount']['minimum_amount'] > 0){
                         $returnApp['partial_refundable'] = $application['amounts']['refundable_amount'] - $application['finance_plan']['credit_amount']['minimum_amount'];
