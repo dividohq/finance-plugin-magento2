@@ -10,6 +10,7 @@
 
 #pbdNotification .title{
     background-color: #ce5590;
+    padding: 5px;
 }
 
 #pbdNotification .content{

@@ -79,3 +79,5 @@
 "refund_reason_warning_msg","You must specify one of the following reasons for the refund to be successfully processed"
 "refund_reason_title","Refund Reason"
 "refund_api_key_error_msg","It appears you are using a different API Key to the one used to create this application. Please revert to that API key if you wish to automatically request this amount is refunded"
+"refund_partial_limit_error_msg","Refund amount exceeds partial refund limit"
+"refund_disable_auto_refunds_suggestion_msg","Please turn off automatic refunds in the Powered By Divido plugin if you wish to create refunds outside of the above scope"

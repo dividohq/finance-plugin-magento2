@@ -54,14 +54,16 @@ class Custom extends \Magento\Backend\Block\Template
                     }
                 }
 
+                $returnApp['notifications'][] = __("Please turn off automatic refunds in the Powered By Divido plugin if you wish to create refunds outside of the above scope");
+
                 if(array_key_exists($application['lender']['app_name'], Data::REFUND_CANCEL_REASONS)){
                     $returnApp['reason_notification'] = __("You must specify one of the following reasons for the refund to be successfully processed");
                     $returnApp['reason_title'] = __("Refund Reason");
                     $returnApp['reasons'] = Data::REFUND_CANCEL_REASONS[$application['lender']['app_name']];
                 }
             } catch (\Divido\MerchantSDK\Exceptions\MerchantApiBadResponseException $_){
-                $apiKeyError = "It appears you are using a different API Key to the one used to create this application. Please revert to that API key if you wish to automatically request this amount is refunded";
-                $returnApp['notifications'] = [_($apiKeyError)];
+                $apiKeyError = _("It appears you are using a different API Key to the one used to create this application. Please revert to that API key if you wish to automatically request this amount is refunded");
+                $returnApp['notifications'] = [$apiKeyError];
             }
         }
         
