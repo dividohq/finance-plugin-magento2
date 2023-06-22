@@ -28,4 +28,27 @@
         </div>
     </div>
 </div>
-<?php endif; ?>
+
+<?php 
+    endif;
+    $cancellation = $block->getCancellationReasons(); 
+    if($cancellation){
+?>
+<div id="cancelModal">
+    <p><?= $cancellation['notification'] ?></p><br/>
+    <?php
+    if(isset($cancellation['reasons'])){
+    ?>
+    <p><?php echo __('Please select a reason if you wish to notifiy the lender:')?></p>
+    <p>
+        <select id='pbdCancelReason'>
+        <?php
+            foreach ($cancellation['reasons'] as $key => $value) {
+        ?>
+            <option value='<?= $key ?>'><?= $value ?></option>
+        <?php }
+        } ?>
+        </select>
+    </p>
+</div>
+<?php } ?>

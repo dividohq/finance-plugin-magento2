@@ -5,29 +5,30 @@ require([
 ], function ($, modal) {
     'use strict';
 
-    modal({
-        'title': 'Cancel Order'
-    }, $("#cancelModal"));
+    if($("#cancelModal").length > 0){
 
-    console.log("Heere");
+        /**
+         * @param {String} url
+         * @returns {Object}
+         */
+        function getForm(url) {
+            return $('<form>', {
+                'action': url,
+                'method': 'POST'
+            }).append($('<input>', {
+                'name': 'form_key',
+                'value': window.FORM_KEY,
+                'type': 'hidden'
+            }));
+        }
 
-    $(document).on('click', '#order-view-cancel-button', function (e) {
-        e.stopImmediatePropagation();
-        
-        var url = $('#order-view-cancel-button').data('url');
-        
-        $("#cancelModal")
-            .modal({
-                'buttons': [{
-                    text: 'Confirm',
-                    click: function () {
-                        getForm(url).appendTo('body').trigger('submit');
-                    }
-                },
-                {
-                    text: 'Cancel and notify lender',
-                    click: function () {
-                        var reasonInput = $('<input>', {
+        modal({
+            'title': 'Cancel Order',
+            'buttons': [{
+                text: $.mage.__('Cancel Order and notify lender'),
+                click: function () {
+                    var url = $('#order-view-cancel-button').data('url');
+                    var reasonInput = $('<input>', {
                             'name': 'pbd_reason',
                             'value': $("#pbdCancelReason").val(),
                             'type': 'hidden'
@@ -36,12 +37,24 @@ require([
                     }
                 },
                 {
+                    text: $.mage.__('Cancel Order (without notifying lender)'),
+                    click: function () {
+                        getForm(url).appendTo('body').trigger('submit');
+                    }
+                },
+                {
                     text: 'Back',
-                    click: () => {
+                    click: function() {
                         this.closeModal();
                     }
-                }]
-            })
-            .modal('openModal')
-    });
+                }
+            ]
+        }, $("#cancelModal"));
+
+        $(document).on('click', '#order-view-cancel-button', function (e) {
+            e.stopImmediatePropagation();
+            
+            $("#cancelModal").modal('openModal')
+        });
+    }
 });

@@ -33,6 +33,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     const DISCOUNT           = 'DSCNT';
     const V4_CALCULATOR_URL  = 'https://cdn.divido.com/widget/v4/divido.calculator.js';
     const SUCCESSFUL_REFUND_STATUS = 201;
+    const PAYMENT_METHOD = 'divido_financing';
 
     const REFUND_CANCEL_REASONS = [
         "novuna" => [
@@ -1007,6 +1008,14 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         return $autoRefund;
     }
 
+    public function getConfigValue(string $term):mixed{
+        $value = $this->config->getValue(
+            sprintf('payment/divido_financing/%s', $term),
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
+
+        return $value;
+    }
 
     public function updateInvoiceStatus($order)
     {
@@ -1071,7 +1080,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $activation_response_body = $response->getBody()->getContents();
     }
 
-    public function autoCancel($order)
+    public function autoCancel($order, $reason=null)
     {
         // Check if it's a finance order
         $lookup = $this->getLookupForOrder($order);
@@ -1084,15 +1093,12 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 
         $order_id = $lookup['order_id'];
 
-        $autoCancellation = $this->config->getValue(
-            'payment/divido_financing/auto_cancellation',
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-        );
+        $autoCancellation = $this->getConfigValue('auto_cancellation');
 
         if (! $autoCancellation) {
             return $this->cancelLookup($order_id);
         }
-        return $this->sendCancellation($applicationId, $order_total, $order_id);
+        return $this->sendCancellation($applicationId, $order_total, $order_id, $reason);
     }
 
     private function cancelLookup($orderId)
@@ -1110,7 +1116,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     }
 
 
-    public function sendCancellation($application_id, $order_total, $orderId)
+    public function sendCancellation($application_id, $order_total, $orderId, string $reason=null)
     {
         // First get the application you wish to create an activation for.
         $application = (new \Divido\MerchantSDK\Models\Application())
@@ -1125,6 +1131,10 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         // Create a new application activation model.
         $application_cancellation = (new \Divido\MerchantSDK\Models\ApplicationCancellation())
             ->withOrderItems($items);
+        
+        if($reason !== null){
+            $application_cancellation = $application_cancellation->withReason($reason);
+        }
         // Create a new activation for the application.
         $sdk                      = $this->getSdk();
         $response                 = $sdk->applicationCancellations()->createApplicationCancellation($application, $application_cancellation);
@@ -1321,7 +1331,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     public function getApplicationFromOrder($order) {
         $lookup = $this->getLookupForOrder($order);
         if ($lookup === null) {
-            throw new RefundException("Could not find Refund locally");
+            throw new \Exception("Could not find application locally");
         }
 
         $applicationId = $lookup['application_id'];
