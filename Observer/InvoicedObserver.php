@@ -1,13 +1,14 @@
 <?php
 namespace Divido\DividoFinancing\Observer;
 
+use Divido\DividoFinancing\Helper\Data;
 use Magento\Framework\Event\ObserverInterface;
 
 class InvoicedObserver implements ObserverInterface
 {
     public $helper;
     public function __construct(
-        \Divido\DividoFinancing\Helper\Data $helper
+        Data $helper
     ) {
     
         $this->helper = $helper;
@@ -17,7 +18,7 @@ class InvoicedObserver implements ObserverInterface
         $order = $observer->getEvent()->getInvoice()->getOrder();
         //TODO - Double test
         $code  = $order->getPayment()->getMethodInstance()->getCode();
-        if ($code == 'divido_financing') {
+        if ($code == Data::PAYMENT_METHOD) {
             return $this->helper->updateInvoiceStatus($order);
         }
     }

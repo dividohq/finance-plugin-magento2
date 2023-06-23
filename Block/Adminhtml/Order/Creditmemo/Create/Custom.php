@@ -37,7 +37,7 @@ class Custom extends \Magento\Backend\Block\Template
         ];
         $autoRefund = $this->helper->getAutoRefund();
 
-        if ($code == 'divido_financing' && !empty($this->helper->getApiKey()) && $autoRefund) {
+        if ($code == Data::PAYMENT_METHOD && !empty($this->helper->getApiKey()) && $autoRefund) {
             try{
                 $application = $this->helper->getApplicationFromOrder($order);
                 $returnApp['refundable'] = $application['amounts']['refundable_amount'];

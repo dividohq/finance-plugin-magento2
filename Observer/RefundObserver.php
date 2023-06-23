@@ -17,7 +17,7 @@ class RefundObserver implements ObserverInterface
 
     public function __construct(
         \Magento\Framework\App\RequestInterface $request,
-        \Divido\DividoFinancing\Helper\Data $helper,
+        Data $helper,
         \Divido\DividoFinancing\Logger\Logger $logger
     ) {
         $this->_request = $request;
@@ -32,7 +32,7 @@ class RefundObserver implements ObserverInterface
 
         $autoRefund = $this->helper->getAutoRefund();
             
-        if ($code == 'divido_financing' && $autoRefund) {
+        if ($code == Data::PAYMENT_METHOD && $autoRefund) {
             $application = $this->helper->getApplicationFromOrder($order);
             $refundable = $application['amounts']['refundable_amount'];
 
