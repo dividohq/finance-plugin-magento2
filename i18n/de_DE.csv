@@ -85,3 +85,6 @@
 "refund_reason_missing_error_msg","Sie müssen einen Rückerstattungsgrund angeben"
 "cancel_api_key_error_msg","Es scheint, dass die Stornierung mit einem anderen API-Schlüssel als dem aktuell verwendeten erstellt wurde. Bitte kehren Sie zu diesem API-Schlüssel zurück, wenn Sie den Kreditgeber benachrichtigen möchten"
 "cancel_reason_missing_error_msg","Sie müssen einen Stornierungsgrund angeben"
+"cancel_notify_btn_txt","Bestellung stornieren und Kreditgeber benachrichtigen"
+"cancel_dont_notify_btn_txt","Bestellung stornieren, ohne den Kreditgeber zu benachrichtigen"
+"back_btn_txt","Zurück"

@@ -85,3 +85,6 @@
 "refund_reason_missing_error_msg","Debe especificar un motivo de reembolso"
 "cancel_api_key_error_msg","Parece que la cancelación se creó con una clave de API diferente a la que se usa actualmente. Vuelva a esa clave API si desea notificar al prestamista"
 "cancel_reason_missing_error_msg","Debe especificar un motivo de cancelación"
+"cancel_notify_btn_txt","Cancelar pedido y notificar al prestamista"
+"cancel_dont_notify_btn_txt","Cancelar pedido sin notificar al prestamista"
+"back_btn_txt","Atrás"

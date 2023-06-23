@@ -85,3 +85,6 @@
 "refund_reason_missing_error_msg","You must specify a refund reason"
 "cancel_api_key_error_msg","It appears the cancellation was created with a different API key to the one currently in use. Please revert to that API Key if you wish to notify the lender"
 "cancel_reason_missing_error_msg","You must specify a cancellation reason"
+"cancel_notify_btn_txt","Cancel Order and notify lender"
+"cancel_dont_notify_btn_txt","Cancel Order without notifying lender"
+"back_btn_txt","Back"

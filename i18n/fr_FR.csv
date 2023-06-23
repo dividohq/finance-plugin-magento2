@@ -85,3 +85,6 @@
 "refund_reason_missing_error_msg","Vous devez spécifier un motif de remboursement"
 "cancel_api_key_error_msg","Il semble que l'annulation ait été créée avec une clé API différente de celle actuellement utilisée. Veuillez revenir à cette clé API si vous souhaitez informer le prêteur"
 "cancel_reason_missing_error_msg","Vous devez spécifier un motif d'annulation"
+"cancel_notify_btn_txt","Annuler la commande et informer le prêteur"
+"cancel_dont_notify_btn_txt","Annuler la commande sans en informer le prêteur"
+"back_btn_txt","Retourner"

@@ -46,13 +46,14 @@ require([
                     }
                 },
                 {
-                    text: $.mage.__('Cancel Order (without notifying lender)'),
+                    text: $.mage.__('Cancel Order without notifying lender'),
                     click: function () {
+                        var url = $('#order-view-cancel-button').data('url');
                         getForm(url).appendTo('body').trigger('submit');
                     }
                 },
                 {
-                    text: 'Back',
+                    text: $.mage.__('Back'),
                     click: function() {
                         this.closeModal();
                     }
