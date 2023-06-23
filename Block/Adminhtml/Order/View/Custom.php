@@ -56,8 +56,7 @@ class Custom extends \Magento\Backend\Block\Template
                     $cancellation['reasons'] = Data::REFUND_CANCEL_REASONS[$application['lender']['app_name']];
                 }
             } catch (\Divido\MerchantSDK\Exceptions\MerchantApiBadResponseException $_){
-                $cancellation['notification'] = __("It appears you are using a different API Key to the one used to create this application.&nbsp;
-                Please revert to that API key if you wish to automatically cancel this order.");
+                $cancellation['notification'] = __("It appears the cancellation was created with a different API key to the one currently in use. Pleae revert to that API Key if you wish to notify the lender");
             }
 
         }

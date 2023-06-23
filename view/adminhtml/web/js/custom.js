@@ -27,13 +27,22 @@ require([
             'buttons': [{
                 text: $.mage.__('Cancel Order and notify lender'),
                 click: function () {
-                    var url = $('#order-view-cancel-button').data('url');
-                    var reasonInput = $('<input>', {
-                            'name': 'pbd_reason',
-                            'value': $("#pbdCancelReason").val(),
+                        var url = $('#order-view-cancel-button').data('url');
+                        var notifyInput = $('<input>', {
+                            'name': 'pbd_notify',
+                            'value': true,
                             'type': 'hidden'
                         });
-                        getForm(url).append(reasonInput).appendTo('body').trigger('submit');
+                        var cancelForm = getForm(url).append(notifyInput);
+                        if($("#pbdCancelReason").length > 0){
+                            var reasonInput = $('<input>', {
+                                'name': 'pbd_reason',
+                                'value': $("#pbdCancelReason").val(),
+                                'type': 'hidden'
+                            });
+                            cancelForm.append(reasonInput);
+                        }
+                        cancelForm.appendTo('body').trigger('submit');
                     }
                 },
                 {
