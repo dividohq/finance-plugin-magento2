@@ -1,6 +1,7 @@
 <?php
 namespace Divido\DividoFinancing\Observer;
 
+use Divido\DividoFinancing\Exceptions\CancelException;
 use Magento\Framework\Event\ObserverInterface;
 
 class CancelObserver implements ObserverInterface
@@ -21,7 +22,17 @@ class CancelObserver implements ObserverInterface
 
         $params = $this->_request->getParams();
 
+        try{
+            $application = $this->helper->getApplicationFromOrder($order);
+        } catch (\Divido\MerchantSDK\Exceptions\MerchantApiBadResponseException $_){
+            throw new CancelException(__("It appears the cancellation was created with a different API key to the one currently in use. Pleae revert to that API Key or disable auto cancellations to proceed"));
+        }
+
         $reason = (isset($params['pbd_reason'])) ? $params['pbd_reason'] : null;
+        
+        if(array_key_exists($application['lender']['app_name'], Data::REFUND_CANCEL_REASONS) && $reason == null){
+            throw new CancelException(__("You must specify a cancellation reason"));
+        }
         
         return $this->helper->autoCancel($order, $reason);
     }
