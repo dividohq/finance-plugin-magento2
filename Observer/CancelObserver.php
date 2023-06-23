@@ -27,7 +27,7 @@ class CancelObserver implements ObserverInterface
             try{
                 $application = $this->helper->getApplicationFromOrder($order);
             } catch (\Divido\MerchantSDK\Exceptions\MerchantApiBadResponseException $_){
-                throw new CancelException(__("It appears the cancellation was created with a different API key to the one currently in use. Pleae revert to that API Key if you wish to notify the lender"));
+                throw new CancelException(__("It appears the cancellation was created with a different API key to the one currently in use. Please revert to that API Key if you wish to notify the lender"));
             }
 
             $reason = (isset($params['pbd_reason'])) ? $params['pbd_reason'] : null;
