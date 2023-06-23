@@ -81,4 +81,7 @@
 "refund_api_key_error_msg","It appears you are using a different API Key to the one used to create this application. Please revert to that API key if you wish to automatically request this amount is refunded"
 "refund_partial_limit_error_msg","Refund amount exceeds partial refund limit"
 "refund_disable_auto_suggestion_msg","Please turn off automatic refunds in the Powered By Divido plugin if you wish to create refunds outside of the above scope"
+"refund_partial_disable_auto_suggestion_msg","Please turn off automatic refunds in the Powered By Divido plugin if you wish to create partial refunds, regardless"
 "refund_reason_missing_error_msg","You must specify a refund reason"
+"cancel_api_key_error_msg","It appears the cancellation was created with a different API key to the one currently in use. Please revert to that API Key if you wish to notify the lender"
+"cancel_reason_missing_error_msg","You must specify a cancellation reason"
