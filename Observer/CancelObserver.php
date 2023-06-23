@@ -2,6 +2,7 @@
 namespace Divido\DividoFinancing\Observer;
 
 use Divido\DividoFinancing\Exceptions\CancelException;
+use Divido\DividoFinancing\Helper\Data;
 use Magento\Framework\Event\ObserverInterface;
 
 class CancelObserver implements ObserverInterface
@@ -10,7 +11,7 @@ class CancelObserver implements ObserverInterface
     public $helper;
     public function __construct(
         \Magento\Framework\App\RequestInterface $request,
-        \Divido\DividoFinancing\Helper\Data $helper
+        Data $helper
     ) {
         $this->_request = $request;
         $this->helper = $helper;
