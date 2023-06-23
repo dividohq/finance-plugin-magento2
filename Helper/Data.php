@@ -1008,7 +1008,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         return $autoRefund;
     }
 
-    public function getConfigValue(string $term):mixed{
+    public function getConfigValue(string $term){
         $value = $this->config->getValue(
             sprintf('payment/divido_financing/%s', $term),
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
