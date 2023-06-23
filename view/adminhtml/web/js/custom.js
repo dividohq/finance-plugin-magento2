@@ -51,7 +51,7 @@ require([
             ]
         }, $("#cancelModal"));
 
-        $(document).on('click', '#order-view-cancel-button', function (e) {
+        $('#order-view-cancel-button').on('click', function (e) {
             e.stopImmediatePropagation();
             
             $("#cancelModal").modal('openModal')
