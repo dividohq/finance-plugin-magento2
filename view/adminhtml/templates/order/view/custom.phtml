@@ -37,7 +37,7 @@
 <div id="cancelModal">
     <p><?= $cancellation['notification'] ?></p><br/>
     <?php
-    if(isset($cancellation['reasons'])){
+    if(isset($cancellation['reasons']) && is_array($cancellation['reasons'])){
     ?>
     <p><?php echo __('Please select a reason if you wish to notifiy the lender:')?></p>
     <p>
