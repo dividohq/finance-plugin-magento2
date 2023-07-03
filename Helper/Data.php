@@ -2,6 +2,7 @@
 
 namespace Divido\DividoFinancing\Helper;
 
+use Divido\DividoFinancing\Exceptions\RefundException;
 use \Divido\DividoFinancing\Model\LookupFactory;
 use Divido\MerchantSDK\Environment;
 use Divido\MerchantSDK\Exceptions\InvalidApiKeyFormatException;
@@ -11,6 +12,8 @@ use Magento\Framework\Exception\RuntimeException;
 use Magento\Framework\Phrase;
 use Magento\Framework\UrlInterface;
 use Divido\DividoFinancing\Helper\EndpointHealthCheckTrait;
+use Divido\DividoFinancing\Model\RefundItems;
+use Psr\Http\Message\ResponseInterface;
 
 class Data extends \Magento\Framework\App\Helper\AbstractHelper
 {
@@ -29,6 +32,24 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     const SHIPPING           = 'SHPNG';
     const DISCOUNT           = 'DSCNT';
     const V4_CALCULATOR_URL  = 'https://cdn.divido.com/widget/v4/divido.calculator.js';
+    const SUCCESSFUL_REFUND_STATUS = 201;
+    const PAYMENT_METHOD = 'divido_financing';
+
+    const REFUND_CANCEL_REASONS = [
+        "novuna" => [
+            "ALTERNATIVE_PAYMENT_METHOD_USED" => "Alternative Payment Method Used",
+            "GOODS_FAULTY" => "Goods Faulty",
+            "GOODS_NOT_RECEIVED" => "Goods Not Received",
+            "GOODS_RETURNED" => "Goods Returned",
+            "LOAN_AMENDED" => "Loan Amended",
+            "NOT_GOING_AHEAD" => "Not Going Ahead",
+            "NO_CUSTOMER_INFORMATION" => "No Customer Information"
+        ]
+    ];
+
+    const NON_PARTIAL_LENDERS = [
+        "novuna"
+    ];
 
     private $config;
     private $logger;
@@ -979,6 +1000,22 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         return $customUrl;
     }
 
+    public function getAutoRefund(){
+        $autoRefund = $this->config->getValue(
+            'payment/divido_financing/auto_refund',
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
+        return $autoRefund;
+    }
+
+    public function getConfigValue(string $term){
+        $value = $this->config->getValue(
+            sprintf('payment/divido_financing/%s', $term),
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
+
+        return $value;
+    }
 
     public function updateInvoiceStatus($order)
     {
@@ -1043,7 +1080,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $activation_response_body = $response->getBody()->getContents();
     }
 
-    public function autoCancel($order)
+    public function autoCancel($order, $reason=null)
     {
         // Check if it's a finance order
         $lookup = $this->getLookupForOrder($order);
@@ -1056,15 +1093,12 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 
         $order_id = $lookup['order_id'];
 
-        $autoCancellation = $this->config->getValue(
-            'payment/divido_financing/auto_cancellation',
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-        );
+        $autoCancellation = $this->getConfigValue('auto_cancellation');
 
         if (! $autoCancellation) {
             return $this->cancelLookup($order_id);
         }
-        return $this->sendCancellation($applicationId, $order_total, $order_id);
+        return $this->sendCancellation($applicationId, $order_total, $order_id, $reason);
     }
 
     private function cancelLookup($orderId)
@@ -1082,7 +1116,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     }
 
 
-    public function sendCancellation($application_id, $order_total, $orderId)
+    public function sendCancellation($application_id, $order_total, $orderId, string $reason=null)
     {
         // First get the application you wish to create an activation for.
         $application = (new \Divido\MerchantSDK\Models\Application())
@@ -1097,6 +1131,10 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         // Create a new application activation model.
         $application_cancellation = (new \Divido\MerchantSDK\Models\ApplicationCancellation())
             ->withOrderItems($items);
+        
+        if($reason !== null){
+            $application_cancellation = $application_cancellation->withReason($reason);
+        }
         // Create a new activation for the application.
         $sdk                      = $this->getSdk();
         $response                 = $sdk->applicationCancellations()->createApplicationCancellation($application, $application_cancellation);
@@ -1105,49 +1143,74 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $this->cancelLookup($orderId);
     }
 
-    public function autoRefund($order)
+    public function autoRefund($order, int $amount, RefundItems $refundItems, ?string $reason=null)
     {
         // Check if it's a finance order
         $lookup = $this->getLookupForOrder($order);
         if ($lookup === null) {
-            return false;
+            throw new RefundException("Could not retrieve order locally");
         }
 
         $applicationId = $lookup['application_id'];
-        $order_total = $lookup['initial_cart_value'];
         $order_id = $lookup['order_id'];
 
-        $autoRefund = $this->config->getValue(
-            'payment/divido_financing/auto_refund',
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-        );
+        $autoRefund = $this->getAutoRefund();
 
         if ($autoRefund) {
-            $this->sendRefund($applicationId, $order_total, $order_id);
+            
+            $response = $this->sendRefund($applicationId, $amount, $refundItems, $reason);
+            if($response->getStatusCode() !== self::SUCCESSFUL_REFUND_STATUS){
+                $this->logger->warning('Could not refund order', [
+                    'order ID' => $order_id,
+                    'application ID' => $applicationId,
+                    'response' => $response->getBody()->getContents() 
+                ]);
+                throw new RefundException("Can not refund order: Refund attempt unsuccessful");
+            }
+            $activation_response_body = $response->getBody()->getContents();
+            // check what we receive, and feedback
         }
 
     }
 
-
-    public function sendRefund($application_id, $order_total, $order_id)
+    /**
+     * Creates a refund request and sends it via the SDK.
+     * Returns the returned ResponseInterface object.
+     *
+     * @param string $application_id
+     * @param integer $amount
+     * @param RefundItems $refundItems
+     * @param string|null $reason
+     * @return ResponseInterface
+     */
+    public function sendRefund(string $application_id, int $amount, RefundItems $refundItems, ?string $reason=null)
     {
         $application = (new \Divido\MerchantSDK\Models\Application())
             ->withId($application_id);
-        $items       = [
-            [
-                'name'     => "Magento 2 Refund",
-                'quantity' => 1,
-                'price'    => $order_total * 100,
-            ],
-        ];
+        
+        $items = [];
+        /** @var \Divido\DividoFinancing\Model\RefundItem $item  */
+        foreach($refundItems as $item){
+            $items[] = [
+                'name'     => $item->getName(),
+                'quantity' => $item->getQuantity(),
+                'price'    => $item->getAmount(),
+            ];
+        }
+
         $application_refund = (new \Divido\MerchantSDK\Models\ApplicationRefund())
             ->withOrderItems($items)
             ->withComment('As per customer request.')
-            ->withAmount($order_total * 100);
+            ->withAmount($amount);
+        
+        if($reason !== null){
+          $application_refund = $application_refund->withReason($reason);
+        }
+
         // Create a new activation for the application.
-        $sdk                      = $this->getSdk();
-        $response                 = $sdk->applicationRefunds()->createApplicationRefund($application, $application_refund);
-        $activation_response_body = $response->getBody()->getContents();
+        $sdk = $this->getSdk();
+        $response = $sdk->applicationRefunds()->createApplicationRefund($application, $application_refund);
+        return $response;
     }
 
     public function debug()
@@ -1253,5 +1316,36 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $hmac = hash_hmac('sha256', $payload, $secret, true);
         $signature = base64_encode($hmac);
         return $signature;
+    }
+
+    public function getApplication($applicationId) {
+        $client = $this->getSdk();
+        $response = $client->applications()->getSingleApplication($applicationId);
+        if($response->getStatusCode() !== 200){
+            throw new \Exception("Could not retrieve application");
+        }
+        $applicationArr = json_decode($response->getBody(), true);
+        return $applicationArr;
+    } 
+
+    public function getApplicationFromOrder($order) {
+        $lookup = $this->getLookupForOrder($order);
+        if ($lookup === null) {
+            throw new \Exception("Could not find application locally");
+        }
+
+        $applicationId = $lookup['application_id'];
+        $applicationArr = $this->getApplication($applicationId);
+
+        return $applicationArr['data'];
+    }
+
+    public function getRefundAmount(RefundItems $refundItems){
+        $refundAmount = 0;
+        /** @var \Divido\DividoFinancing\Model\RefundItem $ri */
+        foreach($refundItems as $ri){
+            $refundAmount = $ri->getAmount() * $ri->getQuantity();
+        }
+        return $refundAmount;
     }
 }

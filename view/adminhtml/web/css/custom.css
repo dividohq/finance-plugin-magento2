@@ -1,0 +1,36 @@
+
+#pbdNotification {
+    background-color: #296b70;
+    color: white;
+    margin: 15px 0;
+    border: 1px solid #ce5590;
+    border-radius: 0 0 0 20px;
+    min-height: 60px;
+}
+
+#pbdNotification .title{
+    background-color: #ce5590;
+    padding: 5px;
+}
+
+#pbdNotification .content{
+    padding: 5px;
+}
+
+#pbdReason{
+    padding-top: 10px;
+} 
+
+#pbdReason label{
+    padding-right: 25px;
+    font-weight: bold;
+}
+
+#pbdReason select{
+    color: black;
+}
+
+#pbdReason .form{
+    padding-top: 5px;
+    text-align: right;
+}

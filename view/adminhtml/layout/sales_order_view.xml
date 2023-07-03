@@ -1,5 +1,8 @@
 <?xml version="1.0"?>
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" layout="admin-2columns-left" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <head>
+        <script src="Divido_DividoFinancing::js/custom.js" type="text/javscript" ></script>
+    </head>
     <body>      
         <referenceContainer name="left">
             <referenceContainer name="payment_additional_info">
