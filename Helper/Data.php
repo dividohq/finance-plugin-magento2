@@ -14,6 +14,8 @@ use Magento\Framework\UrlInterface;
 use Divido\DividoFinancing\Helper\EndpointHealthCheckTrait;
 use Divido\DividoFinancing\Model\RefundItems;
 use Psr\Http\Message\ResponseInterface;
+use GuzzleHttp\ClientFactory as GuzzleClientFactory;
+use GuzzleHttp\Psr7\Response;
 
 class Data extends \Magento\Framework\App\Helper\AbstractHelper
 {
@@ -62,6 +64,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     private $connection;
     private $urlBuilder;
     private $localeResolver;
+    private $clientFactory;
 
     public function __construct(
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
@@ -73,7 +76,8 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         LookupFactory $lookupFactory,
         UrlInterface $urlBuilder,
         ProductFactory $productFactory,
-        \Magento\Framework\Locale\Resolver $localeResolver
+        \Magento\Framework\Locale\Resolver $localeResolver,
+        GuzzleClientFactory $clientFactory
     ) {
 
         $this->config         = $scopeConfig;
@@ -86,10 +90,11 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $this->urlBuilder     = $urlBuilder;
         $this->productFactory = $productFactory;
         $this->localeResolver = $localeResolver;
+        $this->clientFactory = $clientFactory;
     }
 
     /**
-     * Gets the SDK's Environment name for the given api key
+     * Gets the API's Environment name
      *
      * @param string|bool $apiKey The config API key (will default to get from settings)
      *
@@ -149,8 +154,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         if ($env = $this->cache->load($environmentNameCacheKey)) {
             return $env;
         } else {
-            $sdk      = $this->getSdk();
-            $response = $sdk->platformEnvironments()->getPlatformEnvironment();
+            $response = $this->request('GET', 'environment');
             $finance_env = $response->getBody()->getContents();
             $decoded = json_decode($finance_env);
             if ($this->debug()) {
@@ -170,39 +174,47 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         }
     }
 
-    /**
-     * @return \Divido\MerchantSDK\Client
-     * @throws RuntimeException
-     */
-    public function getSdk(): \Divido\MerchantSDK\Client
-    {
+    public function request(
+        string $method,
+        string $endpoint,
+        array $params = []
+    ): Response{
+        
         $apiKey = $this->getApiKey();
-        if ($this->debug()) {
-            $this->logger->info('Get SDK');
-        }
-        if(empty($apiKey)){
-            $this->logger->warning("Can not create SDK without API Key");
-            throw new \Exception("Can not create SDK without API Key");
-        }
-
-        // Getting environment depending on how apiKey looks
-        $env = $this->getEnvironment($apiKey);
-        if ($this->debug()) {
-            $this->logger->info('Get SDK'.$env);
-        }
-
-        // Get environment URL from config or calculate one from apikey
         $environmentUrl = $this->getEnvironmentUrl($apiKey);
-        if ($this->debug()) {
-            $this->logger->info('Environment URL ' . $environmentUrl);
+        
+        $client = $this->clientFactory->create([
+            'config' => [
+                'base_uri' => $environmentUrl
+            ]
+        ]);
+
+        $params = array_merge_recursive([
+            'headers' => [
+                'Accept' => 'application/json',
+                'Content-Type' => 'application/json',
+                'X-DIVIDO-API-KEY' => $apiKey
+            ]
+        ], $params);
+
+        try{
+            $response = $client->request(
+                $method,
+                $endpoint,
+                $params
+            );
+        } catch (\Exception $e) {
+            $this->logger->error(
+                sprintf("Received the following error: %s", $e->getMessage()),
+                ['params' => $params, 'endpoint' => $endpoint]
+            );
+
+            throw $e;
+
         }
 
-        $httpClientWrapper = new \Divido\MerchantSDK\Wrappers\HttpWrapper(
-            $environmentUrl,
-            $apiKey
-        );
-
-        return new \Divido\MerchantSDK\Client($httpClientWrapper, $env);
+        return $response;
+        
     }
 
     public function getBranding()
@@ -549,7 +561,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             $redirect_url = $this->getCustomRedirectUrl().'/quote_id/'.$quoteId;
         }
 
-        $sdk = $this->getSdk();
         $application = (new \Divido\MerchantSDK\Models\Application())
             ->withCountryId($country)
             ->withFinancePlanId($planId)
@@ -578,22 +589,13 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
                 ]
             );
 
-        if (!empty($secret)) {
-            $secret = $this->create_signature(json_encode($application->getPayload()), $secret);
-            $this->logger->debug('Hmac Version'.$secret);
-            $response = $sdk
-                ->applications()
-                ->createApplication(
-                    $application,
-                    [],
-                    ['Content-Type' => 'application/json', 'X-Divido-Hmac-Sha256' => $secret]
-                );
-        }else{
-            $this->logger->debug('Non Hmac');
-            $response = $sdk
-                ->applications()
-                ->createApplication($application,[],['Content-Type' => 'application/json']);
+        $params = ['body' => $application->getJsonPayload()];
+        if(!empty($secret)){
+            $hmac = $this->create_signature(json_encode($application->getPayload()), $secret);
+            $params['headers']['X-Divido-Hmac-Sha256'] = $hmac;
         }
+        
+        $response = $this->request('POST', 'applications', $params);
 
         $application_response_body = $response->getBody()->getContents();
 
@@ -632,9 +634,8 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     public function updateMerchantReference($applicationId, $orderId)
     {
         try{
-            $sdk  = $this->getSdk();
 
-            $application    = (new \Divido\MerchantSDK\Models\Application())
+            $application = (new \Divido\MerchantSDK\Models\Application())
                 ->withId($applicationId)
                 ->withApplicants(null)
                 ->withOrderItems(null)
@@ -643,7 +644,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
                     "merchant_reference" => $orderId
                 ]);
             $this->logger->info("updating order id ". (string)$orderId);
-            $response = $sdk->applications()->updateApplication($application, [], ['Content-Type' => 'application/json']);
+            $response = $this->request('PATCH', sprintf('application/%s', $applicationId), ['body' => $application->getJsonPayload()]);
 
             $applicationResponseBody = $response->getBody()->getContents();
 
@@ -1042,15 +1043,13 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 
     protected function getPlans()
     {
-        $sdk            = $this->getSdk();
-        $finances       = false;
+        $finances = false;
         if (false === $finances) {
-            $request_options = (new \Divido\MerchantSDK\Handlers\ApiRequestOptions());
             try {
-                $plans = $sdk->getAllPlans($request_options);
-                $plans = $plans->getResources();
-
-                return $plans;
+                $response = $this->request('GET', 'finance-plans');//, $sdk->getAllPlans($request_options);
+                $contents = $response->getBody()->getContents();
+                $contentsJson = json_decode($contents, false);
+                return $contentsJson->data;
             } catch (Exception $e) {
                 return [];
             }
@@ -1074,9 +1073,12 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             ->withDeliveryMethod($shipping_method)
             ->withTrackingNumber($tracking_numbers);
         // Create a new activation for the application.
-        $env                      = $this->getEnvironment($this->getApiKey());
-        $sdk                      = $this->getSdk();
-        $response                 = $sdk->applicationActivations()->createApplicationActivation($application, $application_activation);
+        
+        $response = $this->request(
+            'POST', 
+            sprintf('applications/%s/activations', $application_id),
+            ['body' => $application_activation->getJsonPayload()]
+        );
         $activation_response_body = $response->getBody()->getContents();
     }
 
@@ -1118,12 +1120,9 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 
     public function sendCancellation($application_id, $order_total, $orderId, string $reason=null)
     {
-        // First get the application you wish to create an activation for.
-        $application = (new \Divido\MerchantSDK\Models\Application())
-            ->withId($application_id);
-        $items       = [
+        $items = [
             [
-                'name'     => "Magento 2 Cancellation",
+                'name'     => "Order Cancellation",
                 'quantity' => 1,
                 'price'    => $order_total * 100,
             ],
@@ -1136,8 +1135,12 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             $application_cancellation = $application_cancellation->withReason($reason);
         }
         // Create a new activation for the application.
-        $sdk                      = $this->getSdk();
-        $response                 = $sdk->applicationCancellations()->createApplicationCancellation($application, $application_cancellation);
+        $response = $this->request(
+            'POST',
+            sprintf('applications/%s/cancellations', $application_id),
+            ['body' => $application_cancellation->getJsonPayload()]
+        );
+
         $activation_response_body = $response->getBody()->getContents();
 
         $this->cancelLookup($orderId);
@@ -1208,8 +1211,12 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         }
 
         // Create a new activation for the application.
-        $sdk = $this->getSdk();
-        $response = $sdk->applicationRefunds()->createApplicationRefund($application, $application_refund);
+        $response = $this->request(
+            'POST',
+            sprintf('applications/%s/refunds', $application_id),
+            ['body' => $application_refund->getJsonPayload()]
+        );
+        
         return $response;
     }
 
@@ -1319,8 +1326,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     }
 
     public function getApplication($applicationId) {
-        $client = $this->getSdk();
-        $response = $client->applications()->getSingleApplication($applicationId);
+        $response = $this->request('GET',sprintf('applications/%s', $applicationId));
         if($response->getStatusCode() !== 200){
             throw new \Exception("Could not retrieve application");
         }
