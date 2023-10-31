@@ -1350,7 +1350,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $refundAmount = 0;
         /** @var \Divido\DividoFinancing\Model\RefundItem $ri */
         foreach($refundItems as $ri){
-            $refundAmount = $ri->getAmount() * $ri->getQuantity();
+            $refundAmount += $ri->getAmount() * $ri->getQuantity();
         }
         return $refundAmount;
     }
