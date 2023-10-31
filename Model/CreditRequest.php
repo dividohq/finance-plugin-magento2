@@ -50,6 +50,7 @@ class CreditRequest implements CreditRequestInterface
     private $resultJsonFactory;
     private $eventManager;
     private $orderCollection;
+    private $resourceConnection;
 
     public function __construct(
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
@@ -63,7 +64,8 @@ class CreditRequest implements CreditRequestInterface
         \Divido\DividoFinancing\Model\LookupFactory $lookupFactory,
         \Divido\DividoFinancing\Logger\Logger $logger,
         \Magento\Framework\Event\Manager $eventManager,
-        \Magento\Sales\Model\ResourceModel\Order\Collection $orderCollection
+        \Magento\Sales\Model\ResourceModel\Order\Collection $orderCollection,
+        \Magento\Framework\App\ResourceConnection $resourceConnection
     ) {
         $this->req    = $request;
         $this->quote = $quote;
@@ -77,6 +79,7 @@ class CreditRequest implements CreditRequestInterface
         $this->resourceInterface = $resourceInterface;
         $this->eventManager = $eventManager;
         $this->orderCollection = $orderCollection;
+        $this->resourceConnection = $resourceConnection;
     }
 
     /**
@@ -189,11 +192,13 @@ class CreditRequest implements CreditRequestInterface
             $lookup->save();
         }
 
+        $salesOrderPaymentTableNameWithPrefix = $this->resourceConnection->getTableName('sales_order_payment');
+
         //Fetch latest Divido order for quote ID
         $this->orderCollection->addAttributeToFilter('quote_id', $quoteId);
         $this->orderCollection->getSelect()
             ->join(
-                ["sop" => "sales_order_payment"],
+                ["sop" => $salesOrderPaymentTableNameWithPrefix],
                 'main_table.entity_id = sop.parent_id',
                 array('method')
             )
