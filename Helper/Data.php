@@ -15,7 +15,7 @@ use Divido\DividoFinancing\Helper\EndpointHealthCheckTrait;
 use Divido\DividoFinancing\Model\RefundItems;
 use Psr\Http\Message\ResponseInterface;
 use GuzzleHttp\ClientFactory as GuzzleClientFactory;
-use GuzzleHttp\Psr7\Response;
+use Divido\DividoFinancing\Proxies\MerchantApiPubProxy;
 
 class Data extends \Magento\Framework\App\Helper\AbstractHelper
 {
@@ -65,6 +65,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     private $urlBuilder;
     private $localeResolver;
     private $clientFactory;
+    private $merchantApiProxy;
 
     public function __construct(
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
@@ -123,6 +124,28 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         }
     }
 
+    public function getMerchantApiProxy(){
+        if(null === $this->merchantApiProxy){
+            $apiKey = $this->getApiKey();
+            $environmentUrl = $this->getEnvironmentUrl($apiKey);
+
+            $client = $this->clientFactory->create([
+                'config' => [
+                    'base_uri' => $environmentUrl
+                ]
+            ]);
+
+            $this->merchantApiProxy = new MerchantApiPubProxy(
+                $client,
+                $apiKey,
+                $this->logger
+            );
+        }
+
+        return $this->merchantApiProxy;
+
+    }
+
     /**
      * @param $apiKey
      * @return bool
@@ -154,14 +177,13 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         if ($env = $this->cache->load($environmentNameCacheKey)) {
             return $env;
         } else {
-            $response = $this->request('GET', 'environment');
-            $finance_env = $response->getBody()->getContents();
-            $decoded = json_decode($finance_env);
+            $responseObj = $this->getMerchantApiProxy()->getEnvironment();
+    
             if ($this->debug()) {
                 $this->logger->info('getPlatformEnv:'.serialize($decoded));
             }
 
-            $environment = $decoded->data->environment;
+            $environment = $responseObj->data->environment;
 
             $this->cache->save(
                 $environment,
@@ -172,49 +194,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 
             return $decoded->data->environment;
         }
-    }
-
-    public function request(
-        string $method,
-        string $endpoint,
-        array $params = []
-    ): Response{
-        
-        $apiKey = $this->getApiKey();
-        $environmentUrl = $this->getEnvironmentUrl($apiKey);
-        
-        $client = $this->clientFactory->create([
-            'config' => [
-                'base_uri' => $environmentUrl
-            ]
-        ]);
-
-        $params = array_merge_recursive([
-            'headers' => [
-                'Accept' => 'application/json',
-                'Content-Type' => 'application/json',
-                'X-DIVIDO-API-KEY' => $apiKey
-            ]
-        ], $params);
-
-        try{
-            $response = $client->request(
-                $method,
-                $endpoint,
-                $params
-            );
-        } catch (\Exception $e) {
-            $this->logger->error(
-                sprintf("Received the following error: %s", $e->getMessage()),
-                ['params' => $params, 'endpoint' => $endpoint]
-            );
-
-            throw $e;
-
-        }
-
-        return $response;
-        
     }
 
     public function getBranding()
@@ -589,25 +568,22 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
                 ]
             );
 
-        $params = ['body' => $application->getJsonPayload()];
+        $hmac = null;
         if(!empty($secret)){
             $hmac = $this->create_signature(json_encode($application->getPayload()), $secret);
-            $params['headers']['X-Divido-Hmac-Sha256'] = $hmac;
         }
-        
-        $response = $this->request('POST', 'applications', $params);
 
-        $application_response_body = $response->getBody()->getContents();
+        try {
+            $responseObj = $this->getMerchantApiProxy()->postApplication($application, $hmac);
 
-        $decode = json_decode($application_response_body);
-        if ($this->debug()){
-            $debug = $decode->data;
-            unset($debug->applicants);
-            $this->logger->info("Application Payload: ".serialize($debug));
-        }
-        $result_id = $decode->data->id;
-        $result_redirect = $decode->data->urls->application_url;
-        if ($response) {
+            if ($this->debug()){
+                $debug = $responseObj->data;
+                unset($debug->applicants);
+                $this->logger->info("Application Payload: ".serialize($debug));
+            }
+            $result_id = $responseObj->data->id;
+            $result_redirect = $responseObj->data->urls->application_url;
+            
             $lookupModel = $this->lookupFactory->create();
             $lookupModel->load($quoteId, 'quote_id');
             $lookupModel->setData('quote_id', $quoteId);
@@ -617,10 +593,8 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             $lookupModel->setData('initial_cart_value', $grandTotal);
             $lookupModel->save();
             return $result_redirect;
-        } else {
-            if ($response->status === 'error') {
-                throw new \Magento\Framework\Exception\LocalizedException(__($decode));
-            }
+        } catch (\Exception $e) {
+            throw new \Magento\Framework\Exception\LocalizedException(__($e->getMessage()));
         }
     }
 
@@ -644,12 +618,9 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
                     "merchant_reference" => $orderId
                 ]);
             $this->logger->info("updating order id ". (string)$orderId);
-            $response = $this->request('PATCH', sprintf('application/%s', $applicationId), ['body' => $application->getJsonPayload()]);
-
-            $applicationResponseBody = $response->getBody()->getContents();
+            $responseObj = $this->getMerchantApiProxy()->updateApplication($application);
 
             $this->logger->info('update response');
-            $this->logger->info(serialize($applicationResponseBody));
 
         } catch(\Exception $e){
             $this->logger->info("Error updating application" ,[$e->getMessage()]);
@@ -1046,10 +1017,8 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $finances = false;
         if (false === $finances) {
             try {
-                $response = $this->request('GET', 'finance-plans');//, $sdk->getAllPlans($request_options);
-                $contents = $response->getBody()->getContents();
-                $contentsJson = json_decode($contents, false);
-                return $contentsJson->data;
+                $responseObj = $this->getMerchantApiProxy()->getFinancePlans();
+                return $responseObj->data;
             } catch (Exception $e) {
                 return [];
             }
@@ -1057,12 +1026,9 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     }
     public function setFulfilled($application_id, $order_total, $shipping_method = null, $tracking_numbers = null)
     {
-        // First get the application you wish to create an activation for.
-        $application = (new \Divido\MerchantSDK\Models\Application())
-            ->withId($application_id);
-        $items       = [
+        $items = [
             [
-                'name'     => "Magento 2 Activation",
+                'name'     => "Order Activation",
                 'quantity' => 1,
                 'price'    => $order_total * 100,
             ],
@@ -1074,12 +1040,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             ->withTrackingNumber($tracking_numbers);
         // Create a new activation for the application.
         
-        $response = $this->request(
-            'POST', 
-            sprintf('applications/%s/activations', $application_id),
-            ['body' => $application_activation->getJsonPayload()]
-        );
-        $activation_response_body = $response->getBody()->getContents();
+        $response = $this->getMerchantApiProxy()->postActivation($application_id, $application_activation);
     }
 
     public function autoCancel($order, $reason=null)
@@ -1120,28 +1081,21 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 
     public function sendCancellation($application_id, $order_total, $orderId, string $reason=null)
     {
-        $items = [
-            [
-                'name'     => "Order Cancellation",
-                'quantity' => 1,
-                'price'    => $order_total * 100,
-            ],
-        ];
         // Create a new application activation model.
         $application_cancellation = (new \Divido\MerchantSDK\Models\ApplicationCancellation())
-            ->withOrderItems($items);
+            ->withOrderItems([
+                [
+                    'name'     => "Order Cancellation",
+                    'quantity' => 1,
+                    'price'    => $order_total * 100,
+                ],
+            ]);
         
         if($reason !== null){
             $application_cancellation = $application_cancellation->withReason($reason);
         }
         // Create a new activation for the application.
-        $response = $this->request(
-            'POST',
-            sprintf('applications/%s/cancellations', $application_id),
-            ['body' => $application_cancellation->getJsonPayload()]
-        );
-
-        $activation_response_body = $response->getBody()->getContents();
+        $response = $this->getMerchantApiProxy()->postCancellation($application_id, $application_cancellation);
 
         $this->cancelLookup($orderId);
     }
@@ -1160,18 +1114,16 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $autoRefund = $this->getAutoRefund();
 
         if ($autoRefund) {
-            
-            $response = $this->sendRefund($applicationId, $amount, $refundItems, $reason);
-            if($response->getStatusCode() !== self::SUCCESSFUL_REFUND_STATUS){
+            try{
+                $response = $this->sendRefund($applicationId, $amount, $refundItems, $reason);
+            } catch (\Exception $e){
                 $this->logger->warning('Could not refund order', [
                     'order ID' => $order_id,
                     'application ID' => $applicationId,
-                    'response' => $response->getBody()->getContents() 
+                    'response' => $e->getMessage() 
                 ]);
                 throw new RefundException("Can not refund order: Refund attempt unsuccessful");
             }
-            $activation_response_body = $response->getBody()->getContents();
-            // check what we receive, and feedback
         }
 
     }
@@ -1188,8 +1140,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
      */
     public function sendRefund(string $application_id, int $amount, RefundItems $refundItems, ?string $reason=null)
     {
-        $application = (new \Divido\MerchantSDK\Models\Application())
-            ->withId($application_id);
         
         $items = [];
         /** @var \Divido\DividoFinancing\Model\RefundItem $item  */
@@ -1211,11 +1161,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         }
 
         // Create a new activation for the application.
-        $response = $this->request(
-            'POST',
-            sprintf('applications/%s/refunds', $application_id),
-            ['body' => $application_refund->getJsonPayload()]
-        );
+        $response = $this->getMerchantApiProxy()->postRefund($application_id, $application_refund);
         
         return $response;
     }
@@ -1325,25 +1271,16 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         return $signature;
     }
 
-    public function getApplication($applicationId) {
-        $response = $this->request('GET',sprintf('applications/%s', $applicationId));
-        if($response->getStatusCode() !== 200){
-            throw new \Exception("Could not retrieve application");
-        }
-        $applicationArr = json_decode($response->getBody(), true);
-        return $applicationArr;
-    } 
-
-    public function getApplicationFromOrder($order) {
+    public function getApplicationFromOrder($order) :object {
         $lookup = $this->getLookupForOrder($order);
         if ($lookup === null) {
             throw new \Exception("Could not find application locally");
         }
 
         $applicationId = $lookup['application_id'];
-        $applicationArr = $this->getApplication($applicationId);
+        $getApplicationResObj = $this->getMerchantApiProxy()->getApplication($applicationId);
 
-        return $applicationArr['data'];
+        return $getApplicationResObj->data;
     }
 
     public function getRefundAmount(RefundItems $refundItems){

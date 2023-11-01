@@ -39,11 +39,10 @@ class ConfigChangeObserver implements ObserverInterface
     private function environmentHealthCheck(): bool
     {
         // Get result of health check
-        $response = $this->dataHelper->request('GET', 'health');
-        $healthCheckResult = $response->getBody()->getContents();
+        $health = $this->dataHelper->getMerchantApiProxy()->getHealth();
 
         // If not ok, show an error message
-        if($healthCheckResult !== 'OK'){
+        if($health === false){
             $this->messageManager->addErrorMessage('Error, could not validate the health of endpoint, please check the "environment_url" setting');
             return false;
         }

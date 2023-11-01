@@ -52,8 +52,8 @@ class Custom extends \Magento\Backend\Block\Template
             ];
             try{
                 $application = $this->helper->getApplicationFromOrder($order);
-                if(array_key_exists($application['lender']['app_name'], Data::REFUND_CANCEL_REASONS)){
-                    $cancellation['reasons'] = Data::REFUND_CANCEL_REASONS[$application['lender']['app_name']];
+                if(array_key_exists($application->lender->app_name, Data::REFUND_CANCEL_REASONS)){
+                    $cancellation['reasons'] = Data::REFUND_CANCEL_REASONS[$application->lender->app_name];
                 }
             } catch (\Divido\MerchantSDK\Exceptions\MerchantApiBadResponseException $_){
                 $cancellation['notification'] = __("It appears the cancellation was created with a different API key to the one currently in use. Pleae revert to that API Key if you wish to notify the lender");
