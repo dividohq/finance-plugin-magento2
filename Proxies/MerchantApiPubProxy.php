@@ -73,15 +73,11 @@ class MerchantApiPubProxy{
         ], $additionalParams);
 
         try{
-            $response = $this->client->request(
-                $method,
-                $endpoint,
-                $params
-            );
+            $response = $this->client->request($method, $endpoint, $params);
         } catch (\Exception $e) {
             $this->logger->error(
-                sprintf("Received the following error: %s", $e->getMessage()),
-                ['params' => $params, 'endpoint' => $endpoint]
+                sprintf("MerchantApiPubProxy - Received the following error: %s", $e->getMessage()),
+                ['method' => $method, 'endpoint' => $endpoint]
             );
 
             throw $e;
