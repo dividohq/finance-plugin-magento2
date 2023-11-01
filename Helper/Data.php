@@ -161,9 +161,9 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     /**
      * Get Finance Platform Environment function
      *
-     *  @param [string] $api_key - The platform API key.
+     *  @return string the tenancy environment
      */
-    public function getPlatformEnv()
+    public function getPlatformEnv() :string
     {
         $environmentURl = $this->getEnvironmentUrl();
 
