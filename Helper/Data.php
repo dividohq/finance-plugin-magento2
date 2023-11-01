@@ -1014,14 +1014,11 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 
     protected function getPlans()
     {
-        $finances = false;
-        if (false === $finances) {
-            try {
-                $responseObj = $this->getMerchantApiProxy()->getFinancePlans();
-                return $responseObj->data;
-            } catch (Exception $e) {
-                return [];
-            }
+        try {
+            $responseObj = $this->getMerchantApiProxy()->getFinancePlans();
+            return $responseObj->data;
+        } catch (\Exception $e) {
+            return [];
         }
     }
     public function setFulfilled($application_id, $order_total, $shipping_method = null, $tracking_numbers = null)
