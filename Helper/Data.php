@@ -15,6 +15,7 @@ use Divido\DividoFinancing\Helper\EndpointHealthCheckTrait;
 use Divido\DividoFinancing\Model\RefundItems;
 use Psr\Http\Message\ResponseInterface;
 use GuzzleHttp\ClientFactory as GuzzleClientFactory;
+use Laminas\Diactoros\RequestFactory as LaminasRequestFactory;
 use Divido\DividoFinancing\Proxies\MerchantApiPubProxy;
 
 class Data extends \Magento\Framework\App\Helper\AbstractHelper
@@ -66,6 +67,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     private $localeResolver;
     private $clientFactory;
     private $merchantApiProxy;
+    private $requestFactory;
 
     public function __construct(
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
@@ -78,7 +80,8 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         UrlInterface $urlBuilder,
         ProductFactory $productFactory,
         \Magento\Framework\Locale\Resolver $localeResolver,
-        GuzzleClientFactory $clientFactory
+        GuzzleClientFactory $clientFactory,
+        LaminasRequestFactory $requestFactory
     ) {
 
         $this->config         = $scopeConfig;
@@ -92,6 +95,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $this->productFactory = $productFactory;
         $this->localeResolver = $localeResolver;
         $this->clientFactory = $clientFactory;
+        $this->requestFactory = $requestFactory;
     }
 
     /**
@@ -137,6 +141,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 
             $this->merchantApiProxy = new MerchantApiPubProxy(
                 $client,
+                $this->requestFactory,
                 $apiKey,
                 $this->logger
             );

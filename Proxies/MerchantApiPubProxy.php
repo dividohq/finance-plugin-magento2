@@ -3,13 +3,13 @@
 namespace Divido\DividoFinancing\Proxies;
 
 use Psr\Http\Client\ClientInterface;
-use Divido\MerchantSDK\Exceptions\MerchantApiBadResponseException;
 use Divido\MerchantSDK\Models\Application;
 use Divido\MerchantSDK\Models\ApplicationActivation;
 use Divido\MerchantSDK\Models\ApplicationCancellation;
 use Divido\MerchantSDK\Models\ApplicationRefund;
 use Divido\DividoFinancing\Logger\Logger;
-use GuzzleHttp\Psr7\Response;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\RequestFactoryInterface;
 
 
 /**
@@ -48,21 +48,25 @@ class MerchantApiPubProxy{
 
     private Logger $logger;
 
+    private RequestFactoryInterface $requestFactory;
+
     public function __construct(
         ClientInterface $client,
+        RequestFactoryInterface $requestFactoryInterface,
         string $apiKey,
         Logger $logger
     ){
         $this->client = $client;
         $this->apiKey = $apiKey;
         $this->logger = $logger;
+        $this->requestFactory = $requestFactoryInterface;
     }
 
     public function request(
         string $method,
         string $endpoint,
         array $additionalParams = []
-    ): Response {
+    ): ResponseInterface {
 
         $params = array_merge_recursive([
             'headers' => [
@@ -72,8 +76,18 @@ class MerchantApiPubProxy{
             ]
         ], $additionalParams);
 
+        $request = $this->requestFactory->createRequest($method, $endpoint);
+
+        foreach($params['headers'] as $key => $value) {
+            $request = $request->withAddedHeader($key, $value);
+        }
+    
+        if(isset($params['body'])){
+            $request->getBody()->write($params['body']);
+        }
+        
         try{
-            $response = $this->client->request($method, $endpoint, $params);
+            $response = $this->client->sendRequest($request);
         } catch (\Exception $e) {
             $this->logger->error(
                 sprintf("MerchantApiPubProxy - Received the following error: %s", $e->getMessage()),
@@ -252,10 +266,10 @@ class MerchantApiPubProxy{
     /**
      * Attempts to turn the body of the response into a json object
      *
-     * @param Response $response
+     * @param ResponseInterface $response
      * @return object
      */
-    private function getResponseBodyObj(Response $response):object{
+    private function getResponseBodyObj(ResponseInterface $response):object{
         return json_decode(
             $response->getBody()->getContents(), 
             false, 
