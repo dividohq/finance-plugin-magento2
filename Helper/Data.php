@@ -575,27 +575,28 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 
         try {
             $responseObj = $this->getMerchantApiProxy()->postApplication($application, $hmac);
-
-            if ($this->debug()){
-                $debug = $responseObj->data;
-                unset($debug->applicants);
-                $this->logger->info("Application Payload: ".serialize($debug));
-            }
-            $result_id = $responseObj->data->id;
-            $result_redirect = $responseObj->data->urls->application_url;
-            
-            $lookupModel = $this->lookupFactory->create();
-            $lookupModel->load($quoteId, 'quote_id');
-            $lookupModel->setData('quote_id', $quoteId);
-            $lookupModel->setData('salt', $salt);
-            $lookupModel->setData('deposit_value', $deposit);
-            $lookupModel->setData('proposal_id', $result_id);
-            $lookupModel->setData('initial_cart_value', $grandTotal);
-            $lookupModel->save();
-            return $result_redirect;
         } catch (\Exception $e) {
             throw new \Magento\Framework\Exception\LocalizedException(__($e->getMessage()));
         }
+        
+        if ($this->debug()){
+            $debug = $responseObj->data;
+            unset($debug->applicants);
+            $this->logger->info("Application Payload: ".serialize($debug));
+        }
+        $result_id = $responseObj->data->id;
+        $result_redirect = $responseObj->data->urls->application_url;
+        
+        $lookupModel = $this->lookupFactory->create();
+        $lookupModel->load($quoteId, 'quote_id');
+        $lookupModel->setData('quote_id', $quoteId);
+        $lookupModel->setData('salt', $salt);
+        $lookupModel->setData('deposit_value', $deposit);
+        $lookupModel->setData('proposal_id', $result_id);
+        $lookupModel->setData('initial_cart_value', $grandTotal);
+        $lookupModel->save();
+        return $result_redirect;
+        
     }
 
 
