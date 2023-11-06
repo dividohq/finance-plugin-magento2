@@ -66,7 +66,7 @@ class Custom extends \Magento\Backend\Block\Template
                     $returnApp['reasons'] = Data::REFUND_CANCEL_REASONS[$application->lender->app_name];
                 }
             } catch (\Divido\MerchantSDK\Exceptions\MerchantApiBadResponseException $_){
-                $apiKeyError = _("It appears you are using a different API Key to the one used to create this application. Please revert to that API key if you wish to automatically request this amount is refunded");
+                $apiKeyError = __("It appears you are using a different API Key to the one used to create this application. Please revert to that API key if you wish to automatically request this amount is refunded");
                 $returnApp['notifications'] = [$apiKeyError];
             }
         }
