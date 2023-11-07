@@ -8,6 +8,7 @@ use Divido\MerchantSDK\Models\ApplicationActivation;
 use Divido\MerchantSDK\Models\ApplicationCancellation;
 use Divido\MerchantSDK\Models\ApplicationRefund;
 use Divido\DividoFinancing\Logger\Logger;
+use Divido\DividoFinancing\Traits\ValidationTrait;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\RequestFactoryInterface;
 
@@ -16,6 +17,7 @@ use Psr\Http\Message\RequestFactoryInterface;
  * A proxy between the Merchant API Pub and the HttpApiWrapper
  */
 class MerchantApiPubProxy{
+    use ValidationTrait;
 
     const HTTP_METHOD_POST = 'POST';
     const HTTP_METHOD_GET = 'GET';
@@ -36,6 +38,23 @@ class MerchantApiPubProxy{
         ],
         self::HTTP_METHOD_PATCH => [
             'APPLICATION' => '/applications/%s'
+        ]
+    ];
+    const EXPECTED_RESPONSE_CODES = [
+        self::HTTP_METHOD_GET => [
+            'APPLICATION' => 200,
+            'HEALTH' => 200,
+            'PLANS' => 200,
+            'ENVIRONMENT' => 200
+        ],
+        self::HTTP_METHOD_POST => [
+            'APPLICATION' => 201,
+            'ACTIVATION' => 201,
+            'REFUND' => 201,
+            'CANCELLATION' => 201
+        ],
+        self::HTTP_METHOD_PATCH => [
+            'APPLICATION' => 200
         ]
     ];
 
@@ -109,6 +128,8 @@ class MerchantApiPubProxy{
     public function getHealth():bool{
 
         $response = $this->request(self::HTTP_METHOD_GET, self::PATHS[self::HTTP_METHOD_GET]['HEALTH']);
+
+        $this->checkStatusCode($response);
         
         return $response->getBody()->getContents() === 'OK';
     }
@@ -123,7 +144,11 @@ class MerchantApiPubProxy{
 
         $response = $this->request(self::HTTP_METHOD_GET, self::PATHS[self::HTTP_METHOD_GET]['ENVIRONMENT']);
         
-        return $this->getResponseBodyObj($response);
+        return $this->validateResponse(
+            $response, 
+            'environment', 
+            self::EXPECTED_RESPONSE_CODES[self::HTTP_METHOD_GET]['ENVIRONMENT']
+        );
     }
 
     /**
@@ -134,8 +159,12 @@ class MerchantApiPubProxy{
      */
     public function getFinancePlans() :object{
         $response = $this->request(self::HTTP_METHOD_GET, self::PATHS[self::HTTP_METHOD_GET]['PLANS']);
-        
-        return $this->getResponseBodyObj($response);
+
+        return $this->validateResponse(
+            $response, 
+            'finance-plans', 
+            self::EXPECTED_RESPONSE_CODES[self::HTTP_METHOD_GET]['PLANS']
+        );
     }
 
     public function getApplication(string $applicationId) :object{
@@ -146,7 +175,11 @@ class MerchantApiPubProxy{
 
         $response = $this->request(self::HTTP_METHOD_GET, $path);
         
-        return $this->getResponseBodyObj($response);
+        return $this->validateResponse(
+            $response, 
+            'application', 
+            self::EXPECTED_RESPONSE_CODES[self::HTTP_METHOD_GET]['APPLICATION']
+        );
     }
 
     /**
@@ -173,7 +206,11 @@ class MerchantApiPubProxy{
             $params
         );
 
-        return $this->getResponseBodyObj($response);
+        return $this->validateResponse(
+            $response, 
+            'application', 
+            self::EXPECTED_RESPONSE_CODES[self::HTTP_METHOD_POST]['APPLICATION']
+        );
     }
 
     /**
@@ -195,7 +232,11 @@ class MerchantApiPubProxy{
 
         $response = $this->request(self::HTTP_METHOD_POST, $path, ['body' => $body]);
 
-        return $this->getResponseBodyObj($response);
+        return $this->validateResponse(
+            $response, 
+            'activation', 
+            self::EXPECTED_RESPONSE_CODES[self::HTTP_METHOD_POST]['ACTIVATION']
+        );
     }
 
     /**
@@ -217,7 +258,11 @@ class MerchantApiPubProxy{
 
         $response = $this->request(self::HTTP_METHOD_POST, $path, ['body' => $body]);
 
-        return $this->getResponseBodyObj($response);
+        return $this->validateResponse(
+            $response, 
+            'cancellation', 
+            self::EXPECTED_RESPONSE_CODES[self::HTTP_METHOD_POST]['CANCELLATION']
+        );
     }
 
     /**
@@ -238,7 +283,11 @@ class MerchantApiPubProxy{
         $body = $refund->getJsonPayload();
         $response = $this->request(self::HTTP_METHOD_POST, $path, ['body' => $body]);
 
-        return $this->getResponseBodyObj($response);
+        return $this->validateResponse(
+            $response, 
+            'refund', 
+            self::EXPECTED_RESPONSE_CODES[self::HTTP_METHOD_POST]['REFUND']
+        );
     }
 
     
@@ -260,7 +309,11 @@ class MerchantApiPubProxy{
 
         $response = $this->request(self::HTTP_METHOD_PATCH, $path, ['body' => $body]);
 
-        return $this->getResponseBodyObj($response);
+        return $this->validateResponse(
+            $response, 
+            'application', 
+            self::EXPECTED_RESPONSE_CODES[self::HTTP_METHOD_PATCH]['APPLICATION']
+        );
     }
 
     /**
