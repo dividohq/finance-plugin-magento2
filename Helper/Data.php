@@ -624,9 +624,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
                     "merchant_reference" => $orderId
                 ]);
             $this->logger->info("updating order id ". (string)$orderId);
-            $responseObj = $this->getMerchantApiProxy()->updateApplication($application);
-
-            $this->logger->info('update response');
+            $this->getMerchantApiProxy()->updateApplication($application);
 
         } catch(\Exception $e){
             $this->logger->info("Error updating application" ,[$e->getMessage()]);
@@ -1024,6 +1022,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             $responseObj = $this->getMerchantApiProxy()->getFinancePlans();
             return $responseObj->data;
         } catch (\Exception $e) {
+            $this->logger->warning("Could not retrieve finance plans", ['error' => $e->getMessage()]);
             return [];
         }
     }
@@ -1042,8 +1041,18 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             ->withDeliveryMethod($shipping_method)
             ->withTrackingNumber($tracking_numbers);
         // Create a new activation for the application.
-        
-        $response = $this->getMerchantApiProxy()->postActivation($application_id, $application_activation);
+        try{
+            $this->getMerchantApiProxy()->postActivation($application_id, $application_activation);
+        } catch(\Exception $e){
+            $this->logger->warning(
+                'Could not activate application', 
+                [
+                    'application'=> $application_id, 
+                    'reason' => $e->getMessage()
+                ]
+            );
+            throw $e;
+        }
     }
 
     public function autoCancel($order, $reason=null)
@@ -1098,7 +1107,18 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             $application_cancellation = $application_cancellation->withReason($reason);
         }
         // Create a new activation for the application.
-        $response = $this->getMerchantApiProxy()->postCancellation($application_id, $application_cancellation);
+        try{
+            $this->getMerchantApiProxy()->postCancellation($application_id, $application_cancellation);
+        } catch( \Exception $e){
+            $this->logger->warning(
+                'Could not cancel application', 
+                [
+                    'application'=> $application_id, 
+                    'reason' => $e->getMessage()
+                ]
+            );
+            throw $e;
+        }
 
         $this->cancelLookup($orderId);
     }

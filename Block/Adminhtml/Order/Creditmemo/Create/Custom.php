@@ -1,21 +1,26 @@
 <?php
 namespace Divido\DividoFinancing\Block\Adminhtml\Order\Creditmemo\Create;
 
+use Divido\DividoFinancing\Exceptions\MessageValidationException;
 use Divido\DividoFinancing\Helper\Data;
 
 class Custom extends \Magento\Backend\Block\Template
 {
     private $helper;
+
+    private $logger;
     private $_coreRegistry;
 
     public function __construct(
         \Magento\Backend\Block\Template\Context $context,
         \Magento\Framework\Registry $_coreRegistry,
         \Divido\DividoFinancing\Helper\Data $helper,
+        \Divido\DividoFinancing\Logger\Logger $logger,
         array $data = []
     ) {
         $this->helper = $helper;
         $this->_coreRegistry = $_coreRegistry;
+        $this->logger = $logger;
         parent::__construct($context, $data);
     }
 
@@ -65,9 +70,16 @@ class Custom extends \Magento\Backend\Block\Template
                     $returnApp['reason_title'] = __("Refund Reason");
                     $returnApp['reasons'] = Data::REFUND_CANCEL_REASONS[$application->lender->app_name];
                 }
-            } catch (\Divido\MerchantSDK\Exceptions\MerchantApiBadResponseException $_){
+            } catch (\Divido\MerchantSDK\Exceptions\MerchantApiBadResponseException $e){
+                $this->logger->error(sprintf("Merchant API bad response error: %s", $e->getMessage()));
                 $apiKeyError = __("It appears you are using a different API Key to the one used to create this application. Please revert to that API key if you wish to automatically request this amount is refunded");
                 $returnApp['notifications'] = [$apiKeyError];
+            } catch(MessageValidationException $e){
+                $this->logger->warning(sprintf("Refund Validation error: %s", $e->getMessage()));
+                $returnApp['notifications'] = ["Error validating application information"];
+            } catch(\Exception $e){
+                $this->logger->error(sprintf("Unexpected error: %s", $e->getMessage()));
+                $returnApp['notifications'] = ["An unknown error has occurred"];
             }
         }
         
