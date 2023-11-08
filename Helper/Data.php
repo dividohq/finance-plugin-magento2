@@ -446,12 +446,8 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 
     public function creditRequest($planId, $depositAmount, $email, $quoteId = null)
     {
-        $secret = $this->config->getValue(
-            'payment/divido_financing/secret',
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-        );
 
-        $quote       = $this->cart->getQuote();
+        $quote = $this->cart->getQuote();
         if ($quoteId != null) {
             $this->_objectManager = \Magento\Framework\App\ObjectManager::getInstance();
             $quote = $this->_objectManager->create('Magento\Quote\Model\Quote')->load($quoteId);
@@ -572,8 +568,12 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 
                 ]
             );
-
+        
         $hmac = null;
+        $secret = $this->config->getValue(
+            'payment/divido_financing/secret',
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
         if(!empty($secret)){
             $hmac = $this->create_signature(json_encode($application->getPayload()), $secret);
         }
