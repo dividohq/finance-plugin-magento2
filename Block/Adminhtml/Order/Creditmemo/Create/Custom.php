@@ -1,21 +1,26 @@
 <?php
 namespace Divido\DividoFinancing\Block\Adminhtml\Order\Creditmemo\Create;
 
+use Divido\DividoFinancing\Exceptions\MessageValidationException;
 use Divido\DividoFinancing\Helper\Data;
 
 class Custom extends \Magento\Backend\Block\Template
 {
     private $helper;
+
+    private $logger;
     private $_coreRegistry;
 
     public function __construct(
         \Magento\Backend\Block\Template\Context $context,
         \Magento\Framework\Registry $_coreRegistry,
         \Divido\DividoFinancing\Helper\Data $helper,
+        \Divido\DividoFinancing\Logger\Logger $logger,
         array $data = []
     ) {
         $this->helper = $helper;
         $this->_coreRegistry = $_coreRegistry;
+        $this->logger = $logger;
         parent::__construct($context, $data);
     }
 
@@ -40,18 +45,18 @@ class Custom extends \Magento\Backend\Block\Template
         if ($code == Data::PAYMENT_METHOD && !empty($this->helper->getApiKey()) && $autoRefund) {
             try{
                 $application = $this->helper->getApplicationFromOrder($order);
-                $returnApp['refundable'] = $application['amounts']['refundable_amount'];
+                $returnApp['refundable'] = $application->amounts->refundable_amount;
                 $returnApp['notifications'][] = sprintf(
                     __("The de-facto amount refundable for this application is %s. Any refund attempt exceding this will be processed as a full refund for %s"),
                     $order->formatPrice($returnApp['refundable']/100),
                     $order->formatPrice($returnApp['refundable']/100)
                 );
 
-                if(in_array($application['lender']['app_name'], Data::NON_PARTIAL_LENDERS)){
+                if(in_array($application->lender->app_name, Data::NON_PARTIAL_LENDERS)){
                     $returnApp['notifications'][] = __("We are unable to request partial refunds from your lender");
                     $returnApp['partial_refundable'] = 0;
-                }elseif($application['finance_plan']['credit_amount']['minimum_amount'] > 0){
-                    $returnApp['partial_refundable'] = $application['amounts']['refundable_amount'] - $application['finance_plan']['credit_amount']['minimum_amount'];
+                }elseif($application->finance_plan->credit_amount->minimum_amount > 0){
+                    $returnApp['partial_refundable'] = $application->amounts->refundable_amount - $application->finance_plan->credit_amount->minimum_amount;
                     $returnApp['notifications'][] = sprintf(
                         __("If you are making a partial refund, the maximum that can be refunded (before reaching this finance plan's minimum credit limit) is %s"), 
                         $order->formatPrice($returnApp['partial_refundable']/100)
@@ -60,14 +65,21 @@ class Custom extends \Magento\Backend\Block\Template
                
                 $returnApp['notifications'][] = __("Please turn off automatic refunds in the Powered By Divido plugin if you wish to create refunds outside of the above scope");
 
-                if(array_key_exists($application['lender']['app_name'], Data::REFUND_CANCEL_REASONS)){
+                if(array_key_exists($application->lender->app_name, Data::REFUND_CANCEL_REASONS)){
                     $returnApp['reason_notification'] = __("You must specify one of the following reasons for the refund to be successfully processed");
                     $returnApp['reason_title'] = __("Refund Reason");
-                    $returnApp['reasons'] = Data::REFUND_CANCEL_REASONS[$application['lender']['app_name']];
+                    $returnApp['reasons'] = Data::REFUND_CANCEL_REASONS[$application->lender->app_name];
                 }
-            } catch (\Divido\MerchantSDK\Exceptions\MerchantApiBadResponseException $_){
-                $apiKeyError = _("It appears you are using a different API Key to the one used to create this application. Please revert to that API key if you wish to automatically request this amount is refunded");
+            } catch (\Divido\MerchantSDK\Exceptions\MerchantApiBadResponseException $e){
+                $this->logger->error(sprintf("Merchant API bad response error: %s", $e->getMessage()));
+                $apiKeyError = __("It appears you are using a different API Key to the one used to create this application. Please revert to that API key if you wish to automatically request this amount is refunded");
                 $returnApp['notifications'] = [$apiKeyError];
+            } catch(MessageValidationException $e){
+                $this->logger->warning(sprintf("Refund Validation error: %s", $e->getMessage()));
+                $returnApp['notifications'] = ["Error validating application information"];
+            } catch(\Exception $e){
+                $this->logger->error(sprintf("Unexpected error: %s", $e->getMessage()));
+                $returnApp['notifications'] = ["An unknown error has occurred"];
             }
         }
         

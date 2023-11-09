@@ -1,0 +1,49 @@
+{
+  "type": "object",
+  "properties": {
+    "meta": {
+      "type": "object"
+    },
+    "data": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "active": {
+            "type": "boolean"
+          },
+          "country": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              }
+            }
+          },
+          "currency": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "required": [
+          "id",
+          "active",
+          "description"
+        ]
+      }
+    }
+  },
+  "required": [
+    "data"
+  ]
+}

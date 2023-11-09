@@ -1,0 +1,42 @@
+{
+    "type": "object",
+    "properties": {
+      "data": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type":"string"
+          },
+          "amount": {
+            "type": "number"
+          },
+          "status": {
+            "type":"string"
+          },
+          "reference": {
+            "type": ["string", "null"]
+          },
+          "data": {
+            "type": "array"
+          },
+          "comment": {
+            "type": ["string", "null"]
+          },
+          "created_at": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "amount",
+          "status"
+        ]
+      }
+    },
+    "required": [
+      "data"
+    ]
+  }

@@ -1,0 +1,19 @@
+{
+  "type": "object",
+  "properties": {
+    "data": {
+      "type": "object",
+      "properties": {
+        "environment": {
+          "type":"string"
+        }
+      },
+      "required": [
+        "environment"
+      ]
+    }
+  },
+  "required": [
+    "data"
+  ]
+}

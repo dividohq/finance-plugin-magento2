@@ -33,7 +33,7 @@ class CancelObserver implements ObserverInterface
 
             $reason = (isset($params['pbd_reason'])) ? $params['pbd_reason'] : null;
             
-            if(array_key_exists($application['lender']['app_name'], Data::REFUND_CANCEL_REASONS) && $reason == null){
+            if(array_key_exists($application->lender->app_name, Data::REFUND_CANCEL_REASONS) && $reason == null){
                 throw new CancelException(__("You must specify a cancellation reason"));
             }
         

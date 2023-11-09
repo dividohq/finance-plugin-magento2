@@ -20,11 +20,11 @@ class RefundItems implements \Iterator
         $this->key = 0;
     }
 
-    public function current(){
+    public function current() :RefundItem {
         return $this->refundItems[$this->key];
     }
 
-    public function key(){
+    public function key() :int {
         return $this->key;
     }
 
@@ -40,7 +40,7 @@ class RefundItems implements \Iterator
         return isset($this->refundItems[$this->key]);
     }
 
-    public function addRefundItem(RefundItem $item){
+    public function addRefundItem(RefundItem $item) :void{
         $this->refundItems[] = $item;
     }
 

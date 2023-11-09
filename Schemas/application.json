@@ -1,0 +1,224 @@
+{
+  "type": "object",
+  "properties": {
+    "data": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type":"string"
+        },
+        "token": {
+          "type":["string", "null"]
+        },
+        "finalised": {
+          "type":["boolean","null"]
+        },
+        "finalisation_required": {
+          "type": ["boolean", "null"]
+        },
+        "current_status": {
+          "type": "string"
+        },
+        "lender_reference": {
+          "type": ["string", "null"]
+        },
+        "lender_loan_reference": {
+          "type": ["string", "null"]
+        },
+        "order_items": {
+          "type":"array",
+          "items": {
+              "type": "object",
+              "properties": {
+                  "name":{
+                      "type": "string"
+                  },
+                  "quantity": {
+                      "type":"integer"
+                  },
+                  "price": {
+                      "type":"integer"
+                  },
+                  "sku": {
+                      "type": "string"
+                  }
+              },
+              "required":[
+                  "name",
+                  "quantity",
+                  "price"
+              ]
+          }
+        },
+        "applicants":{
+          "type": "array"
+        },
+        "amounts": {
+          "type": "object",
+          "properties": {
+              "activatable_amount": {
+                  "type": "integer"
+              },
+              "activated_amount": {
+                  "type": "integer"
+              },
+              "cancelable_amount": {
+                  "type": "integer"
+              },
+              "cancelled_amount": {
+                  "type": "integer"
+              },
+              "original_credit_amount": {
+                  "type": "integer"
+              },
+              "current_credit_amount": {
+                  "type": "integer"
+              },
+              "deposit_amount": {
+                  "type": "integer"
+              },
+              "monthly_payment_amount": {
+                  "type": "integer"
+              },
+              "purchase_price_amount": {
+                  "type": "integer"
+              },
+              "refundable_amount": {
+                  "type": "integer"
+              },
+              "refunded_amount": {
+                  "type": "integer"
+              },
+              "total_repayable_amount": {
+                  "type": "integer"
+              }
+          },
+          "required": [
+              "activatable_amount",
+              "activated_amount",
+              "cancelable_amount",
+              "cancelled_amount",
+              "original_credit_amount",
+              "current_credit_amount",
+              "deposit_amount",
+              "monthly_payment_amount",
+              "purchase_price_amount",
+              "refundable_amount",
+              "refunded_amount",
+              "total_repayable_amount"
+          ]
+        },
+        "metadata": {
+          "type": "object"
+        },
+        "activation_status": {
+          "type": ["string", "null"]
+        },
+        "deposit_status": {
+          "type": ["string", "null"]
+        },
+        "merchant_reference": {
+          "type": ["string", "null"]
+        },
+        "urls": {
+          "type": "object",
+          "properties": {
+              "merchant_success_redirect_url": {
+                  "type": ["string", "null"]
+              },
+              "merchant_redirect_url": {
+                  "type": ["string", "null"]
+              },
+              "merchant_checkout_url": {
+                  "type": ["string", "null"]
+              },
+              "merchant_webhook_url": {
+                  "type": ["string", "null"]
+              },
+              "merchant_response_url": {
+                  "type": ["string", "null"]
+              },
+              "application_url": {
+                  "type": ["string", "null"]
+              }
+          },
+          "required": [
+              "merchant_success_redirect_url",
+              "merchant_checkout_url",
+              "merchant_response_url",
+              "application_url"
+          ]
+        },
+        "country": {
+          "type": "object",
+          "properties": {
+              "id": {
+                  "type": "string"
+              },
+              "name": {
+                  "type": "string"
+              }
+          }
+        },
+        "currency": {
+          "type": "object",
+          "properties": {
+              "id": {
+                  "type": "string"
+              }
+          }
+        },
+        "language": {
+          "type": "object",
+          "properties": {
+              "id": {
+                  "type": "string"
+              },
+              "name": {
+                  "type": "string"
+              }
+          }
+        },
+        "deposits": {
+          "type": "array"
+        },
+        "finance_plan": {
+          "type": "object"
+        },
+        "lender": {
+          "type": "object"
+        },
+        "merchant": {
+          "type": "object"
+        },
+        "merchant_channel": {
+          "type": "object"
+        },
+        "application_histories": {
+          "type": "array"
+        },
+        "submissions": {
+          "type": "array"
+        },
+        "created_at": {
+          "type": "string"
+        },
+        "updated_at": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "token",
+        "current_status",
+        "order_items",
+        "amounts",
+        "applicants",
+        "urls"
+      ]
+    }
+  },
+  "required": [
+    "data"
+  ]
+}
