@@ -446,22 +446,17 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 
     public function creditRequest($planId, $depositAmount, $email, $quoteId = null)
     {
-
         $quote = $this->cart->getQuote();
         if ($quoteId != null) {
             $this->_objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+            /** @var \Magento\Quote\Model\Quote $quote */
             $quote = $this->_objectManager->create('Magento\Quote\Model\Quote')->load($quoteId);
         }
         $shipAddr    = $quote->getShippingAddress();
-        $country     = $shipAddr->getCountryId();
+        $country     = $shipAddr->getCountry();
         $billingAddr = $quote->getBillingAddress();
-        $shippingAddress = $this->getAddressDetail($shipAddr);
-        $billingAddress  = $this->getAddressDetail($billingAddr);
-
-        if (empty($country)) {
-            $shipAddr = $quote->getBillingAddress();
-            $country = $shipAddr->getCountry();
-        }
+        $shippingAddress = $this->getApplicationAddressFromMagentoAddress($shipAddr);
+        $billingAddress  = $this->getApplicationAddressFromMagentoAddress($billingAddr);
 
         if (!empty($email)) {
             if (!$quote->getCustomerEmail()) {
@@ -480,7 +475,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             'firstName'         => $shipAddr->getFirstName(),
             'middleNames'       => $shipAddr->getMiddleName(),
             'lastName'          => $shipAddr->getLastName(),
-            'country'           => $country,
+            'country'           => $billingAddr->getCountry(),
             'postcode'          => $shipAddr->getPostcode(),
             'email'             => $email,
             'phoneNumber'       => $this->stripWhite($shipAddr->getTelephone()),
@@ -924,23 +919,24 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
      * @param object $addressObject
      * @return array
      */
-    public function getAddressDetail($addressObject)
+    public function getApplicationAddressFromMagentoAddress(\Magento\Customer\Model\Address\AbstractAddress $address) :array
     {
         $addressText = implode(
             ', ', 
-            array_merge(
-                explode("\n",$addressObject['street']), 
-                [$addressObject['city']]
-            )
+            [
+                ...$address->getStreet(), 
+                $address->getCity(),
+                $address->getRegion()
+            ]
         );
         $addressArray = [
-            'postcode' => $addressObject['postcode'],
+            'postcode' => $address->getPostcode(),
             'text' => $addressText,
-            'street' => explode("\n",$addressObject['street'])[0],
-            'town' => $addressObject['city'] 
+            'country' => $address->getCountry(),
+            'co' => $address->getCountry()
         ];
 
-        return $addressArray;
+        return array_filter($addressArray);
     }
 
 
