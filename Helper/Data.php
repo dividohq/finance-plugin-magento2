@@ -460,9 +460,13 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $shippingAddress = $this->getApplicationAddressFromMagentoAddress($shipAddr);
         $billingAddress  = $this->getApplicationAddressFromMagentoAddress($billingAddr);
 
-        if (!empty($email) && !$quote->getCustomerEmail()) {
+        if (!empty($email) && empty($quote->getCustomerEmail())) {
             $quote->setCustomerEmail($email);
             $this->quoteRepository->save($quote);
+        }
+
+        if(empty($email)){
+            $email = $quote->getCustomerEmail();
         }
 
         $customer = [
@@ -472,7 +476,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             'lastName'          => $billingAddr->getLastName(),
             'country'           => $billingAddr->getCountry(),
             'postcode'          => $billingAddr->getPostcode(),
-            'email'             => $quote->getCustomerEmail(),
+            'email'             => $email,
             'phoneNumber'       => $this->stripWhite($billingAddr->getTelephone()),
             'addresses'         => [$billingAddress],
             'shippingAddress'   => $shippingAddress,
