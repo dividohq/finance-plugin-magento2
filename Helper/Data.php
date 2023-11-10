@@ -68,6 +68,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     private $clientFactory;
     private $merchantApiProxy;
     private $requestFactory;
+    private $quoteRepository;
 
     public function __construct(
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
@@ -81,7 +82,8 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         ProductFactory $productFactory,
         \Magento\Framework\Locale\Resolver $localeResolver,
         GuzzleClientFactory $clientFactory,
-        LaminasRequestFactory $requestFactory
+        LaminasRequestFactory $requestFactory,
+        \Magento\Quote\Model\QuoteRepository $quoteRepository
     ) {
 
         $this->config         = $scopeConfig;
@@ -96,6 +98,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $this->localeResolver = $localeResolver;
         $this->clientFactory = $clientFactory;
         $this->requestFactory = $requestFactory;
+        $this->quoteRepository = $quoteRepository;
     }
 
     /**
@@ -448,9 +451,8 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     {
         $quote = $this->cart->getQuote();
         if ($quoteId != null) {
-            $this->_objectManager = \Magento\Framework\App\ObjectManager::getInstance();
             /** @var \Magento\Quote\Model\Quote $quote */
-            $quote = $this->_objectManager->create('Magento\Quote\Model\Quote')->load($quoteId);
+            $quote = $this->quoteRepository->get($quoteId);
         }
         $shipAddr    = $quote->getShippingAddress();
         $country     = $shipAddr->getCountry();
@@ -458,13 +460,9 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $shippingAddress = $this->getApplicationAddressFromMagentoAddress($shipAddr);
         $billingAddress  = $this->getApplicationAddressFromMagentoAddress($billingAddr);
 
-        if (!empty($email)) {
-            if (!$quote->getCustomerEmail()) {
-                $quote->setCustomerEmail($email);
-                $quote->save();
-            }
-        } else {
-            $email = $quote->getCustomerEmail();
+        if (!empty($email) && !$quote->getCustomerEmail()) {
+            $quote->setCustomerEmail($email);
+            $this->quoteRepository->save($quote);
         }
 
         $customer = [
@@ -474,7 +472,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             'lastName'          => $billingAddr->getLastName(),
             'country'           => $billingAddr->getCountry(),
             'postcode'          => $billingAddr->getPostcode(),
-            'email'             => $email,
+            'email'             => $quote->getCustomerEmail(),
             'phoneNumber'       => $this->stripWhite($billingAddr->getTelephone()),
             'addresses'         => [$billingAddress],
             'shippingAddress'   => $shippingAddress,
