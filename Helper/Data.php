@@ -464,21 +464,18 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
                 $quote->save();
             }
         } else {
-            if ($existingEmail = $quote->getCustomerEmail()) {
-                $email = $existingEmail;
-            }
+            $email = $quote->getCustomerEmail();
         }
-        $store = $this->storeManager->getStore();
 
         $customer = [
             'title'             => '',
-            'firstName'         => $shipAddr->getFirstName(),
-            'middleNames'       => $shipAddr->getMiddleName(),
-            'lastName'          => $shipAddr->getLastName(),
+            'firstName'         => $billingAddr->getFirstName(),
+            'middleNames'       => $billingAddr->getMiddleName(),
+            'lastName'          => $billingAddr->getLastName(),
             'country'           => $billingAddr->getCountry(),
-            'postcode'          => $shipAddr->getPostcode(),
+            'postcode'          => $billingAddr->getPostcode(),
             'email'             => $email,
-            'phoneNumber'       => $this->stripWhite($shipAddr->getTelephone()),
+            'phoneNumber'       => $this->stripWhite($billingAddr->getTelephone()),
             'addresses'         => [$billingAddress],
             'shippingAddress'   => $shippingAddress,
         ];
