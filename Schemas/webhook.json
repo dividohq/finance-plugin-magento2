@@ -1,0 +1,53 @@
+{
+    "type": "object",
+    "properties": {
+        "event": {
+            "type":"string"
+        },
+        "status": {
+            "type": "string"
+        },
+        "firstName": {
+            "type":"string"
+        },
+        "lastName": {
+            "type": "string"
+        },
+        "phoneNumber": {
+            "type": "string"
+        },
+        "emailAddress": {
+            "type": "string"
+        },
+        "application": {
+            "type": "string"
+        },
+        "reference": {
+            "type": "string"
+        },
+        "proposal": {
+            "type": "string"
+        },
+        "metadata": {
+            "type": "object",
+            "properties" : {
+                "quote_id":{
+                    "type": "string"
+                },
+                "quote_hash":{
+                    "type": "string"
+                }
+            },
+            "required": [
+                "quote_id",
+                "quote_hash"
+            ]
+        }
+    },
+    "required": [
+        "event",
+        "status",
+        "application",
+        "metadata"
+    ]
+}
