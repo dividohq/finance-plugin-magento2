@@ -18,7 +18,7 @@ interface CreditRequestInterface
      * Update an order with results from credit request
      *
      * @api
-     * @return \Magento\Framework\Controller\Result\Json
+     * @return void
      */
     public function update();
 
@@ -26,7 +26,7 @@ interface CreditRequestInterface
      * Update an order with results from credit request
      *
      * @api
-     * @return \Magento\Framework\Controller\Result\Json
+     * @return void
      */
     public function version();
 
