@@ -7,7 +7,6 @@ use PHPUnit\Framework\TestCase;
 
 class CreditRequestTest extends TestCase
 {
-    protected $dataInstance;
 
     public function test_validateWebhookRequest(){
         $bodyObj = $this->generateWebhookObj();
