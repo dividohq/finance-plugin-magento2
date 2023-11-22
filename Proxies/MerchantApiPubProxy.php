@@ -63,6 +63,8 @@ class MerchantApiPubProxy{
     
     private ClientInterface $client;
 
+    private string $environmentUrl;
+
     private string $apiKey;
 
     private Logger $logger;
@@ -71,11 +73,13 @@ class MerchantApiPubProxy{
 
     public function __construct(
         ClientInterface $client,
+        string $environmentUrl,
         RequestFactoryInterface $requestFactoryInterface,
         string $apiKey,
         Logger $logger
     ){
         $this->client = $client;
+        $this->setEnvironmentUrl($environmentUrl);
         $this->apiKey = $apiKey;
         $this->logger = $logger;
         $this->requestFactory = $requestFactoryInterface;
@@ -95,7 +99,10 @@ class MerchantApiPubProxy{
             ]
         ], $additionalParams);
 
-        $request = $this->requestFactory->createRequest($method, $endpoint);
+        $request = $this->requestFactory->createRequest(
+            $method, 
+            sprintf("%s%s", $this->environmentUrl, $endpoint)
+        );
 
         foreach($params['headers'] as $key => $value) {
             $request = $request->withAddedHeader($key, $value);
@@ -329,5 +336,23 @@ class MerchantApiPubProxy{
             512, 
             JSON_THROW_ON_ERROR
         );
+    }
+
+    /**
+     * Get the value of environmentUrl
+     */
+    public function getEnvironmentUrl(): string
+    {
+        return $this->environmentUrl;
+    }
+
+    /**
+     * Set the value of environmentUrl
+     */
+    public function setEnvironmentUrl(string $environmentUrl): self
+    {
+        $this->environmentUrl = $environmentUrl;
+
+        return $this;
     }
 }

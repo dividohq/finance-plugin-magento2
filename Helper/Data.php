@@ -14,7 +14,7 @@ use Magento\Framework\UrlInterface;
 use Divido\DividoFinancing\Helper\EndpointHealthCheckTrait;
 use Divido\DividoFinancing\Model\RefundItems;
 use Psr\Http\Message\ResponseInterface;
-use GuzzleHttp\ClientFactory as GuzzleClientFactory;
+use Http\Discovery\Psr18ClientDiscovery;
 use Laminas\Diactoros\RequestFactory as LaminasRequestFactory;
 use Divido\DividoFinancing\Proxies\MerchantApiPubProxy;
 
@@ -65,7 +65,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     private $connection;
     private $urlBuilder;
     private $localeResolver;
-    private $clientFactory;
     private $merchantApiProxy;
     private $requestFactory;
     private $quoteRepository;
@@ -81,7 +80,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         UrlInterface $urlBuilder,
         ProductFactory $productFactory,
         \Magento\Framework\Locale\Resolver $localeResolver,
-        GuzzleClientFactory $clientFactory,
         LaminasRequestFactory $requestFactory,
         \Magento\Quote\Model\QuoteRepository $quoteRepository
     ) {
@@ -96,7 +94,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $this->urlBuilder     = $urlBuilder;
         $this->productFactory = $productFactory;
         $this->localeResolver = $localeResolver;
-        $this->clientFactory = $clientFactory;
         $this->requestFactory = $requestFactory;
         $this->quoteRepository = $quoteRepository;
     }
@@ -135,15 +132,11 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         if(null === $this->merchantApiProxy){
             $apiKey = $this->getApiKey();
             $environmentUrl = $this->getEnvironmentUrl($apiKey);
-
-            $client = $this->clientFactory->create([
-                'config' => [
-                    'base_uri' => $environmentUrl
-                ]
-            ]);
+            $client = Psr18ClientDiscovery::find();
 
             $this->merchantApiProxy = new MerchantApiPubProxy(
                 $client,
+                $environmentUrl,
                 $this->requestFactory,
                 $apiKey,
                 $this->logger

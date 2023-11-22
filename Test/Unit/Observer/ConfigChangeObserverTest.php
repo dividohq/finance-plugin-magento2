@@ -4,12 +4,9 @@ namespace Divido\DividoFinancing\Test\Unit\Observer;
 
 use Divido\DividoFinancing\Helper\Data;
 use Divido\DividoFinancing\Observer\ConfigChangeObserver;
-use Divido\MerchantSDK\Client;
 use Divido\MerchantSDK\Exceptions\InvalidApiKeyFormatException;
 use Magento\Framework\Event;
-use Magento\Framework\Exception\RuntimeException;
 use Magento\Framework\Message\ManagerInterface;
-use Magento\Framework\Phrase;
 use PHPUnit\Framework\TestCase;
 
 class ConfigChangeObserverTest extends TestCase
@@ -72,19 +69,27 @@ class ConfigChangeObserverTest extends TestCase
             ->method('getEvent')
             ->willReturn($event);
 
+        $mockProxy = $this->createMock(\Divido\DividoFinancing\Proxies\MerchantApiPubProxy::class);
+        $mockProxy->expects($this->exactly(
+                $shouldCheckEndpointHealth === true ? 1 : 0
+            ))
+            ->method('getHealth')
+            ->willReturn(true);
+
         $mockedDataInstance->expects(
             $this->exactly(
                 $shouldCheckEndpointHealth === true ? 1 : 0
             )
         )
-            ->method('getEndpointHealthCheckResult');
+            ->method('getMerchantApiProxy')
+            ->willReturn($mockProxy);
 
         $configChangeObserver->execute(
             $observer
         );
     }
 
-    public function test_ifGettingSDKThrowsErrorShouldAddErrorMessage(): void
+    public function test_ifGettingProxyThrowsErrorShouldAddErrorMessage(): void
     {
         $mockedDataInstance = $this->createMock(Data::class);
         $mockedMessageManager = $this->createMock(ManagerInterface::class);
@@ -112,13 +117,17 @@ class ConfigChangeObserverTest extends TestCase
         $mockedDataInstance->expects($this->never())
             ->method('getEndpointHealthCheckResult');
 
+        $mockProxy = $this->createMock(\Divido\DividoFinancing\Proxies\MerchantApiPubProxy::class);
+        $mockProxy->expects($this->once())
+            ->method('getHealth')
+            ->willReturn(false);
         $mockedDataInstance->expects($this->once())
-            ->method('getSdk')
-            ->willThrowException(new RuntimeException(new Phrase('Some error message')));
+            ->method('getMerchantApiProxy')
+            ->willReturn($mockProxy);
 
         $mockedMessageManager->expects($this->once())
             ->method('addErrorMessage')
-            ->with('Error while getting client to check health of endpoint');
+            ->with('Error, could not validate the health of endpoint, please check the "environment_url" setting');
 
         $configChangeObserver->execute(
             $observer
@@ -156,7 +165,6 @@ class ConfigChangeObserverTest extends TestCase
     ): void {
         $mockedDataInstance = $this->createMock(Data::class);
 
-        $mockedSdkClient = $this->createMock(Client::class);
         $mockedMessageManager = $this->createMock(ManagerInterface::class);
 
         $configChangeObserver = new ConfigChangeObserver(
@@ -178,14 +186,15 @@ class ConfigChangeObserverTest extends TestCase
         $observer->expects($this->once())
             ->method('getEvent')
             ->willReturn($event);
-
-        $mockedDataInstance->expects($this->once())
-            ->method('getSdk')
-            ->willReturn($mockedSdkClient);
-
-        $mockedDataInstance->expects($this->once())
-            ->method('getEndpointHealthCheckResult')
+        
+        $mockProxy = $this->createMock(\Divido\DividoFinancing\Proxies\MerchantApiPubProxy::class);
+        $mockProxy->expects($this->once())
+            ->method('getHealth')
             ->willReturn($sdkHealthCheckResult);
+
+        $mockedDataInstance->expects($this->once())
+            ->method('getMerchantApiProxy')
+            ->willReturn($mockProxy);
 
         if ($expectedErrorMessage) {
             $mockedMessageManager->expects($this->once())
@@ -266,6 +275,14 @@ class ConfigChangeObserverTest extends TestCase
             $mockedMessageManager
         );
 
+        $mockProxy = $this->createMock(\Divido\DividoFinancing\Proxies\MerchantApiPubProxy::class);
+        $mockProxy->expects($this->any())
+            ->method('getHealth')
+            ->willReturn(true);
+        $mockedDataInstance->expects($this->any())
+        ->method('getMerchantApiProxy')
+        ->willReturn($mockProxy);
+
         $observer = $this->createMock(\Magento\Framework\Event\Observer::class);
 
         $event = new Event(
@@ -308,12 +325,16 @@ class ConfigChangeObserverTest extends TestCase
             ->willThrowException(
                 new InvalidApiKeyFormatException($errorMessage)
             );
-
+        
         // Health check is OK
-        $mockedDataInstance->expects($this->once())
-            ->method('getEndpointHealthCheckResult')
+        $mockProxy = $this->createMock(\Divido\DividoFinancing\Proxies\MerchantApiPubProxy::class);
+        $mockProxy->expects($this->once())
+            ->method('getHealth')
             ->willReturn(true);
 
+        $mockedDataInstance->expects($this->once())
+            ->method('getMerchantApiProxy')
+            ->willReturn($mockProxy);
 
         $observer = $this->createMock(\Magento\Framework\Event\Observer::class);
 

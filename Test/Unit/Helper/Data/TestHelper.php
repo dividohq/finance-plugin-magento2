@@ -35,7 +35,9 @@ class TestHelper extends TestCase
             $this->createMock(LookupFactory::class),
             $this->createMock(UrlInterface::class),
             $this->createMock(ProductFactory::class),
-            $this->createMock(\Magento\Framework\Locale\Resolver::class)
+            $this->createMock(\Magento\Framework\Locale\Resolver::class),
+            new \Laminas\Diactoros\RequestFactory(),
+            $this->createMock(\Magento\Quote\Model\QuoteRepository::class)
         );
     }
 }
