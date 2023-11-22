@@ -4,12 +4,9 @@ namespace Divido\DividoFinancing\Test\Unit\Observer;
 
 use Divido\DividoFinancing\Helper\Data;
 use Divido\DividoFinancing\Observer\ConfigChangeObserver;
-use Divido\MerchantSDK\Client;
 use Divido\MerchantSDK\Exceptions\InvalidApiKeyFormatException;
 use Magento\Framework\Event;
-use Magento\Framework\Exception\RuntimeException;
 use Magento\Framework\Message\ManagerInterface;
-use Magento\Framework\Phrase;
 use PHPUnit\Framework\TestCase;
 
 class ConfigChangeObserverTest extends TestCase
@@ -92,7 +89,7 @@ class ConfigChangeObserverTest extends TestCase
         );
     }
 
-    public function test_ifGettingSDKThrowsErrorShouldAddErrorMessage(): void
+    public function test_ifGettingProxyThrowsErrorShouldAddErrorMessage(): void
     {
         $mockedDataInstance = $this->createMock(Data::class);
         $mockedMessageManager = $this->createMock(ManagerInterface::class);
@@ -127,7 +124,6 @@ class ConfigChangeObserverTest extends TestCase
         $mockedDataInstance->expects($this->once())
             ->method('getMerchantApiProxy')
             ->willReturn($mockProxy);
-            //->willThrowException(new RuntimeException(new Phrase('Some error message')));
 
         $mockedMessageManager->expects($this->once())
             ->method('addErrorMessage')
@@ -169,7 +165,6 @@ class ConfigChangeObserverTest extends TestCase
     ): void {
         $mockedDataInstance = $this->createMock(Data::class);
 
-        $mockedSdkClient = $this->createMock(Client::class);
         $mockedMessageManager = $this->createMock(ManagerInterface::class);
 
         $configChangeObserver = new ConfigChangeObserver(
