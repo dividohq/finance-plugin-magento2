@@ -23,7 +23,8 @@ interface CreditRequestInterface
     public function update();
 
     /**
-     * Update an order with results from credit request
+     * Responds with a json object, giving the version of
+     * the platform and plugin to use for debugging
      *
      * @api
      * @return void
