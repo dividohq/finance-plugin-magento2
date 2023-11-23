@@ -9,10 +9,12 @@ use \Divido\MerchantSDK\Exceptions\MerchantApiBadResponseException;
 use JsonSchema\Constraints\Constraint;
 use JsonSchema\Validator;
 use Psr\Http\Message\MessageInterface;
+use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
 trait ValidationTrait
 {
+    private $DIVIDO_HMAC_HEADER_NAME = 'X-DIVIDO-HMAC-SHA256';
 
     /**
      * Checks the status code and validates the response payload against the schema
@@ -48,6 +50,20 @@ trait ValidationTrait
                 json_decode($response->getBody()->getContents(), true)['context'] ?? ''
             );
         }
+    }
+
+    public function validateRequest(RequestInterface $request, string $schema, ?string $expectedHmac=null) :object {
+        if($expectedHmac === null){
+            return $this->validateMessage($request, $schema);
+        }
+
+        $hmacHeaders = $request->getHeader($this->DIVIDO_HMAC_HEADER_NAME);
+        if(count($hmacHeaders) !== 1){
+            $amount = (count($hmacHeaders) > 1) ? 'many' : 'few';
+            throw new MessageValidationException(sprintf("Received too %s HMAC Headers", $amount));
+        }
+
+        return $this->validateMessage($request, $schema);
     }
 
     /**

@@ -3,83 +3,147 @@
 namespace Divido\DividoFinancing\Model;
 
 use Divido\DividoFinancing\Api\CreditRequestInterface;
+use Divido\DividoFinancing\Exceptions\LookupNotFoundException;
+use Divido\DividoFinancing\Exceptions\MessageValidationException;
+use Divido\DividoFinancing\Exceptions\OrderNotFoundException;
+use Divido\DividoFinancing\Exceptions\UnusedWebhookException;
+use Divido\DividoFinancing\Traits\ValidationTrait;
+use Divido\DividoFinancing\Model\Lookup;
+use Laminas\Diactoros\Request;
+use Laminas\Diactoros\RequestFactory;
+use Laminas\Diactoros\StreamFactory;
+use Laminas\Http\Header\HeaderInterface;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Quote\Api\CartRepositoryInterface;
+use Psr\Http\Message\RequestFactoryInterface;
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\StreamFactoryInterface;
+use Magento\Framework\Webapi\Rest\Response;
+use Magento\Quote\Model\Quote;
+use Magento\Sales\Model\Order;
 
 class CreditRequest implements CreditRequestInterface
 {
-    const
-        NEW_ORDER_STATUS     = 'pending_payment',
-        STATUS_ACCEPTED      = 'ACCEPTED',
-        STATUS_ACTION_LENDER = 'ACTION-LENDER',
-        STATUS_CANCELED      = 'CANCELED',
-        STATUS_COMPLETED     = 'COMPLETED',
-        STATUS_DECLINED      = 'DECLINED',
-        STATUS_DEPOSIT_PAID  = 'DEPOSIT-PAID',
-        STATUS_FULFILLED     = 'FULFILLED',
-        STATUS_REFERRED      = 'REFERRED',
-        STATUS_SIGNED        = 'SIGNED',
-        STATUS_READY         = 'READY',
-        CREATION_STATUS      = self::STATUS_READY;
+    use ValidationTrait;
 
-    private $historyMessages = [
-        self::STATUS_ACCEPTED      => 'Credit request accepted',
-        self::STATUS_ACTION_LENDER => 'Lender notified',
-        self::STATUS_CANCELED      => 'Application canceled',
-        self::STATUS_COMPLETED     => 'Application completed',
-        self::STATUS_DECLINED      => 'Applicaiton declined by Underwriter',
-        self::STATUS_DEPOSIT_PAID  => 'Deposit paid by customer',
-        self::STATUS_FULFILLED     => 'Credit request fulfilled',
-        self::STATUS_REFERRED      => 'Credit request referred by Underwriter, waiting for new status',
-        self::STATUS_SIGNED        => 'Customer have signed all contracts',
-        self::STATUS_READY         => 'Application ready',
+    const
+        STATUS_ACCEPTED = 'ACCEPTED',
+        STATUS_ACTION_LENDER = 'ACTION-LENDER',
+        STATUS_CANCELED = 'CANCELED',
+        STATUS_COMPLETED = 'COMPLETED',
+        STATUS_DECLINED = 'DECLINED',
+        STATUS_DEPOSIT_PAID = 'DEPOSIT-PAID',
+        STATUS_AWAITING_ACTIVATION = 'AWAITING-ACTIVATION',
+        STATUS_FULFILLED = 'FULFILLED',
+        STATUS_REFERRED = 'REFERRED',
+        STATUS_SIGNED = 'SIGNED',
+        STATUS_READY = 'READY';
+
+    /**
+     * The expected event value in the webhook body
+     */
+    const STATUS_UPDATE_EVENT = 'application-status-update';
+
+    /**
+     * Pertains to the config "New order status on Completion"
+     * option. When we receive a webhook with this status, we
+     * change the order state to the state specified by the
+     * config (if used)
+     */
+    const COMPLETION_STATUS = self::STATUS_READY;
+
+    /**
+     * Webhook statuses that trigger an order to be created
+     * from a quote referenced by the webhook
+     */
+    const CREATION_STATUSES = [
+        self::STATUS_READY,
+        self::STATUS_REFERRED
     ];
 
-    private $noGo = [
-        self::STATUS_CANCELED,
-        self::STATUS_DECLINED,
+    /**
+     * Webhook statuses that trigger a request to the
+     * Merchant API Pub to update the application 
+     * merchant reference to the Order ID
+     */
+    const MERCHANT_REFERENCE_STATUSES = [
+        self::STATUS_READY,
+        self::STATUS_REFERRED
+    ];
+
+    /**
+     * Webhook statuses that trigger a change in order status
+     */
+    const STATUS_TRANSITIONS = [
+        self::STATUS_REFERRED => Order::STATE_HOLDED,
+        self::STATUS_DECLINED => Order::STATE_CANCELED
+    ];
+
+    /**
+     * Webhook statuses that unhold the order
+     */
+    const RELEASE_STATUSES = [
+        self::STATUS_ACCEPTED
+    ];
+
+    private $historyMessages = [
+        self::STATUS_ACCEPTED => 'Credit request accepted',
+        self::STATUS_ACTION_LENDER => 'Lender notified',
+        self::STATUS_CANCELED => 'Application canceled',
+        self::STATUS_COMPLETED => 'Application completed',
+        self::STATUS_DECLINED => 'Applicaiton declined by Underwriter',
+        self::STATUS_DEPOSIT_PAID => 'Deposit paid by customer',
+        self::STATUS_FULFILLED => 'Credit request fulfilled',
+        self::STATUS_REFERRED => 'Credit request referred by Underwriter, waiting for new status',
+        self::STATUS_SIGNED => 'Customer have signed all contracts',
+        self::STATUS_READY => 'Application ready'
     ];
 
     private $req;
-    private $quote;
-    private $order;
+    private $res;
     private $helper;
     private $logger;
     private $config;
     private $lookupFactory;
     private $quoteManagement;
     private $resourceInterface;
-    private $resultJsonFactory;
-    private $eventManager;
     private $orderCollection;
     private $resourceConnection;
+    private $quoteRepository;
+    private $orderRepository;
+    private $requestFactory;
+    private StreamFactoryInterface $streamFactory;
 
     public function __construct(
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \Magento\Framework\App\Request\Http $request,
-        \Magento\Framework\Controller\Result\JsonFactory $resultJsonFactory,
-        \Magento\Sales\Model\Order $order,
-        \Magento\Quote\Model\Quote $quote,
+        Response $response,
+        \Magento\Sales\Api\OrderRepositoryInterface $orderRepository,
+        CartRepositoryInterface $quoteRepository,
         \Magento\Quote\Model\QuoteManagement $quoteManagement,
         \Magento\Framework\Module\ResourceInterface $resourceInterface,
         \Divido\DividoFinancing\Helper\Data $helper,
         \Divido\DividoFinancing\Model\LookupFactory $lookupFactory,
         \Divido\DividoFinancing\Logger\Logger $logger,
-        \Magento\Framework\Event\Manager $eventManager,
         \Magento\Sales\Model\ResourceModel\Order\Collection $orderCollection,
-        \Magento\Framework\App\ResourceConnection $resourceConnection
+        \Magento\Framework\App\ResourceConnection $resourceConnection,
+        RequestFactory $requestFactory,
+        StreamFactory $streamFactory
     ) {
-        $this->req    = $request;
-        $this->quote = $quote;
-        $this->order = $order;
+        $this->req = $request;
+        $this->res = $response;
         $this->helper = $helper;
         $this->logger = $logger;
         $this->config = $scopeConfig;
         $this->lookupFactory = $lookupFactory;
         $this->quoteManagement = $quoteManagement;
-        $this->resultJsonFactory = $resultJsonFactory;
         $this->resourceInterface = $resourceInterface;
-        $this->eventManager = $eventManager;
         $this->orderCollection = $orderCollection;
         $this->resourceConnection = $resourceConnection;
+        $this->orderRepository = $orderRepository;
+        $this->quoteRepository = $quoteRepository;
+        $this->requestFactory = $requestFactory;
+        $this->streamFactory = $streamFactory;
     }
 
     /**
@@ -97,7 +161,6 @@ class CreditRequest implements CreditRequestInterface
         $planId    = $this->req->getQuery('plan', null);
         $deposit   = $this->req->getQuery('deposit', null);
         $email     = $this->req->getQuery('email', null);
-        $cartValue = $this->req->getQuery('initial_cart_value', null);
         $quoteId   = $this->req->getQuery('quote_id', null);
 
 
@@ -115,83 +178,197 @@ class CreditRequest implements CreditRequestInterface
     }
 
     /**
-     * Update an order with results from credit request
+     * Handles Webhook requests and updates the quote/order appropriately
      *
-     * @api
-     * @return \Magento\Framework\Controller\ResultJson
      */
-    public function update()
-    {
-        $this->logger->info('Application Update - CreditRequest');
-
-        $debug = $this->config->getValue(
-            'payment/divido_financing/debug',
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+    public function update() {
+        $psrRequest = $this->convertMagentoRequestToPsrRequest(
+            $this->req,
+            $this->requestFactory,
+            $this->streamFactory
         );
-
-        $content = $this->req->getContent();
-        if ($debug) {
-            $this->logger->debug('Divido: Request: ' . $content);
+        
+        try{
+            $requestObj = $this->validateWebhookRequest($psrRequest);
+        } catch (MessageValidationException $e) {
+            $this->logger->error("Could not validate webhook", ["error" => $e->getMessage()]);
+            return $this->sendWebhookResponse(400, sprintf("Could not validate webhook: %s", $e->getMessage()));
+        } catch (UnusedWebhookException $e){
+            return $this->sendWebhookResponse(200, $e->getMessage());
+        } catch (\Exception $e){
+            $this->logger->error("An unexpected error occured validating the webhook", ['error'=> $e->getMessage()]);
+            return $this->sendWebhookResponse(500, "Unexpected error: ".$e->getMessage());
         }
-        $data = json_decode($content);
+        
+        try{
+            $quote = $this->quoteRepository->get($requestObj->metadata->quote_id);
+        } catch(NoSuchEntityException $e){
+            $this->logger->error("Could not find quote in DB", ['error'=> $e->getMessage()]);
+            return $this->sendWebhookResponse(404, "Could not find quote in database");
+        } 
 
-        if ($data === null) {
-            if($debug){
-                $this->logger->error('Divido: Bad request, could not parse body: ' . $content);
+        try{
+            $lookup = $this->retrieveWebhookLookup($requestObj);
+        } catch(MessageValidationException $e){
+            $this->logger->error("Could not validate webhook", ["error" => $e->getMessage()]);
+            return $this->sendWebhookResponse(400, sprintf("Could not validate webhook: %s", $e->getMessage()));
+        } catch (LookupNotFoundException $e){
+            $this->logger->error("Could not retrieve lookup", ["error" => $e->getMessage()]);
+            return $this->sendWebhookResponse(404, sprintf("Could not retrieve application from db: %s", $e->getMessage()));
+        }
+
+        try{
+            $this->updateLookupByStatus($lookup, $requestObj->status);
+        } catch(\Exception $e){
+            $this->logger->error("An error occured updating the Divido Lookup", [
+                "error"=> $e->getMessage()
+            ]);
+        }
+
+        try{
+            $order = $this->retrieveDividoOrderByQuoteId($requestObj->metadata->quote_id);
+        } catch(OrderNotFoundException $e){
+            $order = null;
+        } catch (\Exception $e){
+            $this->logger->error("Unexpected error retrieving Order", ["error" => $e->getMessage()]);
+            return $this->sendWebhookResponse(500, sprintf("Unexpected error retrieving order: %s", $e->getMessage()));
+        }
+
+        // if webhook status triggers order creation and order hasn't been created already
+        if(in_array($requestObj->status, self::CREATION_STATUSES)  && $order === null){
+            try{
+                $this->validateQuotePriceFromLookup($quote, $lookup);
+            } catch(MessageValidationException $e){
+                $this->logger->error("Could not validate quote price", ["error" => $e->getMessage()]);
+                return $this->sendWebhookResponse(400, sprintf("Could not validate quote price: %s", $e->getMessage()));
             }
-            return $this->webhookResponse(false, 'Invalid json');
-        }
-        if($debug){
-            $this->logger->debug('Application Update Status:'.$data->status);
-        }
 
-        $quoteId = $data->metadata->quote_id;
-
-        $lookup = $this->lookupFactory->create()->load($quoteId, 'quote_id');
-        if (! $lookup->getId()) {
-            if($debug){
-                $this->logger->error('Divido: Bad request, could not find lookup. Req: ' . $content);
+            try{
+                $order = $this->createOrder($requestObj, $lookup);
+            } catch (\Exception $e){
+                $this->logger->error("Unexpected error creating Order", ["error" => $e->getMessage()]);
+                return $this->sendWebhookResponse(500, sprintf("Unexpected error creating order: %s", $e->getMessage()));
             }
-            return $this->webhookResponse(false, 'No lookup');
         }
+
+        //if webhook status precedes order creation leave early
+        if($order === null){
+            return $this->sendWebhookResponse(200, "Webhook Handled");
+        }
+
+        $this->setOrderStatus($order, $requestObj->status);
+
+        if(in_array($requestObj->status, self::MERCHANT_REFERENCE_STATUSES)){
+            $this->helper->updateMerchantReference($requestObj->application, $order->getId());
+        }
+
+        if(array_key_exists($requestObj->status, $this->historyMessages)){
+            $order->addCommentToStatusHistory(
+                'Divido: ' . $this->historyMessages[$requestObj->status]
+            );
+        }
+
+        if(in_array($requestObj->status, self::RELEASE_STATUSES)){
+            try {
+                $order->unhold();
+                $order->addCommentToStatusHistory('Divido: Order Unheld');
+            } catch(\Exception $e){
+                $this->logger->warning(
+                    "Could not unhold the order",
+                    ["reason" => $e->getMessage()]
+                );
+            }
+        }
+        
+        $this->orderRepository->save($order);
+
+        return $this->sendWebhookResponse(200, "Order Updated");
+        
+    }
+
+    /**
+     * Implements the Validation trait to the webhook and ensures the schema,
+     * contents and signature (if required) are correct
+     *
+     * @param RequestInterface $webhookRequest
+     * @return object
+     */
+    public function validateWebhookRequest(RequestInterface $webhookRequest) :object {
 
         $secret = $this->config->getValue(
             'payment/divido_financing/secret',
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         );
-        if (!empty($secret)) {
 
-            $reqSign =
-                isset($_SERVER['HTTP_X_DIVIDO_HMAC_SHA256'])
-                ? $_SERVER['HTTP_X_DIVIDO_HMAC_SHA256']
-                : '';
-            $sign = $this->helper->create_signature($content, $secret);
-
-            if ($reqSign !== $sign) {
-                $this->logger->error('Divido: Bad request, invalid signature. Req: ' . $content);
-                return $this->webhookResponse(false, 'Invalid signature');
-            }
+        $configHmac = null;
+        if(!empty($secret)){
+            $configHmac = $this->helper->create_signature(
+                $webhookRequest->getBody()->getContents(),
+                $secret
+            );
         }
 
-        $salt = $lookup->getSalt();
-        $hash = $this->helper->hashQuote($salt, $data->metadata->quote_id);
-        if ($hash !== $data->metadata->quote_hash) {
-                $this->logger->error('Divido: Bad request, mismatch in hash. Req: ' . $content);
-            return $this->webhookResponse(false, 'Invalid hash');
+        $requestObj = $this->validateRequest($webhookRequest, 'webhook', $configHmac);
+
+        // if webhook event isn't a status update event, we don't care
+        if($requestObj->event !== self::STATUS_UPDATE_EVENT){
+            throw new UnusedWebhookException(
+                sprintf(
+                    "Event '%s' not a status update event (%s)", 
+                    $requestObj->event, 
+                    self::STATUS_UPDATE_EVENT
+                )
+            );
+        }
+        // if webhook status does not instigate an actionable event, ignore it
+        if(!in_array(
+            $requestObj->status, 
+            array_merge(
+                self::CREATION_STATUSES, 
+                self::MERCHANT_REFERENCE_STATUSES, 
+                self::RELEASE_STATUSES,
+                self::STATUS_TRANSITIONS,
+                array_keys($this->historyMessages)
+            )
+        )) {
+            throw new UnusedWebhookException(
+                sprintf("Status '%s' not used by plugin", $requestObj->status)
+            );
+        }
+        
+        return $requestObj;
+    }
+
+    /**
+     * Retrieve the database entry related to the webhook
+     *
+     * @param object $webhookObj
+     * @return Lookup
+     */
+    public function retrieveWebhookLookup(object $webhookObj) :Lookup {
+
+        $lookup = $this->lookupFactory->create()->load($webhookObj->metadata->quote_id, 'quote_id');
+        if (! $lookup->getId()) {
+            throw new LookupNotFoundException("Could not retrieve application information from the database");
         }
 
-        if (! isset($data->event) || $data->event != 'application-status-update') {
-            return $this->webhookResponse();
+        $salt = $lookup->getData('salt');
+        $hash = $this->helper->hashQuote($salt, $webhookObj->metadata->quote_id);
+
+        if ($hash !== $webhookObj->metadata->quote_hash) {
+            throw new MessageValidationException('Invalid Quote hash in Webhook payload');
         }
 
-        if (isset($data->application)) {
-            if ($debug) {
-                    $this->logger->debug('Divido: update application id');
-            }
-            $lookup->setData('application_id', $data->application);
-            $lookup->save();
-        }
+        return $lookup;
+    }
 
+    /**
+     * Fetch the order based on a DB query against the Quote ID and payment method
+     *
+     * @param string $quoteId
+     * @return Order
+     */
+    public function retrieveDividoOrderByQuoteId(string $quoteId) :Order {
         $salesOrderPaymentTableNameWithPrefix = $this->resourceConnection->getTableName('sales_order_payment');
 
         //Fetch latest Divido order for quote ID
@@ -207,192 +384,191 @@ class CreditRequest implements CreditRequestInterface
             'created_at',
             'desc'
         );
-        $dividoOrderId = $this->orderCollection->getFirstItem()->getId();
+        $orderId = $this->orderCollection->getFirstItem()->getId();
 
-        if (!empty($dividoOrderId)) {
-            $order = $this->order->loadByAttribute('entity_id', $dividoOrderId);
-        } else {
-            $order = NULL;
+        if (empty($orderId)) {
+            throw new OrderNotFoundException(sprintf('Could not retrieve Divido order with quote ID %s', $quoteId));
         }
 
-
-        if (in_array($data->status, $this->noGo)) {
-            if ($debug) {
-                $this->logger->debug('Divido: No go: ' . $data->status);
-            }
-
-            if ($data->status == self::STATUS_DECLINED) {
-                $lookup->setData('declined', 1);
-                $lookup->save();
-            }
-
-            return $this->webhookResponse();
-        }
-
-        if ($data->status == self::STATUS_REFERRED) {
-            //Setting field referred
-            $lookup->setData('referred', 1);
-            $lookup->save();
-
-            $this->eventManager->dispatch('divido_financing_quote_referred', ['quote_id' => $quoteId]);
-        }
-
-        //Check if Divido order already exists (as with same quoteID, other orders with different payment method may be present with status as cancelled)
-        //Divido order not exists
-        $isOrderExists = false;
-
-        //Divido Order already exists
-        if (
-            !empty($order)
-            && $order->getId()
-            && $order->getPayment()->getMethodInstance()->getCode() == 'divido_financing'
-        ) {
-            $isOrderExists = true;
-            // update application with order id
-
-            $this->logger->info('Application Update - order id update'. $order->getId());
-            $this->logger->info($data->application);
-            $this->helper->updateMerchantReference($data->application, $order->getId());
-        }
-
-        if (
-            !$isOrderExists
-            && $data->status != self::CREATION_STATUS
-            && $data->status != self::STATUS_REFERRED
-        ) {
-            if ($debug) {
-                $this->logger->debug('Divido: No order, not creation status: ' . $data->status);
-            }
-            return $this->webhookResponse();
-        }
-        $this->logger->info('Application Update ----- test' );
-        if (! $isOrderExists && ($data->status == self::CREATION_STATUS)) {
-
-            $this->logger->info('order does not exist' );
-            if ($debug) {
-                $this->logger->debug('Divido: Create order');
-            }
-
-            $quote = $this->quote->load($quoteId);
-            if (! $quote->getCustomerId()) {
-                $quote->setCheckoutMethod(\Magento\Quote\Model\QuoteManagement::METHOD_GUEST);
-            }
-            $quote->setIsActive(true);
-            $quote->save();
-
-            //If cart value is different do not place order
-            $totals = $quote->getTotals();
-            $grandTotal = (string) $totals['grand_total']->getValue();
-            $iv=(string ) $lookup->getData('initial_cart_value');
-
-            if ($debug) {
-                $this->logger->debug('Current Cart Value : ' . $grandTotal);
-                $this->logger->debug('Divido Initial Value: ' . $iv);
-            }
-
-            $orderId = $this->quoteManagement->placeOrder($quoteId);
-            $order = $this->order->load($orderId);
-
-            if ($grandTotal != $iv) {
-                if ($debug) {
-                    $this->logger->warning('HOLD Order - Cart value changed: ');
-                }
-                // Highlight order for review
-                $lookup->setData('canceled', 1);
-                $lookup->save();
-                $appId = $lookup->getProposalId();
-                $order->setActionFlag(\Magento\Sales\Model\Order::ACTION_FLAG_HOLD, true);
-
-                if ($order->canHold()) {
-                    if ($debug) {
-                        $this->logger->warning('HOLDING:');
-                    }
-                    $order->hold();
-                    $order->addStatusHistoryComment(__('Value of cart changed before completion - order on hold'));
-                    $state = \Magento\Sales\Model\Order::STATE_HOLDED;
-                    $status = \Magento\Sales\Model\Order::STATE_HOLDED;
-                    $comment = 'Value of cart changed before completion - Order on hold';
-                    $notify = false;
-                    $order->setHoldBeforeState($order->getState());
-                    $order->setHoldBeforeStatus($order->getStatus());
-                    $order->setState($state, $status, $comment, $notify);
-                    $order->save();
-                    $lookup->setData('order_id', $order->getId());
-                    $lookup->save();
-                    $this->logger->info('Got away');
-                    return $this->webhookResponse();
-                } else {
-                    if ($debug) {
-                        $this->logger->debug('Divido: Cannot Hold Order');
-                    };
-                    $order->addStatusHistoryComment(__('Value of cart changed before completion - cannot hold order'));
-                }
-
-                if ($debug) {
-                    $this->logger->warning('HOLD Order - Cart value changed: '.(string)$appId);
-                }
-            }
-        }
-        $this->logger->info('new order id'. $order->getId());
-        $this->logger->info($order->getId());
-
-        $this->helper->updateMerchantReference($data->application, $order->getId());
-        $lookup->setData('order_id', $order->getId());
-
-        $lookup->save();
-
-        if ($data->status == self::CREATION_STATUS) {
-            $this->logger->info('Divido: Escalate order');
-
-            if ($debug) {
-                $this->logger->debug('Divido: Escalate order');
-            }
-
-            $status = self::NEW_ORDER_STATUS;
-            $status_override = $this->config->getValue(
-                'payment/divido_financing/order_status',
-                \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-            );
-            if ($status_override) {
-                $status = $status_override;
-            }
-            $order->setState(\Magento\Sales\Model\Order::STATE_PROCESSING, true);
-            $order->setStatus($status);
-
-            //Send Email only when order has achieved creation status.
-            $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-            $objectManager->create('Magento\Sales\Model\OrderNotifier')->notify($order);
-        }
-
-        $comment = 'Divido: ' . $data->status;
-        if (array_key_exists($data->status, $this->historyMessages)) {
-            $comment = 'Divido: ' . $this->historyMessages[$data->status];
-        }
-
-        $order->addStatusHistoryComment($comment);
-        $order->save();
-        $this->logger->info('Application Update - CreditRequest END');
-
-        return $this->webhookResponse();
+        return $this->orderRepository->get($orderId);
     }
 
-    private function webhookResponse($ok = true, $message = '')
+    /**
+     * Converts the MagentoRequest format received into a more malleable
+     * Psr Request format
+     *
+     * @param \Magento\Framework\App\Request\Http $magentoRequest
+     * @param RequestFactoryInterface $requestFactory
+     * @param StreamFactoryInterface $streamFactory
+     * @return Request
+     */
+    public function convertMagentoRequestToPsrRequest(
+        \Magento\Framework\App\Request\Http $magentoRequest, 
+        RequestFactoryInterface $requestFactory,
+        StreamFactoryInterface $streamFactory
+    ) :Request {
+        $psrRequest = $requestFactory->createRequest(
+            $magentoRequest->getMethod(),
+            $magentoRequest->getRequestUri()
+        );
+
+        $headers = $magentoRequest->getHeaders();
+        if(gettype($headers) === 'object' && get_class($headers) === HeaderInterface::class){
+            /** @var HeaderInterface $headers */
+            $psrRequest = $psrRequest->withHeader($headers->getFieldName(), $headers->getFieldValue());
+        } elseif(is_iterable($headers)){
+            foreach($headers as $key => $value){
+                if(gettype($value) === 'object' && $value instanceof HeaderInterface){
+                    /** @var HeaderInterface $value */
+                    $psrRequest = $psrRequest->withHeader($value->getFieldName(), $value->getFieldValue());
+                } else {
+                    $psrRequest = $psrRequest->withHeader($key, $value); 
+                }
+            }
+        }
+
+        $stream = $streamFactory->createStream($magentoRequest->getContent());
+        $psrRequest = $psrRequest->withBody($stream);
+
+        return $psrRequest;
+    }
+
+    /**
+     * Ensures the current price of the quote is the same price as 
+     *
+     * @param Quote $quote
+     * @param Lookup $lookup
+     * @return void
+     */
+    public function validateQuotePriceFromLookup(Quote $quote, Lookup $lookup) :void {
+        $quoteTotal = (float) $quote->getGrandTotal();
+        $lookupTotal = (float) $lookup->getData('initial_cart_value');
+
+        if($quoteTotal !== $lookupTotal){
+            throw new MessageValidationException(
+                'Value of cart changed before completion'
+            );
+        }
+    }
+
+    /**
+     * Change the state of the order if prompted by the change in status
+     * Will also hold the order if order state changed to HOLDED
+     *
+     * @param Order $order
+     * @param string $newStatus
+     * @return void
+     */
+    public function setOrderStatus(Order $order, string $newStatus) :void {
+        $statusTransitions = $this->getAllStatusTransitions();
+
+        if(!isset($statusTransitions[$newStatus])){
+            return;
+        }
+        
+        $newOrderStatus = $statusTransitions[$newStatus];
+        switch($newOrderStatus){
+            case Order::STATE_HOLDED:
+                $order->hold();
+                break;
+            default:
+                $order->setStatus($newOrderStatus);
+                break;
+        }
+    }
+
+    /**
+     * Updates the database based on the changes to the status
+     *
+     * @param Lookup $lookup
+     * @param string $newStatus
+     * @return void
+     */
+    public function updateLookupByStatus(
+        Lookup $lookup, 
+        string $newStatus
+    ) :void {    
+        switch($newStatus){
+            case self::STATUS_CANCELED:
+                $lookup->setData('canceled', 1);
+                $lookup->save();
+                break;
+            case self::STATUS_DECLINED:
+                $lookup->setData('declined',1);
+                $lookup->save();
+                break;
+            case self::STATUS_REFERRED:
+                $lookup->setData('referred',1);
+                $lookup->save();
+                break;
+        }
+    }
+
+    /**
+     * Obtains all transition statuses and extends array if
+     * configuration settings change status on completion
+     *
+     * @return array
+     */
+    public function getAllStatusTransitions() :array{
+        $transitionStatuses = self::STATUS_TRANSITIONS;
+        $configCreateStatus = $this->config->getValue(
+            'payment/divido_financing/order_status',
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
+        if(!empty($configCreateStatus)) {
+            $transitionStatuses[self::COMPLETION_STATUS] = $configCreateStatus;
+        }
+        return $transitionStatuses;
+    }
+
+    /**
+     * Creates an order and updates the Lookup
+     *
+     * @param object $webhook
+     * @param Lookup $lookup
+     * @return Order
+     */
+    public function createOrder(object $webhook, Lookup $lookup) :Order{
+        $orderId = $this->quoteManagement->placeOrder($webhook->metadata->quote_id);
+        $lookup->setData('order_id', $orderId);
+        $lookup->setData('application_id', $webhook->application);
+        $lookup->save();
+        /** @var \Magento\Sales\Model\Order $order */
+        $order = $this->orderRepository->get($orderId);
+        return $order;
+    }
+
+    /**
+     * Sends a json response in the format the webhook expects to receive
+     *
+     * @param integer $status
+     * @param string $message
+     * @return void
+     */
+    public function sendWebhookResponse(int $status=200, string $message = '') :void
     {
-        $pluginVersion = $this->resourceInterface->getDbVersion('Divido_DividoFinancing');
-        $status = $ok ? 'ok' : 'error';
         $response = [
-            'status'                => $status,
             'message'               => $message,
             'ecom_platform'         => 'Magento_2',
             'plugin_version'        => $this->helper->getVersion(),
             'ecom_platform_version' => $this->helper->getMagentoVersion()
         ];
-
-        return json_encode($response);
+        
+        $this->res
+            ->setHeader('Content-Type', 'application/json', true)
+            ->setStatusHeader($status)
+            ->setBody(json_encode($response))
+            ->sendResponse();
+        
     }
 
-
-    public function version()
+    /**
+     * Returns version information to the request
+     *
+     * @return void
+     */
+    public function version() :void
     {
         $response = [
             'ecom_platform'         => 'Magento_2',
@@ -400,6 +576,10 @@ class CreditRequest implements CreditRequestInterface
             'ecom_platform_version' => $this->helper->getMagentoVersion()
         ];
 
-        return json_encode($response);
+        $this->res
+            ->setHeader('Content-Type', 'application/json', true)
+            ->setStatusHeader(200)
+            ->setBody(json_encode($response))
+            ->sendResponse();
     }
 }
