@@ -244,7 +244,7 @@ class CreditRequest implements CreditRequestInterface
             }
 
             try{
-                $order = $this->createOrder($requestObj, $lookup);
+                $order = $this->createOrder($quote, $lookup, $requestObj->application);
             } catch (\Exception $e){
                 $this->logger->error("Unexpected error creating Order", ["error" => $e->getMessage()]);
                 return $this->sendWebhookResponse(500, sprintf("Unexpected error creating order: %s", $e->getMessage()));
@@ -529,10 +529,12 @@ class CreditRequest implements CreditRequestInterface
      * @param Lookup $lookup
      * @return Order
      */
-    public function createOrder(object $webhook, Lookup $lookup) :Order{
-        $orderId = $this->quoteManagement->placeOrder($webhook->metadata->quote_id);
+    public function createOrder(Quote $quote, Lookup $lookup, string $application) :Order {
+        $quote->setIsActive(true);
+        $this->quoteRepository->save($quote);
+        $orderId = $this->quoteManagement->placeOrder($quote->getId());
         $lookup->setData('order_id', $orderId);
-        $lookup->setData('application_id', $webhook->application);
+        $lookup->setData('application_id', $application);
         $lookup->save();
         /** @var \Magento\Sales\Model\Order $order */
         $order = $this->orderRepository->get($orderId);
