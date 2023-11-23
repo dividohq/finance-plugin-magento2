@@ -179,10 +179,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             return $env;
         } else {
             $responseObj = $this->getMerchantApiProxy()->getEnvironment();
-    
-            if ($this->debug()) {
-                $this->logger->info('getPlatformEnv:'.serialize($decoded));
-            }
 
             $environment = $responseObj->data->environment;
 
@@ -193,7 +189,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
                 self::CACHE_PLATFORM_TTL
             );
 
-            return $decoded->data->environment;
+            return $responseObj->data->environment;
         }
     }
 
