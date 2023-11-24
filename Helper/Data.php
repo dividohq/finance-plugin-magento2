@@ -30,7 +30,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     const CALLBACK_PATH      = 'rest/V1/divido/update/';
     const REDIRECT_PATH      = 'divido/financing/success/';
     const CHECKOUT_PATH      = 'checkout/';
-    const VERSION            = '2.10.1';
+    const VERSION            = '2.10.2';
     const WIDGET_LANGUAGES   = ["en", "fi" , "no", "es", "da", "fr", "de", "pe"];
     const SHIPPING           = 'SHPNG';
     const DISCOUNT           = 'DSCNT';
@@ -179,10 +179,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             return $env;
         } else {
             $responseObj = $this->getMerchantApiProxy()->getEnvironment();
-    
-            if ($this->debug()) {
-                $this->logger->info('getPlatformEnv:'.serialize($decoded));
-            }
 
             $environment = $responseObj->data->environment;
 
@@ -193,7 +189,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
                 self::CACHE_PLATFORM_TTL
             );
 
-            return $decoded->data->environment;
+            return $responseObj->data->environment;
         }
     }
 

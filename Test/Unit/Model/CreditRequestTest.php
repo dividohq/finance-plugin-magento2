@@ -481,12 +481,15 @@ class CreditRequestTest extends TestCase
 
     public function test_createOrder(){
         $orderId = 1;
-        $webhookObj = json_decode(json_encode([
-            "application" => '2b668aab-c4d0-43e4-8a66-4096e4e2a840',
-            "metadata" => [
-                "quote_id" => 12
-            ]
-        ]), false);
+        $webhookObj = $this->generateWebhookObj();
+
+        $mockQuote = $this->createMock(\Magento\Quote\Model\Quote::class);
+        $mockQuote->expects($this->once())
+            ->method('setIsActive')
+            ->with(true);
+        $mockQuote->expects($this->once())
+            ->method('getId')
+            ->willReturn($webhookObj->metadata->quote_id);
 
         $mockQuoteManagement = $this->createMock(\Magento\Quote\Model\QuoteManagement::class);
         $mockQuoteManagement->expects($this->once())
@@ -520,7 +523,7 @@ class CreditRequestTest extends TestCase
 
         $this->assertSame(
             $mockOrder,
-            $model->createOrder($webhookObj, $mockLookup)
+            $model->createOrder($mockQuote, $mockLookup, $webhookObj->application)
         );
     
     }
