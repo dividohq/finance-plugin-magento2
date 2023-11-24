@@ -76,7 +76,8 @@ class CreditRequest implements CreditRequestInterface
      */
     const STATUS_TRANSITIONS = [
         self::STATUS_REFERRED => Order::STATE_HOLDED,
-        self::STATUS_DECLINED => Order::STATE_CANCELED
+        self::STATUS_DECLINED => Order::STATE_CANCELED,
+        self::STATUS_ACCEPTED => Order::STATE_PENDING_PAYMENT
     ];
 
     /**
