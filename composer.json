@@ -2,7 +2,7 @@
     "name": "divido/divido-magento2",
     "description": "Powered by Divido financing gateway",
     "type": "magento2-module",
-    "version": "2.10.2",
+    "version": "3.0.0",
     "license": [
         "OSL-3.0"
     ],
